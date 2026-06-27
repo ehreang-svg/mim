@@ -5,7 +5,6 @@ const SEKOLAH_LNG = 108.4291139;
 
 const ABSEN_API = window.ABSEN_API || "";
 const SCRIPT_URL = window.SCRIPT_URL || "";
-const HARI_LIBUR = window.HARI_LIBUR || [];
 
 /* ================= HITUNG JARAK ================= */
 
