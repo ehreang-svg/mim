@@ -1200,3 +1200,21 @@ function showNotif(msg){
     n.style.display = "none";
   }, 3000);
 }
+function showLoading(state, text="Loading..."){
+
+  const el = document.getElementById("loading");
+
+  if(!el){
+    console.warn("Element #loading tidak ditemukan di HTML");
+    return;
+  }
+
+  el.innerText = text;
+
+  if(state){
+    el.style.display = "block";
+  }else{
+    el.style.display = "none";
+  }
+
+}
