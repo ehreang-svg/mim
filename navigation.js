@@ -10,7 +10,7 @@ const pages = [
     "submenuPage",
     "contentPage",
     "absenGuruPage",
-    "rekapPage",
+    "rekapGuruPage",
     "absenSiswaPage",
     "rekapSiswaPage",
     "tabunganPage",
