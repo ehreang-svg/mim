@@ -77,6 +77,32 @@ async function simpanTabungan() {
     }
 }
 
+function loadNamaTabungan() {
+
+    const kelas = tabKelas.value.trim();
+
+    tabNama.innerHTML = `<option value="">Pilih Nama Siswa</option>`;
+
+    if (!kelas) return;
+
+    const siswa = dataSiswaTabungan
+        .filter(s => String(s.kelas || "").trim() === kelas)
+        .sort((a, b) => String(a.nama || "").localeCompare(String(b.nama || "")));
+
+    siswa.forEach(s => {
+
+        if (!s.nama) return;
+
+        tabNama.innerHTML += `
+            <option value="${s.nama}">
+                ${s.nama}
+            </option>
+        `;
+
+    });
+
+}
+
 async function loadFilterKelasTabungan(){
     try{
         const res = await fetch(TABUNGAN_API + "?action=getDataSiswa"); const data = await res.json(); if(!data.status) return;
