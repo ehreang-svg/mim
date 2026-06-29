@@ -162,8 +162,8 @@ async function handleSubmenu(type, value, title) {
 
 function canShowMenu(menuName, status){
     menuName = menuName.toLowerCase(); status = status.toLowerCase();
-    if(status === "admin"||status==="wali kelas") return true;
-    if(status === "guru") return ["absensi","materi","latihan"].includes(menuName);
+    if(status === "admin") return true;
+    if(status === "guru"|status==="wali kelas") return ["absensi","materi","latihan"].includes(menuName);
     if(status === "siswa") return ["tabungan","materi","latihan","absensi"].includes(menuName);
     return false;
 }
