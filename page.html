@@ -193,31 +193,72 @@
 
 <!-- REKAP ABSEN -->
 <div class="page hidden" id="rekapGuruPage">
-<div class="back" onclick="goBack()">← Kembali</div>
-<div class="card">
-<h2>Rekap Absensi Guru</h2>
-<br>
-<button onclick="exportPDF()">Export Rekap PDF</button>
-<br>
-<select id="filterBulan" onchange="loadRekap()">
-<option value="">Semua Bulan</option>
-<option>Januari</option>
-<option>Februari</option>
-<option>Maret</option>
-<option>April</option>
-<option>Mei</option>
-<option>Juni</option>
-<option>Juli</option>
-<option>Agustus</option>
-<option>September</option>
-<option>Oktober</option>
-<option>November</option>
-<option>Desember</option>
-</select>
-<div id="rekapBox"></div>
-</div>
-</div>
 
+    <div class="back" onclick="goBack()">← Kembali</div>
+
+    <div class="card">
+
+        <h2>Rekap Absensi Guru</h2>
+
+        <br>
+
+        <button onclick="exportPDF()">
+            Export Rekap PDF
+        </button>
+
+        <br><br>
+
+        <select id="filterBulan" onchange="loadRekap()">
+            <option value="">Semua Bulan</option>
+            <option>Januari</option>
+            <option>Februari</option>
+            <option>Maret</option>
+            <option>April</option>
+            <option>Mei</option>
+            <option>Juni</option>
+            <option>Juli</option>
+            <option>Agustus</option>
+            <option>September</option>
+            <option>Oktober</option>
+            <option>November</option>
+            <option>Desember</option>
+        </select>
+
+        <br><br>
+
+        <div id="loadingRekap" class="hidden">
+            Memuat data...
+        </div>
+
+        <div id="rekapBox">
+
+            <table class="table">
+
+                <thead>
+
+                    <tr>
+                        <th>No</th>
+                        <th>Nama Guru</th>
+                        <th>Hadir</th>
+                        <th>Terlambat</th>
+                        <th>Tidak Masuk</th>
+                        <th>Persentase</th>
+                        <th>Aksi</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="rekapBody">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
 <!-- REKAP SISWA -->
 <div class="page hidden" id="rekapSiswaPage">
 
