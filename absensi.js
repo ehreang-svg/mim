@@ -305,73 +305,45 @@ function renderRekapTable(data){
 
 async function cetakGuru(nama, bulan){
 
-    showLoading(true, "Membuat PDF...");
+    const res = await fetch(ABSEN_API,{
+        method:"POST",
+        body:new URLSearchParams({
+            action:"exportGuruPDF",
+            nama:nama,
+            bulan:bulan
+        })
+    });
 
-    try{
+    const data = await res.json();
 
-        const formData = new URLSearchParams();
-        formData.append("action", "exportRekapPDF");
-        formData.append("nama", nama);
-        formData.append("bulan", bulan || "");
-
-        const res = await fetch(SCRIPT_URL, {
-            method: "POST",
-            body: formData
-        });
-
-        const data = await res.json();
-
-        if(data.status){
-            showNotif("PDF berhasil dibuat");
-            window.open(data.url, "_blank");
-        }else{
-            showNotif(data.message || "Gagal");
-        }
-
-    }catch(err){
-        showNotif("Error koneksi server");
+    if(data.status){
+        window.open(data.url,"_blank");
+    }else{
+        alert(data.message);
     }
 
-    showLoading(false);
 }
-
 /* ================= EXPORT REKAP ================= */
 
 async function exportPDF(){
 
-    try{
+    const bulan =
+        document.getElementById("filterBulan").value;
 
-        const bulan = document.getElementById("filterBulan").value;
+    const res = await fetch(ABSEN_API,{
+        method:"POST",
+        body:new URLSearchParams({
+            action:"exportRekapPDF",
+            bulan:bulan
+        })
+    });
 
-        const btn = document.getElementById("btnExport");
-        if(btn){
-            btn.disabled = true;
-            btn.innerHTML = "⏳ Membuat PDF...";
-        }
+    const data = await res.json();
 
-const response = await fetch(ABSEN_API,{
-    method:"POST",
-    body:new URLSearchParams({
-        action:"exportGuruPDF",
-        bulan:bulan
-    })
-});
-
-        const data = await response.json();
-
-        if(btn){
-            btn.disabled = false;
-            btn.innerHTML = "📄 Export PDF";
-        }
-
-        if(!data.status){
-            alert(data.message);
-            return;
-        }
-
-        window.open(data.url, "_blank");
-
-    }catch(err){
-        alert(err);
+    if(data.status){
+        window.open(data.url,"_blank");
+    }else{
+        alert(data.message);
     }
+
 }
