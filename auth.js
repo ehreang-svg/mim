@@ -48,15 +48,9 @@ function canShowMenu(menuName, status){
     menuName = menuName.toLowerCase();
     status = status.toLowerCase();
 
-    if (
-        status === "admin" ||
-        status === "kepala sekolah"
-    ) return true;
+    if(status === "admin" || status === "kepala sekolah") return true;
 
-    if(status === "wali kelas")
-        return ["absensi","raport","materi","latihan"].includes(menuName);
-
-    if(status === "guru")
+    if(status === "guru" || status === "wali kelas")
         return ["absensi","materi","latihan"].includes(menuName);
 
     if(status === "siswa")
@@ -64,7 +58,6 @@ function canShowMenu(menuName, status){
 
     return false;
 }
-
 
 let usernameLama = "";
 /*=========EDIT AKUN=============*/
