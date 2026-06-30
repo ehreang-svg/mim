@@ -349,13 +349,13 @@ async function exportPDF(){
             btn.innerHTML = "⏳ Membuat PDF...";
         }
 
-        const response = await fetch(ABSEN_API, {
-            method: "POST",
-            body: new URLSearchParams({
-                action: "getRekap",
-                bulan: bulan
-            })
-        });
+const response = await fetch(ABSEN_API,{
+    method:"POST",
+    body:new URLSearchParams({
+        action:"exportRekapPDF",
+        bulan:bulan
+    })
+});
 
         const data = await response.json();
 
