@@ -4,7 +4,7 @@ const SEKOLAH_LAT = -6.5437149;
 const SEKOLAH_LNG = 108.4291139;
 
 const ABSEN_API = window.ABSEN_API || "";
-const SCRIPT_URL = window.SCRIPT_URL || "";
+const SCRIPT_URL = ABSEN_API;
 
 /* ================= HITUNG JARAK ================= */
 
@@ -352,7 +352,7 @@ async function exportPDF(){
         const response = await fetch(ABSEN_API, {
             method: "POST",
             body: new URLSearchParams({
-                action: "getRekapGuru",
+                action: "getRekap",
                 bulan: bulan
             })
         });
