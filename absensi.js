@@ -355,46 +355,42 @@ let dataSiswa = [];
 // ===========================
 async function loadDataSiswa() {
 
-    try {
+    const res = await fetch(ABSEN_API + "?action=getDataSiswa");
+    const result = await res.json();
 
-        const res = await fetch(
-            ABSEN_API + "?action=getDataSiswa"
-        );
+    if (!result.status) {
+        alert(result.message);
+        return;
+    }
 
-        const result = await res.json();
+    dataSiswa = result.data;
 
-        if (!result.status) {
-            alert(result.message);
-            return;
-        }
+    const kelasSelect = document.getElementById("kelasFilter");
+    const namaSelect = document.getElementById("namaSiswa");
+    const kelasInput = document.getElementById("kelasSiswa");
 
-        dataSiswa = result.data;
+    if (kelasSelect) {
 
-        const kelas = [
-            ...new Set(dataSiswa.map(x => x.kelas))
-        ].sort();
-
-        kelasFilter.innerHTML =
+        kelasSelect.innerHTML =
             '<option value="">Pilih Kelas</option>';
 
-        kelas.forEach(k => {
+        [...new Set(dataSiswa.map(x => x.kelas))]
+            .sort()
+            .forEach(k => {
 
-            kelasFilter.innerHTML +=
-                `<option value="${k}">${k}</option>`;
+                kelasSelect.innerHTML +=
+                    `<option value="${k}">${k}</option>`;
 
-        });
-
-        namaSiswa.innerHTML =
-            '<option value="">Pilih Nama Siswa</option>';
-
-        kelasSiswa.value = "";
-
-    } catch (err) {
-
-        alert(err);
+            });
 
     }
 
+    if (namaSelect)
+        namaSelect.innerHTML =
+            '<option value="">Pilih Nama Siswa</option>';
+
+    if (kelasInput)
+        kelasInput.value = "";
 }
 
 function filterKelas() {
@@ -606,18 +602,21 @@ async function loadKelasRekap() {
 
     await loadDataSiswa();
 
-    filterKelas.innerHTML =
+    const select = document.getElementById("filterKelas");
+
+    select.innerHTML =
         '<option value="">Semua Kelas</option>';
 
     [...new Set(dataSiswa.map(x => x.kelas))]
         .sort()
         .forEach(k => {
 
-            filterKelas.innerHTML +=
+            select.innerHTML +=
                 `<option value="${k}">${k}</option>`;
 
         });
 
+    console.log(select.innerHTML);
 }
 
 function loadFilterNamaSiswa() {
