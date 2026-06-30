@@ -34,11 +34,17 @@ if(targetFoto){
     };
 }
 
-let res =
-    await fetch(API_URL + "?action=getMenus");
+let res = await fetch(API_URL + "?action=getMenus");
 
-let data =
-    await res.json();
+if (!res.ok) {
+    const text = await res.text();
+    console.error("HTTP Error:", res.status);
+    console.error(text);
+    alert("API Error " + res.status);
+    return;
+}
+
+let data = await res.json();
 
 menuBox.innerHTML = "";
 
