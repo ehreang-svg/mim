@@ -310,7 +310,7 @@ async function cetakGuru(nama, bulan){
     try{
 
         const formData = new URLSearchParams();
-        formData.append("action", "exportGuruPDF");
+        formData.append("action", "exportRekapPDF");
         formData.append("nama", nama);
         formData.append("bulan", bulan || "");
 
@@ -352,7 +352,7 @@ async function exportPDF(){
 const response = await fetch(ABSEN_API,{
     method:"POST",
     body:new URLSearchParams({
-        action:"exportRekapPDF",
+        action:"exportGuruPDF",
         bulan:bulan
     })
 });
