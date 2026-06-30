@@ -589,25 +589,26 @@ function tampilRekapSiswa(data) {
 }
 
 function gantiKelasRekap() {
+    // Gunakan document.getElementById agar select kelas terbaca dengan pasti
+    const kelasSelect = document.getElementById("filterKelas");
+    const namaSelect = document.getElementById("filterNamaSiswaRekap");
+    
+    const kelas = kelasSelect ? kelasSelect.value : "";
 
-    const kelas = filterKelas.value;
+    // Reset pilihan nama siswa menjadi "Semua Siswa" terlebih dahulu
+    namaSelect.innerHTML = '<option value="">Semua Siswa</option>';
 
-    filterNamaSiswaRekap.innerHTML =
-        '<option value="">Semua Siswa</option>';
-
+    // Saring dataSiswa yang kelasnya cocok, lalu urutkan berdasarkan nama secara alfabetis
     dataSiswa
         .filter(x => !kelas || x.kelas === kelas)
+        .sort((a, b) => a.nama.localeCompare(b.nama))
         .forEach(x => {
-
-            filterNamaSiswaRekap.innerHTML +=
-                `<option value="${x.nama}">${x.nama}</option>`;
-
+            namaSelect.innerHTML += `<option value="${x.nama}">${x.nama}</option>`;
         });
 
+    // Panggil fungsi untuk memuat ulang tabel rekap sesuai filter yang baru
     loadRekapSiswa();
-
 }
-
 async function loadKelasRekap() {
 
     await loadDataSiswa();
