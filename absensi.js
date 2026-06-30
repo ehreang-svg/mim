@@ -202,38 +202,60 @@ async function loadRekap(){
     const loading = document.getElementById("loadingRekap");
     const tbody = document.getElementById("rekapBody");
 
+    if(!tbody){
+        console.error("rekapBody tidak ditemukan");
+        return;
+    }
+
     try{
 
         if(loading) loading.classList.remove("hidden");
 
         tbody.innerHTML = "";
 
-        const bulan = document.getElementById("filterBulan").value;
+        const bulan =
+            document.getElementById("filterBulan").value;
 
         const response = await fetch(
-            ABSEN_API + "?action=getRekap&bulan=" + encodeURIComponent(bulan)
+            ABSEN_API +
+            "?action=getRekap&bulan=" +
+            encodeURIComponent(bulan)
         );
 
         const data = await response.json();
 
         if(!data.status){
-            tbody.innerHTML = `<tr><td colspan="7">Gagal memuat data</td></tr>`;
+
+            tbody.innerHTML =
+            `<tr>
+                <td colspan="7">Gagal memuat data</td>
+            </tr>`;
+
             return;
+
         }
 
         rekapGuruData = data.rekap;
+
         renderRekapTable(rekapGuruData);
 
     }catch(err){
+
         console.error(err);
-        tbody.innerHTML = `<tr><td colspan="7">Terjadi kesalahan</td></tr>`;
+
+        tbody.innerHTML =
+        `<tr>
+            <td colspan="7">Terjadi kesalahan</td>
+        </tr>`;
+
+    }finally{
+
+        if(loading)
+            loading.classList.add("hidden");
+
     }
 
-    finally{
-        if(loading) loading.classList.add("hidden");
-    }
 }
-
 /* ================= RENDER TABLE ================= */
 
 function renderRekapTable(data){
