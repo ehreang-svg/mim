@@ -57,7 +57,6 @@ if (!res.ok) {
     return;
 }
 
-let data = await res.json();
 
 menuBox.innerHTML = "";
 
