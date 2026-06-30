@@ -6,8 +6,15 @@ async function login(){
             return;
         }
 
-        let res=await fetch(API_URL+`?action=login&username=${encodeURIComponent(u.value)}&password=${encodeURIComponent(p.value)}`);
-        let data=await res.json();
+let res = await fetch(API_URL + `?action=login&username=${encodeURIComponent(u.value)}&password=${encodeURIComponent(p.value)}`);
+
+if (!res.ok) {
+    console.error(await res.text());
+    alert("API Error " + res.status);
+    return;
+}
+
+let data = await res.json();
         if(!data.status){ alert("Login gagal"); return; }
         
         let user = data.user;
