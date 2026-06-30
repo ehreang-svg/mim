@@ -44,20 +44,6 @@ function cekLogin(){
 
 function logout(){ localStorage.clear(); location.reload(); }
 
-function canShowMenu(menuName, status){
-    menuName = menuName.toLowerCase();
-    status = status.toLowerCase();
-
-    if(status === "admin" || status === "kepala sekolah") return true;
-
-    if(status === "guru" || status === "wali kelas")
-        return ["absensi","materi","latihan"].includes(menuName);
-
-    if(status === "siswa")
-        return ["tabungan","materi","latihan","absensi"].includes(menuName);
-
-    return false;
-}
 
 let usernameLama = "";
 /*=========EDIT AKUN=============*/
