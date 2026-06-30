@@ -1,7 +1,7 @@
 /* ================= ABSENSI GURU ================= */
 
-const SEKOLAH_LAT = -6.5437149;
-const SEKOLAH_LNG = 108.4291139;
+const SEKOLAH_LAT = -6.542478333333334;
+const SEKOLAH_LNG = 108.431605;
 
 const ABSEN_API = window.ABSEN_API || "";
 const SCRIPT_URL = ABSEN_API;
