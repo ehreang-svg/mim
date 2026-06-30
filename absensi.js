@@ -347,3 +347,257 @@ async function exportPDF(){
     }
 
 }
+
+let dataSiswa = [];
+
+// ===========================
+// LOAD DATA SISWA
+// ===========================
+async function loadDataSiswa() {
+
+    try {
+
+        const res = await fetch(
+            ABSEN_API + "?action=getDataSiswa"
+        );
+
+        const result = await res.json();
+
+        if (!result.status) {
+            alert(result.message);
+            return;
+        }
+
+        dataSiswa = result.data;
+
+        const kelas = [
+            ...new Set(dataSiswa.map(x => x.kelas))
+        ].sort();
+
+        kelasFilter.innerHTML =
+            '<option value="">Pilih Kelas</option>';
+
+        kelas.forEach(k => {
+
+            kelasFilter.innerHTML +=
+                `<option value="${k}">${k}</option>`;
+
+        });
+
+        namaSiswa.innerHTML =
+            '<option value="">Pilih Nama Siswa</option>';
+
+        kelasSiswa.value = "";
+
+    } catch (err) {
+
+        alert(err);
+
+    }
+
+}
+
+function filterKelas() {
+
+    const kelas = kelasFilter.value;
+
+    namaSiswa.innerHTML =
+        '<option value="">Pilih Nama Siswa</option>';
+
+    kelasSiswa.value = "";
+
+    dataSiswa
+        .filter(x => x.kelas === kelas)
+        .sort((a, b) => a.nama.localeCompare(b.nama))
+        .forEach(x => {
+
+            namaSiswa.innerHTML +=
+                `<option value="${x.nama}">${x.nama}</option>`;
+
+        });
+
+}
+
+function pilihSiswa() {
+
+    const siswa = dataSiswa.find(
+        x => x.nama === namaSiswa.value
+    );
+
+    kelasSiswa.value =
+        siswa ? siswa.kelas : "";
+
+}
+
+async function submitAbsenSiswa() {
+
+    if (!namaSiswa.value) {
+        alert("Pilih siswa.");
+        return;
+    }
+
+    const sekarang = new Date();
+
+    const hari = sekarang.toLocaleDateString("id-ID", {
+        weekday: "long"
+    });
+
+    const tanggal = sekarang.getDate();
+
+    const bulan = sekarang.toLocaleDateString("id-ID", {
+        month: "long"
+    });
+
+    const jam = sekarang.toLocaleTimeString("id-ID", {
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+
+    try {
+
+        const res = await fetch(ABSEN_API, {
+
+            method: "POST",
+
+            body: JSON.stringify({
+
+                action: "absenSiswa",
+
+                hari,
+
+                tanggal,
+
+                bulan,
+
+                nama: namaSiswa.value,
+
+                kelas: kelasSiswa.value,
+
+                kehadiran: kehadiranSiswa.value,
+
+                masuk: jam,
+
+                pulang: "",
+
+                statusKehadiran: ""
+
+            })
+
+        });
+
+        const result = await res.json();
+
+        alert(result.message);
+
+    } catch (err) {
+
+        alert(err);
+
+    }
+
+}
+
+async function loadRekapSiswa() {
+
+    try {
+
+        const bulan = filterBulanSiswa.value;
+
+        const res = await fetch(
+            ABSEN_API +
+            "?action=getRekapSiswa&bulan=" +
+            encodeURIComponent(bulan)
+        );
+
+        const result = await res.json();
+
+        if (!result.status) {
+
+            alert(result.message);
+            return;
+
+        }
+
+        tampilRekapSiswa(result.rekap);
+
+    } catch (err) {
+
+        alert(err);
+
+    }
+
+}
+
+function tampilRekapSiswa(data) {
+
+    let html = `
+
+<table class="table">
+
+<thead>
+
+<tr>
+
+<th>No</th>
+<th>Nama</th>
+<th>Kelas</th>
+<th>Hadir</th>
+<th>Izin</th>
+<th>Sakit</th>
+<th>Terlambat</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+`;
+
+    data.forEach((x, i) => {
+
+        html += `
+
+<tr>
+
+<td>${i + 1}</td>
+<td>${x.nama}</td>
+<td>${x.kelas}</td>
+<td>${x.hadir}</td>
+<td>${x.izin}</td>
+<td>${x.sakit}</td>
+<td>${x.terlambat}</td>
+
+</tr>
+
+`;
+
+    });
+
+    html += `
+</tbody>
+</table>`;
+
+    rekapSiswaBox.innerHTML = html;
+
+}
+
+function gantiKelasRekap() {
+
+    const kelas = filterKelas.value;
+
+    filterNamaSiswaRekap.innerHTML =
+        '<option value="">Semua Siswa</option>';
+
+    dataSiswa
+        .filter(x => !kelas || x.kelas === kelas)
+        .forEach(x => {
+
+            filterNamaSiswaRekap.innerHTML +=
+                `<option value="${x.nama}">${x.nama}</option>`;
+
+        });
+
+    loadRekapSiswa();
+
+}
