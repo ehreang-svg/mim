@@ -601,3 +601,35 @@ function gantiKelasRekap() {
     loadRekapSiswa();
 
 }
+
+async function loadKelasRekap() {
+
+    await loadDataSiswa();
+
+    filterKelas.innerHTML =
+        '<option value="">Semua Kelas</option>';
+
+    [...new Set(dataSiswa.map(x => x.kelas))]
+        .sort()
+        .forEach(k => {
+
+            filterKelas.innerHTML +=
+                `<option value="${k}">${k}</option>`;
+
+        });
+
+}
+
+function loadFilterNamaSiswa() {
+
+    filterNamaSiswaRekap.innerHTML =
+        '<option value="">Semua Siswa</option>';
+
+    dataSiswa.forEach(x => {
+
+        filterNamaSiswaRekap.innerHTML +=
+            `<option value="${x.nama}">${x.nama}</option>`;
+
+    });
+
+}
