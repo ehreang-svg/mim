@@ -270,35 +270,51 @@
         <h2>Rekap Absensi Siswa</h2>
 
         <br>
-<!-- FILTER BULAN -->
-<select id="filterBulanSiswa" onchange="loadRekapSiswa()">
-...
-</select>
 
-<br><br>
+        <!-- FILTER BULAN -->
+        <select id="filterBulanSiswa" onchange="loadRekapSiswa()">
+            <option value="">Semua Bulan</option>
+            <option>Januari</option>
+            <option>Februari</option>
+            <option>Maret</option>
+            <option>April</option>
+            <option>Mei</option>
+            <option>Juni</option>
+            <option>Juli</option>
+            <option>Agustus</option>
+            <option>September</option>
+            <option>Oktober</option>
+            <option>November</option>
+            <option>Desember</option>
+        </select>
 
-<!-- FILTER KELAS -->
-<select id="filterKelas" onchange="gantiKelasRekap()">
-    <option value="">Semua Kelas</option>
-</select>
+        <br><br>
 
-<br><br>
+        <!-- FILTER KELAS -->
+        <select id="filterKelas" onchange="gantiKelasRekap()">
+            <option value="">Semua Kelas</option>
+        </select>
 
-<!-- FILTER SISWA -->
-<select id="filterNamaSiswaRekap" onchange="loadRekapSiswa()">
-    <option value="">Semua Siswa</option>
-</select>
+        <br><br>
 
-<br><br>
+        <!-- FILTER SISWA -->
+        <select id="filterNamaSiswaRekap" onchange="loadRekapSiswa()">
+            <option value="">Semua Siswa</option>
+        </select>
 
-<button onclick="exportPDFSiswa()">
-    📄 Export Rekap Kelas PDF
-</button>
+        <br><br>
 
-<br><br>
+        <button onclick="exportPDFSiswa()">
+            📄 Export Rekap Kelas PDF
+        </button>
 
-<div id="rekapSiswaBox"></div>
+        <br><br>
 
+        <div id="rekapSiswaBox"></div>
+
+    </div>
+
+</div>
 <!-- TABUNGAN -->
 <div class="page hidden" id="tabunganPage">
 <div class="back" onclick="goBack()">← Kembali</div>
