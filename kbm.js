@@ -16,24 +16,28 @@ const aplikasi = {
     }
   },
 
-  muatDataDariSheets: function() {
+ muatDataDariSheets: function() {
     this.showLoading(true);
 
     if (window.KBM_API) {
+      // Kita kunci referensi objek aplikasi ke dalam variabel 'self'
+      const self = this; 
+
       fetch(`${window.KBM_API}?action=getMateriData`)
         .then(res => res.json())
         .then(response => {
           if(response.success) {
-            this.masterData = response.data;
-            this.filterDanTampilkan();
+            // WAJIB: Gunakan 'aplikasi' atau 'self' agar data benar-benar tersimpan secara global
+            aplikasi.masterData = response.data; 
+            aplikasi.filterDanTampilkan();
           } else {
             alert("Gagal memuat data: " + response.error);
           }
-          this.showLoading(false);
+          aplikasi.showLoading(false);
         })
         .catch(err => {
           alert("Sistem Error API: " + err);
-          this.showLoading(false);
+          aplikasi.showLoading(false);
         });
     } else {
       console.warn("API KBM tidak ditemukan, mengaktifkan data simulasi...");
@@ -46,7 +50,7 @@ const aplikasi = {
       }, 500);
     }
   },
-
+  
   filterDanTampilkan: function() {
     const fKelas = document.getElementById('filterKelas').value;
     const fPelajaran = document.getElementById('filterPelajaran').value;
