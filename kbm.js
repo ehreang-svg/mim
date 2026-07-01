@@ -273,34 +273,40 @@ const siswaAplikasi = {
     }
 
 // Ganti bagian filtered.forEach di file siswa-kbm.js Anda pada blok ini:
-    filtered.forEach(item => {
+filtered.forEach(item => {
       const card = document.createElement('div');
-      card.className = "rbm-siswa-card"; // Menggunakan Class CSS Baru
+      card.className = "bg-white rounded-xl shadow-sm border border-slate-100 hover:border-blue-400 p-5 flex flex-col justify-between transition duration-200 transform hover:-translate-y-1 hover:shadow-md";
       
-      let badgeColor = "background-color: #f1f5f9; color: #475569;"; // Default Slate
+      // Deteksi Warna Badge Berdasarkan Nama Mapel Secara Otomatis
+      let badgeColor = "bg-slate-100 text-slate-700";
       const mapelLower = String(item.pelajaran).toLowerCase();
-      if (mapelLower.includes("matematika")) badgeColor = "background-color: #fff1f2; color: #e11d48; border: 1px solid #ffe4e6;";
-      else if (mapelLower.includes("indonesia")) badgeColor = "background-color: #fffbeb; color: #d97706; border: 1px solid #fef3c7;";
-      else if (mapelLower.includes("ipa") || mapelLower.includes("ipas")) badgeColor = "background-color: #f0fdf4; color: #16a34a; border: 1px solid #dcfce7;";
-      else if (mapelLower.includes("ips")) badgeColor = "background-color: #e0e7ff; color: #4f46e5; border: 1px solid #e0e7ff;";
+      if (mapelLower.includes("matematika")) badgeColor = "bg-rose-50 text-rose-700 border border-rose-100";
+      else if (mapelLower.includes("indonesia")) badgeColor = "bg-amber-50 text-amber-700 border border-amber-100";
+      else if (mapelLower.includes("ipa") || mapelLower.includes("ipas")) badgeColor = "bg-emerald-50 text-emerald-700 border border-emerald-100";
+      else if (mapelLower.includes("ips")) badgeColor = "bg-indigo-50 text-indigo-700 border border-indigo-100";
 
+      // Buat Elemen Link Buku/Materi jika ada tautan valid
       const punyaLink = item.catatan && (item.catatan.includes('http://') || item.catatan.includes('https://'));
       const tombolBelajar = punyaLink 
-        ? `<a href="${item.catatan}" target="_blank" class="rbm-siswa-btn-link">📖 Mulai Belajar Sekarang</a>`
-        : `<button disabled class="rbm-siswa-btn-disabled">Materi teks/Buku belum disematkan</button>`;
+        ? `<a href="${item.catatan}" target="_blank" class="w-full text-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2.5 px-4 rounded-lg block transition shadow-sm">📖 Mulai Belajar Sekarang</a>`
+        : `<button disabled class="w-full text-center bg-slate-100 text-slate-400 text-xs font-medium py-2.5 px-4 rounded-lg block cursor-not-allowed">Materi teks/Buku belum disematkan</button>`;
 
       card.innerHTML = `
         <div>
-          <div class="rbm-siswa-card-meta">
-            <span class="rbm-siswa-badge" style="${badgeColor}">${item.pelajaran}</span>
-            <span class="rbm-siswa-badge-kelas">Kls ${String(item.kelas).replace(/\D/g, '')}</span>
+          <div class="flex justify-between items-start gap-2 mb-3">
+            <span class="text-xs font-bold px-2.5 py-1 rounded-full ${badgeColor}">${item.pelajaran}</span>
+            <span class="text-xs font-black text-slate-400 bg-slate-50 px-2 py-0.5 rounded border">Kls ${String(item.kelas).replace(/\D/g, '')}</span>
           </div>
-          <h3>${item.materi}</h3>
-          ${(!punyaLink && item.catatan) ? `<div class="rbm-siswa-note">📌 <b>Catatan Guru:</b> ${item.catatan}</div>` : ''}
+          <h3 class="text-base font-bold text-slate-800 leading-snug mb-2">${item.materi}</h3>
+          
+          ${(!punyaLink && item.catatan) ? `<p class="text-xs bg-yellow-50 text-yellow-800 p-2 rounded-md mb-4 border border-yellow-100">📌 <b>Catatan Guru:</b> ${item.catatan}</p>` : ''}
         </div>
-        <div style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid #f8fafc;">
+        
+        <div class="mt-4 pt-3 border-t border-slate-50">
           ${tombolBelajar}
         </div>
       `;
       grid.appendChild(card);
     });
+  }
+};
