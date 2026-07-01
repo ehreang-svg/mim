@@ -16,23 +16,41 @@ const aplikasi = {
     }
   }, // <--- PASTIKAN ADA KOMA DI SINI SEBELUM FUNGSI BERIKUTNYA
 
-  muatDataDariSheets: function() {
+muatDataDariSheets: function() {
     this.showLoading(true);
-    google.script.run
-      .withSuccessHandler((response) => {
-        if(response.success) {
-          this.masterData = response.data;
-          this.filterDanTampilkan();
-        } else {
-          alert("Gagal memuat data: " + response.error);
-        }
+
+    // CEK: Apakah dijalankan di server Google?
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      // JIKA YA -> Jalankan koneksi asli ke Google Sheets
+      google.script.run
+        .withSuccessHandler((response) => {
+          if(response.success) {
+            this.masterData = response.data;
+            this.filterDanTampilkan();
+          } else {
+            alert("Gagal memuat data: " + response.error);
+          }
+          this.showLoading(false);
+        })
+        .withFailureHandler((err) => {
+          alert("Sistem Error backend GAS: " + err);
+          this.showLoading(false);
+        })
+        .getMateriData();
+    } else {
+      // JIKA TIDAK (Uji coba lokal) -> Gunakan data simulasi agar tidak error
+      console.warn("Membuka di komputer lokal. Mengaktifkan data simulasi (Mock Data)...");
+      
+      setTimeout(() => {
+        this.masterData = [
+          { rowNumber: 2, kelas: 1, pelajaran: "Matematika", materi: "Mengenal Angka 1-20 (Simulasi Lokal)", status: "🔴 Belum", catatan: "" },
+          { rowNumber: 3, kelas: 1, pelajaran: "Bahasa Indonesia", materi: "Mengenal Huruf Alfabet (Simulasi Lokal)", status: "🟡 Proses", catatan: "Buku Paket Hal 5" },
+          { rowNumber: 4, kelas: 6, pelajaran: "IPA (IPAS)", materi: "Sistem Tata Surya & Planet (Simulasi Lokal)", status: "🟢 Selesai", catatan: "YouTube Edukasi" }
+        ];
+        this.filterDanTampilkan();
         this.showLoading(false);
-      })
-      .withFailureHandler((err) => {
-        alert("Sistem Error backend GAS: " + err);
-        this.showLoading(false);
-      })
-      .getMateriData();
+      }, 800); // Simulasi delay loading 0.8 detik
+    }
   }, // <--- PASTIKAN ADA KOMA DI SINI
 
   filterDanTampilkan: function() {
@@ -92,34 +110,52 @@ const aplikasi = {
     });
   }, // <--- PASTIKAN ADA KOMA DI SINI
 
-  ubahStatus: function(rowNumber, newStatus) {
+ubahStatus: function(rowNumber, newStatus) {
     this.showLoading(true);
-    google.script.run
-      .withSuccessHandler((res) => {
-        if(res.success) {
-          const idx = this.masterData.findIndex(item => item.rowNumber === rowNumber);
-          if(idx !== -1) this.masterData[idx].status = newStatus;
-          this.filterDanTampilkan();
-        } else {
-          alert("Gagal merubah status: " + res.error);
-        }
-        this.showLoading(false);
-      })
-      .updateStatusMateri(rowNumber, newStatus);
+
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      google.script.run
+        .withSuccessHandler((res) => {
+          if(res.success) {
+            const idx = this.masterData.findIndex(item => item.rowNumber === rowNumber);
+            if(idx !== -1) this.masterData[idx].status = newStatus;
+            this.filterDanTampilkan();
+          } else {
+            alert("Gagal merubah status: " + res.error);
+          }
+          this.showLoading(false);
+        })
+        .updateStatusMateri(rowNumber, newStatus);
+    } else {
+      // Simulasi lokal saat merubah status dropdown
+      console.log(`[Lokal] Berhasil mengubah baris ${rowNumber} menjadi status: ${newStatus}`);
+      const idx = this.masterData.findIndex(item => item.rowNumber === rowNumber);
+      if(idx !== -1) this.masterData[idx].status = newStatus;
+      this.filterDanTampilkan();
+      this.showLoading(false);
+    }
   }, // <--- PASTIKAN ADA KOMA DI SINI
 
   ubahCatatan: function(rowNumber, newCatatan) {
     this.showLoading(true);
-    google.script.run
-      .withSuccessHandler((res) => {
-        if(res.success) {
-          const idx = this.masterData.findIndex(item => item.rowNumber === rowNumber);
-          if(idx !== -1) this.masterData[idx].catatan = newCatatan;
-        } else {
-          alert("Gagal menyimpan catatan: " + res.error);
-        }
-        this.showLoading(false);
-      })
-      .updateCatatanMateri(rowNumber, newCatatan);
+
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      google.script.run
+        .withSuccessHandler((res) => {
+          if(res.success) {
+            const idx = this.masterData.findIndex(item => item.rowNumber === rowNumber);
+            if(idx !== -1) this.masterData[idx].catatan = newCatatan;
+          } else {
+            alert("Gagal menyimpan catatan: " + res.error);
+          }
+          this.showLoading(false);
+        })
+        .updateCatatanMateri(rowNumber, newCatatan);
+    } else {
+      // Simulasi lokal saat mengetik catatan
+      console.log(`[Lokal] Berhasil menyimpan catatan pada baris ${rowNumber}: ${newCatatan}`);
+      const idx = this.masterData.findIndex(item => item.rowNumber === rowNumber);
+      if(idx !== -1) this.masterData[idx].catatan = newCatatan;
+      this.showLoading(false);
+    }
   }
-};
