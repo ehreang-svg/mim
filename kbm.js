@@ -203,3 +203,110 @@ const aplikasi = {
     }
   }
 };
+
+const siswaAplikasi = {
+  masterData: [],
+
+  init: function() {
+    // Siswa Kelas 1 sebagai default load awal agar tidak kepenuhan 87 data langsung
+    const elKelas = document.getElementById('siswaFilterKelas');
+    if (elKelas && elKelas.value === "Semua") {
+      elKelas.value = "1"; 
+    }
+    this.muatDataSiswa();
+  },
+
+  showLoading: function(status) {
+    const el = document.getElementById('siswaLoadingStatus');
+    if (!el) return;
+    if (status) el.classList.remove('hidden');
+    else el.classList.add('hidden');
+  },
+
+  muatDataSiswa: function() {
+    this.showLoading(true);
+    if (window.KBM_API) {
+      fetch(`${window.KBM_API}?action=getMateriData`)
+        .then(res => res.json())
+        .then(response => {
+          if (response.success && response.data) {
+            this.masterData = response.data;
+            this.filterDanRender();
+          }
+          this.showLoading(false);
+        })
+        .catch(err => {
+          console.error("Gagal memuat modul belajar:", err);
+          this.showLoading(false);
+        });
+    }
+  },
+
+  filterDanRender: function() {
+    const fKelas = document.getElementById('siswaFilterKelas').value;
+    const kataKunci = document.getElementById('siswaKataKunci').value.toLowerCase().trim();
+    const grid = document.getElementById('siswaGridMateri');
+    const emptyState = document.getElementById('siswaEmptyState');
+
+    if (!grid) return;
+    grid.innerHTML = "";
+
+    const filtered = this.masterData.filter(item => {
+      // 1. Filter Kelas
+      const angkaKelas = String(item.kelas || '').replace(/\D/g, '').trim();
+      const matchKelas = (fKelas === "Semua" || angkaKelas === fKelas);
+
+      // 2. Filter Pencarian Teks (Cari di Judul Materi atau Mata Pelajaran sekaligus)
+      const mapel = String(item.pelajaran || '').toLowerCase();
+      const materi = String(item.materi || '').toLowerCase();
+      const matchTeks = !kataKunci || mapel.includes(kataKunci) || materi.includes(kataKunci);
+
+      return matchKelas && matchTeks;
+    });
+
+    // Handle Tampilan Jika Kosong
+    if (filtered.length === 0) {
+      if (emptyState) emptyState.classList.remove('hidden');
+      return;
+    } else {
+      if (emptyState) emptyState.classList.add('hidden');
+    }
+
+    // Gambar Data Menjadi Bentuk Kartu Pelajaran (Card)
+    filtered.forEach(item => {
+      const card = document.createElement('div');
+      card.className = "bg-white rounded-xl shadow-sm border border-slate-100 hover:border-blue-400 p-5 flex flex-col justify-between transition duration-200 transform hover:-translate-y-1 hover:shadow-md";
+      
+      // Deteksi Warna Badge Berdasarkan Nama Mapel Secara Otomatis
+      let badgeColor = "bg-slate-100 text-slate-700";
+      const mapelLower = String(item.pelajaran).toLowerCase();
+      if (mapelLower.includes("matematika")) badgeColor = "bg-rose-50 text-rose-700 border border-rose-100";
+      else if (mapelLower.includes("indonesia")) badgeColor = "bg-amber-50 text-amber-700 border border-amber-100";
+      else if (mapelLower.includes("ipa") || mapelLower.includes("ipas")) badgeColor = "bg-emerald-50 text-emerald-700 border border-emerald-100";
+      else if (mapelLower.includes("ips")) badgeColor = "bg-indigo-50 text-indigo-700 border border-indigo-100";
+
+      // Buat Elemen Link Buku/Materi jika ada tautan valid
+      const punyaLink = item.catatan && (item.catatan.includes('http://') || item.catatan.includes('https://'));
+      const tombolBelajar = punyaLink 
+        ? `<a href="${item.catatan}" target="_blank" class="w-full text-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2.5 px-4 rounded-lg block transition shadow-sm">📖 Mulai Belajar Sekarang</a>`
+        : `<button disabled class="w-full text-center bg-slate-100 text-slate-400 text-xs font-medium py-2.5 px-4 rounded-lg block cursor-not-allowed">Materi teks/Buku belum disematkan</button>`;
+
+      card.innerHTML = `
+        <div>
+          <div class="flex justify-between items-start gap-2 mb-3">
+            <span class="text-xs font-bold px-2.5 py-1 rounded-full ${badgeColor}">${item.pelajaran}</span>
+            <span class="text-xs font-black text-slate-400 bg-slate-50 px-2 py-0.5 rounded border">Kls ${String(item.kelas).replace(/\D/g, '')}</span>
+          </div>
+          <h3 class="text-base font-bold text-slate-800 leading-snug mb-2">${item.materi}</h3>
+          
+          ${(!punyaLink && item.catatan) ? `<p class="text-xs bg-yellow-50 text-yellow-800 p-2 rounded-md mb-4 border border-yellow-100">📌 <b>Catatan Guru:</b> ${item.catatan}</p>` : ''}
+        </div>
+        
+        <div class="mt-4 pt-3 border-t border-slate-50">
+          ${tombolBelajar}
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+};
