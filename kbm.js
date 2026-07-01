@@ -53,15 +53,39 @@ const aplikasi = {
     const fStatus = document.getElementById('filterStatus').value;
 
     const filtered = this.masterData.filter(item => {
-      const matchKelas = (fKelas === "Semua" || String(item.kelas) === fKelas);
-      const matchPelajaran = (fPelajaran === "Semua" || item.pelajaran === fPelajaran);
-      const matchStatus = (fStatus === "Semua" || item.status === fStatus);
+      // 1. Filter Kelas (Mencocokkan angka atau string "Semua")
+      const matchKelas = (fKelas === "Semua" || String(item.kelas).trim() === fKelas);
+      
+      // 2. Filter Pelajaran
+      const matchPelajaran = (fPelajaran === "Semua" || 
+        String(item.pelajaran).toLowerCase().trim() === fPelajaran.toLowerCase().trim());
+      
+      // 3. Filter Status (Dibuat lebih fleksibel agar emoji tidak sensitif)
+      let matchStatus = false;
+      if (fStatus === "Semua") {
+        matchStatus = true;
+      } else {
+        const itemStatus = String(item.status).toLowerCase();
+        if (fStatus.includes("Belum") && itemStatus.includes("belum")) matchStatus = true;
+        if (fStatus.includes("Proses") && (itemStatus.includes("proses") || itemStatus.includes("dibaca"))) matchStatus = true;
+        if (fStatus.includes("Selesai") && (itemStatus.includes("selesai") || itemStatus.includes("paham"))) matchStatus = true;
+      }
+
       return matchKelas && matchPelajaran && matchStatus;
     });
 
+    // Perbarui Angka Statistik Dashboard KBM
     const total = filtered.length;
-    const selesai = filtered.filter(i => i.status.includes("Selesai") || i.status.includes("Paham")).length;
-    const proses = filtered.filter(i => i.status.includes("Proses") || i.status.includes("Dibaca")).length;
+    const selesai = filtered.filter(i => {
+      const s = String(i.status).toLowerCase();
+      return s.includes("selesai") || s.includes("paham");
+    }).length;
+    
+    const proses = filtered.filter(i => {
+      const s = String(i.status).toLowerCase();
+      return s.includes("proses") || s.includes("dibaca");
+    }).length;
+    
     const persen = total > 0 ? Math.round((selesai / total) * 100) : 0;
 
     document.getElementById('statTotal').innerText = total;
@@ -82,17 +106,25 @@ const aplikasi = {
       if(emptyState) emptyState.classList.add('hidden');
     }
 
+    // Render data yang lolos filter ke dalam tabel HTML
     filtered.forEach((item) => {
       const tr = document.createElement('tr');
+      
+      // Cek status untuk menentukan opsi select mana yang aktif (selected)
+      const sStr = String(item.status).toLowerCase();
+      const isBelum = sStr.includes('belum');
+      const isProses = sStr.includes('proses') || sStr.includes('dibaca');
+      const isSelesai = sStr.includes('selesai') || sStr.includes('paham');
+
       tr.innerHTML = `
         <td class="text-center font-bold text-slate-600 py-3 px-4">${item.kelas}</td>
         <td class="font-semibold text-slate-700 py-3 px-4">${item.pelajaran}</td>
         <td class="text-slate-800 font-medium py-3 px-4">${item.materi}</td>
         <td class="text-center py-3 px-4">
           <select onchange="aplikasi.ubahStatus(${item.rowNumber}, this.value)" class="w-full text-sm rounded border border-slate-300 p-1 bg-white">
-            <option value="🔴 Belum" ${item.status.includes('Belum') ? 'selected':''}>🔴 Belum</option>
-            <option value="🟡 Proses" ${item.status.includes('Proses') || item.status.includes('Dibaca') ? 'selected':''}>🟡 Proses</option>
-            <option value="🟢 Selesai" ${item.status.includes('Selesai') || item.status.includes('Paham') ? 'selected':''}>🟢 Selesai</option>
+            <option value="🔴 Belum" ${isBelum ? 'selected' : ''}>🔴 Belum</option>
+            <option value="🟡 Proses" ${isProses ? 'selected' : ''}>🟡 Proses</option>
+            <option value="🟢 Selesai" ${isSelesai ? 'selected' : ''}>🟢 Selesai</option>
           </select>
         </td>
         <td class="py-3 px-4">
