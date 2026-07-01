@@ -1264,10 +1264,10 @@ placeholder="Masukkan NISN">
       </div>
     </div>
 
-    <div class="rbm-filter-panel grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 bg-slate-50 p-4 rounded-lg border">
+<div class="rbm-filter-panel grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 bg-slate-50 p-4 rounded-lg border">
       <div class="rbm-filter-group flex flex-col">
         <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Pilih Kelas</label>
-        <select id="filterKelas" onchange="aplikasi.filterDanTampilkan()" class="w-full bg-white border border-slate-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+        <select id="filterKelas" onchange="aplikasi.filterDanTampilkan(this)" class="w-full bg-white border border-slate-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
           <option value="Semua">Semua Kelas (1-6)</option>
           <option value="1">Kelas 1</option>
           <option value="2">Kelas 2</option>
@@ -1279,7 +1279,7 @@ placeholder="Masukkan NISN">
       </div>
       <div class="rbm-filter-group flex flex-col">
         <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Mata Pelajaran</label>
-        <select id="filterPelajaran" onchange="aplikasi.filterDanTampilkan()" class="w-full bg-white border border-slate-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+        <select id="filterPelajaran" onchange="aplikasi.filterDanTampilkan(this)" class="w-full bg-white border border-slate-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
           <option value="Semua">Semua Pelajaran</option>
           <option value="Matematika">Matematika</option>
           <option value="Bahasa Indonesia">Bahasa Indonesia</option>
@@ -1289,7 +1289,7 @@ placeholder="Masukkan NISN">
       </div>
       <div class="rbm-filter-group flex flex-col">
         <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Status Progress</label>
-        <select id="filterStatus" onchange="aplikasi.filterDanTampilkan()" class="w-full bg-white border border-slate-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+        <select id="filterStatus" onchange="aplikasi.filterDanTampilkan(this)" class="w-full bg-white border border-slate-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
           <option value="Semua">Semua Status</option>
           <option value="🔴 Belum">🔴 Belum</option>
           <option value="🟡 Proses">🟡 Proses</option>
