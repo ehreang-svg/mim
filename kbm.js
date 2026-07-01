@@ -6,10 +6,17 @@ const aplikasi = {
       },
 
       showLoading: function(status) {
-        const el = document.getElementById('loadingStatus');
-        if(status) el.classList.remove('hidden');
-        else el.classList.add('hidden');
-      },
+  const el = document.getElementById('loadingStatus');
+  
+  // Jika elemen tidak ditemukan (karena halaman belum dirender), hentikan fungsi tanpa error
+  if (!el) return; 
+
+  if (status) {
+    el.classList.remove('hidden'); // atau 'rbm-hidden' sesuai CSS Anda
+  } else {
+    el.classList.add('hidden');
+  }
+}
 
       muatDataDariSheets: function() {
         this.showLoading(true);
@@ -123,6 +130,15 @@ const aplikasi = {
           .updateCatatanMateri(rowNumber, newCatatan);
       }
     };
+function bukaHalamanMateri() {
+  // 1. Proses render HTML Materi Anda ke dalam #app
+  document.getElementById('app').innerHTML = HTML_MATERI_YANG_KITA_PERBAIKI_TADI;
+
+  // 2. BARU PANGGIL INIT KBM DI SINI (Saat elemen #loadingStatus sudah pasti ada di DOM)
+  if (typeof aplikasi !== 'undefined' && aplikasi.init) {
+    aplikasi.init();
+  }
+}
 
     // Menjalankan inisialisasi aplikasi saat dokumen HTML siap
     window.onload = () => aplikasi.init();
