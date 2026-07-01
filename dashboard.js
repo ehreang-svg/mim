@@ -177,7 +177,8 @@ function canShowSubmenu(menuName, submenuName, status){
         return false;
     }
     if(status === "siswa"){
-        if(menuName === "materi" || menuName === "latihan") return true;
+        if(menuName === "latihan") return true;
+        if(menuName === "materi") return submenuName.includes("mulai belajar");
         if(menuName === "tabungan") return submenuName.includes("lihat tabungan");
         if(menuName === "absensi") return (submenuName.includes("rekap siswa") || submenuName.includes("rekap absensi siswa"));
         return false;
