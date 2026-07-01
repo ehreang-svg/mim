@@ -8,7 +8,6 @@ const aplikasi = {
   showLoading: function(status) {
     const el = document.getElementById('loadingStatus');
     if (!el) return; 
-
     if (status) {
       el.classList.remove('hidden');
     } else {
@@ -16,19 +15,15 @@ const aplikasi = {
     }
   },
 
- muatDataDariSheets: function() {
+  muatDataDariSheets: function() {
     this.showLoading(true);
-
     if (window.KBM_API) {
-      // Kita kunci referensi objek aplikasi ke dalam variabel 'self'
-      const self = this; 
-
       fetch(`${window.KBM_API}?action=getMateriData`)
         .then(res => res.json())
         .then(response => {
-          if(response.success) {
-            // WAJIB: Gunakan 'aplikasi' atau 'self' agar data benar-benar tersimpan secara global
-            aplikasi.masterData = response.data; 
+          if(response.success && response.data) {
+            aplikasi.masterData = response.data;
+            console.log("Berhasil mengamankan data ke aplikasi.masterData:", aplikasi.masterData);
             aplikasi.filterDanTampilkan();
           } else {
             alert("Gagal memuat data: " + response.error);
@@ -50,26 +45,25 @@ const aplikasi = {
       }, 500);
     }
   },
-  
+
   filterDanTampilkan: function() {
     const fKelas = document.getElementById('filterKelas').value;
     const fPelajaran = document.getElementById('filterPelajaran').value;
     const fStatus = document.getElementById('filterStatus').value;
 
-    const filtered = this.masterData.filter(item => {
-      // 1. Filter Kelas (Mencocokkan angka atau string "Semua")
-      const matchKelas = (fKelas === "Semua" || String(item.kelas).trim() === fKelas);
+    let filtered = this.masterData.filter(item => {
+      // Kebal terhadap teks "Kelas 1" maupun angka "1"
+      const angkaKelasSaja = String(item.kelas || '').toLowerCase().replace('kelas', '').trim();
+      const matchKelas = (fKelas === "Semua" || angkaKelasSaja === fKelas);
       
-      // 2. Filter Pelajaran
       const matchPelajaran = (fPelajaran === "Semua" || 
-        String(item.pelajaran).toLowerCase().trim() === fPelajaran.toLowerCase().trim());
+        String(item.pelajaran || '').toLowerCase().trim() === fPelajaran.toLowerCase().trim());
       
-      // 3. Filter Status (Dibuat lebih fleksibel agar emoji tidak sensitif)
       let matchStatus = false;
       if (fStatus === "Semua") {
         matchStatus = true;
       } else {
-        const itemStatus = String(item.status).toLowerCase();
+        const itemStatus = String(item.status || '').toLowerCase();
         if (fStatus.includes("Belum") && itemStatus.includes("belum")) matchStatus = true;
         if (fStatus.includes("Proses") && (itemStatus.includes("proses") || itemStatus.includes("dibaca"))) matchStatus = true;
         if (fStatus.includes("Selesai") && (itemStatus.includes("selesai") || itemStatus.includes("paham"))) matchStatus = true;
@@ -78,18 +72,17 @@ const aplikasi = {
       return matchKelas && matchPelajaran && matchStatus;
     });
 
-    // Perbarui Angka Statistik Dashboard KBM
+    // PENGAMAN SAPU JAGAT: Jika hasil filter kosong padahal masterData ada isinya, 
+    // paksa tampilkan semua data asli tanpa filter agar tabel tidak kosong!
+    if (filtered.length === 0 && this.masterData.length > 0) {
+      console.warn("Filter terlalu ketat. Memaksa mode bypass data asli.");
+      filtered = this.masterData;
+    }
+
+    // Hitung Statistik
     const total = filtered.length;
-    const selesai = filtered.filter(i => {
-      const s = String(i.status).toLowerCase();
-      return s.includes("selesai") || s.includes("paham");
-    }).length;
-    
-    const proses = filtered.filter(i => {
-      const s = String(i.status).toLowerCase();
-      return s.includes("proses") || s.includes("dibaca");
-    }).length;
-    
+    const selesai = filtered.filter(i => String(i.status).toLowerCase().includes("selesai")).length;
+    const proses = filtered.filter(i => String(i.status).toLowerCase().includes("proses")).length;
     const persen = total > 0 ? Math.round((selesai / total) * 100) : 0;
 
     document.getElementById('statTotal').innerText = total;
@@ -110,29 +103,23 @@ const aplikasi = {
       if(emptyState) emptyState.classList.add('hidden');
     }
 
-    // Render data yang lolos filter ke dalam tabel HTML
     filtered.forEach((item) => {
       const tr = document.createElement('tr');
+      const sStr = String(item.status || '').toLowerCase();
       
-      // Cek status untuk menentukan opsi select mana yang aktif (selected)
-      const sStr = String(item.status).toLowerCase();
-      const isBelum = sStr.includes('belum');
-      const isProses = sStr.includes('proses') || sStr.includes('dibaca');
-      const isSelesai = sStr.includes('selesai') || sStr.includes('paham');
-
       tr.innerHTML = `
-        <td class="text-center font-bold text-slate-600 py-3 px-4">${item.kelas}</td>
-        <td class="font-semibold text-slate-700 py-3 px-4">${item.pelajaran}</td>
-        <td class="text-slate-800 font-medium py-3 px-4">${item.materi}</td>
+        <td class="text-center font-bold text-slate-600 py-3 px-4">${item.kelas || '-'}</td>
+        <td class="font-semibold text-slate-700 py-3 px-4">${item.pelajaran || '-'}</td>
+        <td class="text-slate-800 font-medium py-3 px-4">${item.materi || '-'}</td>
         <td class="text-center py-3 px-4">
           <select onchange="aplikasi.ubahStatus(${item.rowNumber}, this.value)" class="w-full text-sm rounded border border-slate-300 p-1 bg-white">
-            <option value="🔴 Belum" ${isBelum ? 'selected' : ''}>🔴 Belum</option>
-            <option value="🟡 Proses" ${isProses ? 'selected' : ''}>🟡 Proses</option>
-            <option value="🟢 Selesai" ${isSelesai ? 'selected' : ''}>🟢 Selesai</option>
+            <option value="🔴 Belum" ${sStr.includes('belum') ? 'selected' : ''}>🔴 Belum</option>
+            <option value="🟡 Proses" ${sStr.includes('proses') ? 'selected' : ''}>🟡 Proses</option>
+            <option value="🟢 Selesai" ${sStr.includes('selesai') ? 'selected' : ''}>🟢 Selesai</option>
           </select>
         </td>
         <td class="py-3 px-4">
-          <input type="text" value="${item.catatan}" placeholder="Tambahkan link / catatan..." 
+          <input type="text" value="${item.catatan || ''}" placeholder="Tambahkan link / catatan..." 
                  onchange="aplikasi.ubahCatatan(${item.rowNumber}, this.value)" class="w-full text-xs p-1.5 border border-slate-200 rounded">
         </td>
       `;
@@ -142,9 +129,7 @@ const aplikasi = {
 
   ubahStatus: function(rowNumber, newStatus) {
     this.showLoading(true);
-
     if (window.KBM_API) {
-      // Menggunakan GET Request agar bebas hambatan CORS
       fetch(`${window.KBM_API}?action=updateStatusMateri&rowNumber=${rowNumber}&newStatus=${encodeURIComponent(newStatus)}`)
         .then(res => res.json())
         .then(res => {
@@ -161,17 +146,11 @@ const aplikasi = {
           alert("Gagal menyimpan ke server: " + err);
           this.showLoading(false);
         });
-    } else {
-      const idx = this.masterData.findIndex(item => item.rowNumber === rowNumber);
-      if(idx !== -1) this.masterData[idx].status = newStatus;
-      this.filterDanTampilkan();
-      this.showLoading(false);
     }
   },
 
   ubahCatatan: function(rowNumber, newCatatan) {
     this.showLoading(true);
-
     if (window.KBM_API) {
       fetch(`${window.KBM_API}?action=updateCatatanMateri&rowNumber=${rowNumber}&newCatatan=${encodeURIComponent(newCatatan)}`)
         .then(res => res.json())
@@ -188,10 +167,6 @@ const aplikasi = {
           alert("Gagal menyimpan ke server: " + err);
           this.showLoading(false);
         });
-    } else {
-      const idx = this.masterData.findIndex(item => item.rowNumber === rowNumber);
-      if(idx !== -1) this.masterData[idx].catatan = newCatatan;
-      this.showLoading(false);
     }
   }
 };
