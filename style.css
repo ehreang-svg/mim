@@ -687,3 +687,269 @@ tr:hover td {
 
 /* UTILITY UTK UTAMA */
 .rbm-hidden { display: none !important; }
+
+/* ==========================================================================
+   CSS KHUSUS: RUANG BELAJAR MANDIRI (HALAMAN SISWA)
+   ========================================================================== */
+
+/* 1. Kontainer Utama */
+#siswaMateriPage {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: #f8fafc; /* Slate 50 */
+    min-height: 100vh;
+    padding-top: 1.5rem;
+    padding-bottom: 3rem;
+}
+
+/* 2. Banner Header Animasi Gradient */
+.rbm-siswa-banner {
+    background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+    border-radius: 1rem;
+    padding: 1.75rem;
+    color: #ffffff;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+.rbm-siswa-banner h1 {
+    font-size: 1.625rem;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    margin: 0;
+}
+
+.rbm-siswa-banner p {
+    color: #dbeafe;
+    font-size: 0.875rem;
+    margin-top: 0.375rem;
+}
+
+/* 3. Status Sinkronisasi Mini */
+.rbm-siswa-loader {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(4px);
+    padding: 0.5rem 0.875rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.rbm-siswa-spinner {
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: rbmSiswaSpin 0.6s linear infinite;
+}
+
+@keyframes rbmSiswaSpin {
+    to { transform: rotate(360deg); }
+}
+
+/* 4. Panel Filter & Pencarian */
+.rbm-siswa-filter-panel {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.rbm-siswa-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #94a3b8; /* Slate 400 */
+    margin-bottom: 0.375rem;
+    letter-spacing: 0.05em;
+}
+
+.rbm-siswa-select {
+    width: 100%;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #334155;
+    outline: none;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.rbm-siswa-select:focus, 
+.rbm-siswa-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    background-color: #ffffff;
+}
+
+.rbm-siswa-search-wrapper {
+    position: relative;
+}
+
+.rbm-siswa-input {
+    width: 100%;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    padding: 0.625rem 2.5rem 0.625rem 0.875rem;
+    font-size: 0.875rem;
+    color: #334155;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.rbm-siswa-search-icon {
+    position: absolute;
+    right: 0.875rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    pointer-events: none;
+    font-size: 0.875rem;
+}
+
+/* 5. Grid & Komponen Kartu Materi (Card) */
+.rbm-siswa-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1.5rem;
+}
+
+@media (min-width: 640px) {
+    .rbm-siswa-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 1024px) {
+    .rbm-siswa-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+.rbm-siswa-card {
+    background-color: #ffffff;
+    border: 1px solid #f1f5f9;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.rbm-siswa-card:hover {
+    transform: translateY(-4px);
+    border-color: #bfdbfe;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+}
+
+/* 6. Metadata Badge Pelajaran & Kelas */
+.rbm-siswa-card-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.rbm-siswa-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+}
+
+.rbm-siswa-badge-kelas {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #64748b;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.375rem;
+}
+
+.rbm-siswa-card h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.4;
+    margin: 0 0 0.75rem 0;
+}
+
+/* 7. Catatan Guru Non-Link */
+.rbm-siswa-note {
+    font-size: 0.75rem;
+    background-color: #fef9c3; /* Yellow 100 */
+    color: #713f12;
+    padding: 0.625rem;
+    border-radius: 0.5rem;
+    border: 1px solid #fef08a;
+    margin-bottom: 1rem;
+}
+
+/* 8. Tombol Aksi Belajar */
+.rbm-siswa-btn-link {
+    display: block;
+    width: 100%;
+    text-align: center;
+    background-color: #2563eb;
+    color: #ffffff;
+    font-size: 0.875rem;
+    font-weight: 600;
+    padding: 0.625rem 1rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: background-color 0.2s;
+}
+
+.rbm-siswa-btn-link:hover {
+    background-color: #1d4ed8;
+}
+
+.rbm-siswa-btn-disabled {
+    display: block;
+    width: 100%;
+    text-align: center;
+    background-color: #f1f5f9;
+    color: #94a3b8;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.625rem 1rem;
+    border-radius: 0.5rem;
+    border: none;
+    cursor: not-allowed;
+}
+
+/* 9. Empty State (Data Tidak Ditemukan) */
+.rbm-siswa-empty {
+    text-center: center;
+    padding: 3.5rem 1.5rem;
+    background-color: #ffffff;
+    border-radius: 0.75rem;
+    border: 2px dashed #cbd5e1;
+    max-width: 28rem;
+    margin: 2rem auto 0 auto;
+}
+
+.rbm-siswa-empty-icon {
+    font-size: 2.5rem;
+    display: block;
+}
+
+.rbm-siswa-empty h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #334155;
+    margin: 0.75rem 0 0.25rem 0;
+}
+
+.rbm-siswa-empty p {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin: 0;
+}
