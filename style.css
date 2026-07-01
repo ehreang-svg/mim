@@ -481,3 +481,209 @@ tr:hover td {
     .jadwal-container, .gridMD { grid-template-columns: 1fr; }
     .cardMD { padding: 20px; }
 }
+
+/* ==========================================================================
+   CSS UNTUK MODUL RUANG BELAJAR MANDIRI (RBM) SD 
+   ========================================================================== */
+
+/* --- CONTAINER UTAMA --- */
+.rbm-container {
+  max-width: 1150px;
+  margin: 0 auto;
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+}
+
+/* --- HEADER AREA --- */
+.rbm-header-area {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 20px;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+.rbm-header-title h1 {
+  font-size: 24px;
+  color: #1e293b;
+  font-weight: 700;
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+.rbm-header-title p {
+  font-size: 14px;
+  color: #64748b;
+}
+
+/* --- LOADER / SINKRONISASI --- */
+.rbm-loader-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f1f5f9;
+  padding: 8px 16px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+.rbm-spinner {
+  border: 3px solid #cbd5e1;
+  border-top: 3px solid #1f497d;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  animation: rbm-spin 1s linear infinite;
+}
+@keyframes rbm-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* --- KONTROL FILTER --- */
+.rbm-filter-panel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+  background: #f8fafc;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 25px;
+}
+.rbm-filter-group {
+  display: flex;
+  flex-direction: column;
+}
+.rbm-filter-group label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+.rbm-filter-group select {
+  padding: 10px 12px;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #334155;
+  outline: none;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.rbm-filter-group select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* --- KARTU PROGRES STATISTIK --- */
+.rbm-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-bottom: 25px;
+}
+@media (min-width: 640px) {
+  .rbm-stats-grid { grid-template-columns: repeat(4, 1fr); }
+}
+.rbm-stat-card {
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  border: 1px solid transparent;
+}
+.rbm-stat-card .rbm-stat-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.rbm-stat-card .rbm-stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e293b;
+}
+.rbm-card-total { background: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
+.rbm-card-selesai { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+.rbm-card-proses { background: #fefce8; border-color: #fef08a; color: #854d0e; }
+.rbm-card-persen { background: #f5f3ff; border-color: #ddd6fe; color: #5b21b6; }
+
+/* --- TABEL STRUKTUR --- */
+.rbm-table-container {
+  overflow-x: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+.rbm-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 14px;
+}
+.rbm-table th {
+  background-color: #1e293b;
+  color: #ffffff;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 12px;
+  padding: 14px 16px;
+  letter-spacing: 0.5px;
+}
+.rbm-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: middle;
+}
+.rbm-table tr:nth-child(even) { background-color: #f8fafc; }
+.rbm-table tr:hover { background-color: #f1f5f9; transition: background 0.15s ease; }
+
+.rbm-text-center { text-align: center; }
+.rbm-w-kelas { width: 80px; font-weight: 700; color: #475569; }
+.rbm-w-pelajaran { width: 160px; font-weight: 600; color: #334155; }
+.rbm-w-materi { font-weight: 500; color: #0f172a; }
+
+/* INPUT & DROPDOWN TABEL */
+.rbm-status-select {
+  width: 100%;
+  max-width: 150px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  font-size: 13px;
+  background: #ffffff;
+  cursor: pointer;
+}
+.rbm-catatan-input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  font-size: 12px;
+  transition: border 0.2s;
+}
+.rbm-catatan-input:focus {
+  border-color: #94a3b8;
+  outline: none;
+}
+
+/* EMPTY STATE NOTIF */
+.rbm-empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #64748b;
+  font-size: 15px;
+  font-weight: 500;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  margin-top: 15px;
+}
+
+/* UTILITY UTK UTAMA */
+.rbm-hidden { display: none !important; }
