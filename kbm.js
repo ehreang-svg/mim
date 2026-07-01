@@ -16,10 +16,9 @@ const aplikasi = {
     }
   },
 
-muatDataDariSheets: function() {
+  muatDataDariSheets: function() {
     this.showLoading(true);
 
-    // Jika berjalan di hosting luar dan menggunakan API URL kustom
     if (window.KBM_API) {
       fetch(`${window.KBM_API}?action=getMateriData`)
         .then(res => res.json())
@@ -37,7 +36,6 @@ muatDataDariSheets: function() {
           this.showLoading(false);
         });
     } else {
-      // Mock data cadangan jika API belum diisi
       console.warn("API KBM tidak ditemukan, mengaktifkan data simulasi...");
       setTimeout(() => {
         this.masterData = [
@@ -109,9 +107,11 @@ muatDataDariSheets: function() {
   ubahStatus: function(rowNumber, newStatus) {
     this.showLoading(true);
 
-    if (typeof google !== 'undefined' && google.script && google.script.run) {
-      google.script.run
-        .withSuccessHandler((res) => {
+    if (window.KBM_API) {
+      // Menggunakan GET Request agar bebas hambatan CORS
+      fetch(`${window.KBM_API}?action=updateStatusMateri&rowNumber=${rowNumber}&newStatus=${encodeURIComponent(newStatus)}`)
+        .then(res => res.json())
+        .then(res => {
           if(res.success) {
             const idx = this.masterData.findIndex(item => item.rowNumber === rowNumber);
             if(idx !== -1) this.masterData[idx].status = newStatus;
@@ -121,9 +121,11 @@ muatDataDariSheets: function() {
           }
           this.showLoading(false);
         })
-        .updateStatusMateri(rowNumber, newStatus);
+        .catch(err => {
+          alert("Gagal menyimpan ke server: " + err);
+          this.showLoading(false);
+        });
     } else {
-      console.log(`[Lokal] Berhasil mengubah baris ${rowNumber} menjadi status: ${newStatus}`);
       const idx = this.masterData.findIndex(item => item.rowNumber === rowNumber);
       if(idx !== -1) this.masterData[idx].status = newStatus;
       this.filterDanTampilkan();
@@ -134,9 +136,10 @@ muatDataDariSheets: function() {
   ubahCatatan: function(rowNumber, newCatatan) {
     this.showLoading(true);
 
-    if (typeof google !== 'undefined' && google.script && google.script.run) {
-      google.script.run
-        .withSuccessHandler((res) => {
+    if (window.KBM_API) {
+      fetch(`${window.KBM_API}?action=updateCatatanMateri&rowNumber=${rowNumber}&newCatatan=${encodeURIComponent(newCatatan)}`)
+        .then(res => res.json())
+        .then(res => {
           if(res.success) {
             const idx = this.masterData.findIndex(item => item.rowNumber === rowNumber);
             if(idx !== -1) this.masterData[idx].catatan = newCatatan;
@@ -145,12 +148,14 @@ muatDataDariSheets: function() {
           }
           this.showLoading(false);
         })
-        .updateCatatanMateri(rowNumber, newCatatan);
+        .catch(err => {
+          alert("Gagal menyimpan ke server: " + err);
+          this.showLoading(false);
+        });
     } else {
-      console.log(`[Lokal] Berhasil menyimpan catatan pada baris ${rowNumber}: ${newCatatan}`);
       const idx = this.masterData.findIndex(item => item.rowNumber === rowNumber);
       if(idx !== -1) this.masterData[idx].catatan = newCatatan;
       this.showLoading(false);
     }
   }
-}; // <--- Tanda kurung kurawal ini wajib menutup objek utama aplikasi
+};
