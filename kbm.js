@@ -14,14 +14,13 @@ const aplikasi = {
     } else {
       el.classList.add('hidden');
     }
-  }, // <--- PASTIKAN ADA KOMA DI SINI SEBELUM FUNGSI BERIKUTNYA
+  },
 
-muatDataDariSheets: function() {
+  muatDataDariSheets: function() {
     this.showLoading(true);
 
     // CEK: Apakah dijalankan di server Google?
     if (typeof google !== 'undefined' && google.script && google.script.run) {
-      // JIKA YA -> Jalankan koneksi asli ke Google Sheets
       google.script.run
         .withSuccessHandler((response) => {
           if(response.success) {
@@ -49,9 +48,9 @@ muatDataDariSheets: function() {
         ];
         this.filterDanTampilkan();
         this.showLoading(false);
-      }, 800); // Simulasi delay loading 0.8 detik
+      }, 800);
     }
-  }, // <--- PASTIKAN ADA KOMA DI SINI
+  },
 
   filterDanTampilkan: function() {
     const fKelas = document.getElementById('filterKelas').value;
@@ -108,9 +107,9 @@ muatDataDariSheets: function() {
       `;
       tbody.appendChild(tr);
     });
-  }, // <--- PASTIKAN ADA KOMA DI SINI
+  },
 
-ubahStatus: function(rowNumber, newStatus) {
+  ubahStatus: function(rowNumber, newStatus) {
     this.showLoading(true);
 
     if (typeof google !== 'undefined' && google.script && google.script.run) {
@@ -127,14 +126,13 @@ ubahStatus: function(rowNumber, newStatus) {
         })
         .updateStatusMateri(rowNumber, newStatus);
     } else {
-      // Simulasi lokal saat merubah status dropdown
       console.log(`[Lokal] Berhasil mengubah baris ${rowNumber} menjadi status: ${newStatus}`);
       const idx = this.masterData.findIndex(item => item.rowNumber === rowNumber);
       if(idx !== -1) this.masterData[idx].status = newStatus;
       this.filterDanTampilkan();
       this.showLoading(false);
     }
-  }, // <--- PASTIKAN ADA KOMA DI SINI
+  },
 
   ubahCatatan: function(rowNumber, newCatatan) {
     this.showLoading(true);
@@ -152,10 +150,10 @@ ubahStatus: function(rowNumber, newStatus) {
         })
         .updateCatatanMateri(rowNumber, newCatatan);
     } else {
-      // Simulasi lokal saat mengetik catatan
       console.log(`[Lokal] Berhasil menyimpan catatan pada baris ${rowNumber}: ${newCatatan}`);
       const idx = this.masterData.findIndex(item => item.rowNumber === rowNumber);
       if(idx !== -1) this.masterData[idx].catatan = newCatatan;
       this.showLoading(false);
     }
   }
+}; // <--- Tanda kurung kurawal ini wajib menutup objek utama aplikasi
