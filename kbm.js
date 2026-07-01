@@ -1,7 +1,9 @@
 const aplikasi = {
   masterData: [],
+  isFirstLoad: true, // Penanda untuk membedakan muat pertama vs saat filter diubah
 
   init: function() {
+    this.isFirstLoad = true;
     this.muatDataDariSheets();
   },
 
@@ -23,7 +25,7 @@ const aplikasi = {
         .then(response => {
           if(response.success && response.data) {
             aplikasi.masterData = response.data;
-            console.log("Berhasil mengamankan data ke aplikasi.masterData:", aplikasi.masterData);
+            console.log("Data berhasil dimuat, jumlah:", aplikasi.masterData.length);
             aplikasi.filterDanTampilkan();
           } else {
             alert("Gagal memuat data: " + response.error);
@@ -35,10 +37,10 @@ const aplikasi = {
           aplikasi.showLoading(false);
         });
     } else {
-      console.warn("API KBM tidak ditemukan, mengaktifkan data simulasi...");
+      console.warn("API KBM tidak ditemukan, menggunakan data simulasi...");
       setTimeout(() => {
         this.masterData = [
-          { rowNumber: 2, kelas: 1, pelajaran: "Matematika", materi: "Mengenal Angka 1-20 (Simulasi)", status: "🔴 Belum", catatan: "" }
+          { rowNumber: 2, kelas: "Kelas 1", pelajaran: "Matematika", materi: "Mengenal Angka 1-20 (Simulasi)", status: "🔴 Belum", catatan: "" }
         ];
         this.filterDanTampilkan();
         this.showLoading(false);
@@ -51,35 +53,42 @@ const aplikasi = {
     const fPelajaran = document.getElementById('filterPelajaran').value;
     const fStatus = document.getElementById('filterStatus').value;
 
+    console.log(`Menjalankan filter -> Kelas: ${fKelas}, Mapel: ${fPelajaran}, Status: ${fStatus}`);
+
     let filtered = this.masterData.filter(item => {
-      // 1. Ambil angka kelas saja dari spreadsheet (kebal terhadap tulisan "Kelas 1" atau angka "1")
-      const angkaKelasSaja = String(item.kelas || '').toLowerCase().replace('kelas', '').trim();
+      // 1. Ekstrak angka saja dari kolom kelas (Bisa menangani "Kelas 1" maupun angka "1" langsung)
+      const angkaKelasSaja = String(item.kelas || '').replace(/\D/g, '').trim(); 
       const matchKelas = (fKelas === "Semua" || angkaKelasSaja === fKelas);
       
-      // 2. Filter Pelajaran menggunakan .includes() agar lebih fleksibel terhadap spasi/teks tambahan
+      // 2. Filter Pelajaran (Pencarian fleksibel sebagian karakter / case-insensitive)
       const mapelTarget = String(item.pelajaran || '').toLowerCase().trim();
       const mapelFilter = fPelajaran.toLowerCase().trim();
       const matchPelajaran = (fPelajaran === "Semua" || mapelTarget.includes(mapelFilter) || mapelFilter.includes(mapelTarget));
       
-      // 3. Filter Status Belajar
+      // 3. Filter Status Belajar (Membaca teks murni ataupun emoji pendukung)
       let matchStatus = false;
       if (fStatus === "Semua") {
         matchStatus = true;
       } else {
         const itemStatus = String(item.status || '').toLowerCase();
-        if (fStatus.includes("Belum") && itemStatus.includes("belum")) matchStatus = true;
-        if (fStatus.includes("Proses") && (itemStatus.includes("proses") || itemStatus.includes("dibaca"))) matchStatus = true;
-        if (fStatus.includes("Selesai") && (itemStatus.includes("selesai") || itemStatus.includes("paham"))) matchStatus = true;
+        if (fStatus.includes("Belum") && (itemStatus.includes("belum") || itemStatus.includes("🔴"))) matchStatus = true;
+        if (fStatus.includes("Proses") && (itemStatus.includes("proses") || itemStatus.includes("dibaca") || itemStatus.includes("🟡"))) matchStatus = true;
+        if (fStatus.includes("Selesai") && (itemStatus.includes("selesai") || itemStatus.includes("paham") || itemStatus.includes("🟢"))) matchStatus = true;
       }
 
       return matchKelas && matchPelajaran && matchStatus;
     });
 
-    // JIKA filter menghasilkan data, matikan mode bypass agar penyaringan bekerja normal
-    // JIKA hasil filter benar-benar 0 baru sistem akan memunculkan emptyState
-    const totalSemuaData = this.masterData.length;
+    // PENGAMAN JIKA BARU PERTAMA KALI LOAD DAN FILTER GAGAL KARENA FORMAT SPREADSHEET
+    if (this.isFirstLoad && filtered.length === 0 && this.masterData.length > 0) {
+      console.warn("Kondisi awal tidak sinkron, menampilkan seluruh data asli.");
+      filtered = this.masterData;
+    }
+    
+    // Matikan status load pertama setelah filter dijalankan sekali atau diubah manual
+    this.isFirstLoad = false;
 
-    // Hitung Statistik Berdasarkan Hasil Filter yang Valid
+    // Perbarui Angka Statistik Real-time
     const total = filtered.length;
     const selesai = filtered.filter(i => {
       const s = String(i.status || '').toLowerCase();
@@ -104,6 +113,7 @@ const aplikasi = {
     if(!tbody) return;
     tbody.innerHTML = "";
 
+    // Jika benar-benar tidak ada data yang cocok setelah difilter user
     if (filtered.length === 0) {
       if(emptyState) emptyState.classList.remove('hidden');
       return;
@@ -111,7 +121,7 @@ const aplikasi = {
       if(emptyState) emptyState.classList.add('hidden');
     }
 
-    // Render data hasil filter ke tabel HTML
+    // Render baris data ke dalam tabel HTML
     filtered.forEach((item) => {
       const tr = document.createElement('tr');
       const sStr = String(item.status || '').toLowerCase();
@@ -139,6 +149,7 @@ const aplikasi = {
       tbody.appendChild(tr);
     });
   },
+
   ubahStatus: function(rowNumber, newStatus) {
     this.showLoading(true);
     if (window.KBM_API) {
