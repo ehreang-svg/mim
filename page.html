@@ -1332,7 +1332,9 @@ placeholder="Masukkan NISN">
           </tbody>
       </table>
     </div>
-
+<button class="back" onclick="goBack()" style="margin-bottom:24px;">
+            <span style="margin-right:8px;">←</span> Kembali
+        </button>
     <div id="emptyState" class="rbm-empty-state rbm-hidden hidden text-center py-12 text-slate-500">
       📭 Tidak ada materi yang cocok dengan kombinasi filter pilihan Anda.
     </div>
@@ -1378,6 +1380,9 @@ placeholder="Masukkan NISN">
       </div>
       
       <div class="flex flex-col sm:col-span-2">
+         <button id="tambahMateriPage" onclick="tambahMateriPage()" style="margin-bottom:24px;">
+    <span style="margin-right:8px;">←</span> Tambah Materi
+</button>
         <label class="rbm-siswa-label">Cari Judul Materi / Mata Pelajaran</label>
         <div class="rbm-siswa-search-wrapper">
           <input type="text" id="siswaKataKunci" oninput="siswaAplikasi.filterDanRender()" placeholder="Ketik kata kunci (misal: 'Penjumlahan', 'Matematika')..." class="rbm-siswa-input">
@@ -1395,4 +1400,42 @@ placeholder="Masukkan NISN">
     </div>
 
   </div>
+</div>
+
+<div id="tambahMateriPage" class="page">
+
+<button class="back" onclick="goBack()" style="margin-bottom:24px;">
+            <span style="margin-right:8px;">←</span> Kembali
+        </button>
+<div class="form-container" style="margin-bottom: 30px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
+  <h3>Tambah Materi KBM Baru</h3>
+  <form id="formInputMateri">
+    <div style="margin-bottom: 10px;">
+      <label style="display:block; font-weight:bold;">Kelas:</label>
+      <input type="text" id="inputKelas" required style="width:100%; padding:8px; margin-top:5px;">
+    </div>
+    <div style="margin-bottom: 10px;">
+      <label style="display:block; font-weight:bold;">Mata Pelajaran:</label>
+      <input type="text" id="inputPelajaran" required style="width:100%; padding:8px; margin-top:5px;">
+    </div>
+    <div style="margin-bottom: 10px;">
+      <label style="display:block; font-weight:bold;">Bab / Topik Materi:</label>
+      <input type="text" id="inputMateri" required style="width:100%; padding:8px; margin-top:5px;">
+    </div>
+    <div style="margin-bottom: 10px;">
+      <label style="display:block; font-weight:bold;">Status Belajar:</label>
+      <select id="inputStatus" style="width:100%; padding:8px; margin-top:5px;">
+        <option value="🔴 Belum">🔴 Belum</option>
+        <option value="🟡 Sedang">🟡 Sedang</option>
+        <option value="🟢 Selesai">🟢 Selesai</option>
+      </select>
+    </div>
+    <div style="margin-bottom: 15px;">
+      <label style="display:block; font-weight:bold;">Catatan / Sumber Belajar (Link):</label>
+      <input type="text" id="inputCatatan" style="width:100%; padding:8px; margin-top:5px;">
+    </div>
+    <button type="button" onclick="submitMateriBaru()" style="background-color: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+      Simpan Materi
+    </button>
+  </form>
 </div>
