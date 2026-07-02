@@ -687,6 +687,7 @@ async function updateIdentitasSiswa() {
         if (!json.status) { alert(json.message || "Gagal memperbarui data"); return; }
 
         alert("Data berhasil diperbarui");
+        clearEditForm();
         if (fotoInput) fotoInput.value = "";
         
         // Segarkan data global setelah update sukses
@@ -755,26 +756,48 @@ function loadNamaEditIdentitas() {
 }
 
 function loadEditIdentitas() {
-    const nama = document.getElementById("editFilterNama").value;
-    const kelas = document.getElementById("editFilterKelas").value;
-    clearEditForm();
-    if (!nama || !kelas) {
+    // 1. Ambil nama dan kelas dari dropdown filter yang dipilih user
+    const namaTerpilih = document.getElementById("editFilterNama").value;
+    const kelasTerpilih = document.getElementById("editFilterKelas").value;
+    
+    // Kosongkan form dulu agar data siswa sebelumnya hilang
+    clearEditForm(); 
+    
+    if (!namaTerpilih || !kelasTerpilih) {
         alert("Pilih kelas dan nama terlebih dahulu!");
         return;
     }
 
-    // Menggunakan dataSiswaGlobal
+    // 2. Cari data siswa di dalam array
     const siswa = dataSiswaGlobal.find(s => {
         const sNama = s.nama || s.NAMA || "";
         const sKelas = s.kelas || s.KELAS || "";
-        return String(sNama).trim().toLowerCase() === String(nama).trim().toLowerCase() &&
-               String(sKelas).trim().toLowerCase() === String(kelas).trim().toLowerCase();
+        return String(sNama).trim().toLowerCase() === String(namaTerpilih).trim().toLowerCase() &&
+               String(sKelas).trim().toLowerCase() === String(kelasTerpilih).trim().toLowerCase();
     });
 
-    if (!siswa) { alert("Data tidak ditemukan"); return; }
-    selectedNamaLama = siswa.nama || siswa.NAMA || "";
-    selectedKelasLama = siswa.kelas || siswa.KELAS || "";
+    if (!siswa) { 
+        alert("Data tidak ditemukan"); 
+        return; 
+    }
+    
+    // Simpan data lama untuk keperluan query update nanti
+    selectedNamaLama = siswa.nama || siswa.NAMA || namaTerpilih;
+    selectedKelasLama = siswa.kelas || siswa.KELAS || kelasTerpilih;
+    
+    // 3. Masukkan data ke form via fungsi fillEditForm
     fillEditForm(siswa);
+
+    // 4. JAMINAN UTAMA: Jika input Nama Lengkap dan Kelas masih kosong, paksa isi dari dropdown!
+    const inputNama = document.getElementById("editNama");
+    const inputKelas = document.getElementById("editKelas");
+    
+    if (inputNama && (!inputNama.value || inputNama.value.trim() === "")) {
+        inputNama.value = selectedNamaLama;
+    }
+    if (inputKelas && (!inputKelas.value || inputKelas.value.trim() === "")) {
+        inputKelas.value = selectedKelasLama;
+    }
 }
 
 // ==========================================
