@@ -90,6 +90,7 @@ const aplikasi = {
         if (fStatus.includes("Selesai") && (itemStatus.includes("selesai") || itemStatus.includes("paham") || itemStatus.includes("🟢"))) matchStatus = true;
       }
 
+      
       return matchKelas && matchPelajaran && matchStatus;
     });
 
