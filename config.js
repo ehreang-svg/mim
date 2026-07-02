@@ -9,8 +9,6 @@ const HARI_LIBUR = ["2026-01-01","2026-01-27","2026-02-19","2026-03-29","2026-04
 
 let history = [];
 let currentUser = null;
-let dataSiswaGlobal = [];
-let dataSiswaTabungan = [];
 let dataSiswaRaport = [];
 let dataSiswaKognitif = [];
 let dataSoal=[];
