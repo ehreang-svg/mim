@@ -1280,11 +1280,21 @@ placeholder="Masukkan NISN">
       <div class="rbm-filter-group flex flex-col">
         <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Mata Pelajaran</label>
         <select id="filterPelajaran" onchange="aplikasi.filterDanTampilkan(this)" class="w-full bg-white border border-slate-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
-          <option value="Semua">Semua Pelajaran</option>
-          <option value="Matematika">Matematika</option>
-          <option value="Bahasa Indonesia">Bahasa Indonesia</option>
-          <option value="IPA (IPAS)">IPA (IPAS)</option>
-          <option value="IPS (IPAS)">IPS (IPAS)</option>
+          <option value="Semua Pelajaran"</option>
+                <option value="Matematika"</option>
+                <option value="Bahasa Indonesia"</option>
+                    <option value="Bahasa Arab"</option>
+            <option value="Bahasa Inggris"</option>
+                <option value="Bahasa Cirebon"</option>
+            <option value="IPA (IPAS)"</option>
+                <option value="Fiqih"</option>
+           <option value="Aqidah Akhlaq"</option>
+                <option value="Al Quran Hadits"</option>
+            <option value="SKI"</option>
+                <option value="PKN"</option>
+            <option value="SBDP"</option>
+                <option value="PJOK"</option>
+                <option value="BTQ/Praktek Ibadah"</option>
         </select>
       </div>
       <div class="rbm-filter-group flex flex-col">
@@ -1370,13 +1380,14 @@ placeholder="Masukkan NISN">
       <div class="flex flex-col">
         <label class="rbm-siswa-label">Filter Kelas Kamu</label>
         <select id="siswaFilterKelas" onchange="siswaAplikasi.filterDanRender()" class="rbm-siswa-select">
+        <option value="Semua">Tampilkan Semua Kelas</option>
           <option value="1"> Kelas 1</option>
           <option value="2"> Kelas 2</option>
           <option value="3"> Kelas 3</option>
           <option value="4"> Kelas 4</option>
           <option value="5"> Kelas 5</option>
           <option value="6"> Kelas 6</option>
-          <option value="Semua">Tampilkan Semua Kelas</option>
+          
         </select>
       </div>
       
@@ -1384,8 +1395,24 @@ placeholder="Masukkan NISN">
          
         <label class="rbm-siswa-label">Cari Judul Materi / Mata Pelajaran</label>
         <div class="rbm-siswa-search-wrapper">
-          <input type="text" id="siswaKataKunci" oninput="siswaAplikasi.filterDanRender()" placeholder="Ketik kata kunci (misal: 'Penjumlahan', 'Matematika')..." class="rbm-siswa-input">
-          <span class="rbm-siswa-search-icon">🔍</span>
+          <select id="siswaKataKunci" onchange="siswaAplikasi.filterDanRender()" class="rbm-siswa-select">
+          <option value="Semua">Tampilkan semua pelajaran</option>
+                <option value="Matematika"</option>
+                <option value="Bahasa Indonesia"</option>
+                    <option value="Bahasa Arab"</option>
+            <option value="Bahasa Inggris"</option>
+                <option value="Bahasa Cirebon"</option>
+            <option value="IPA (IPAS)"</option>
+                <option value="Fiqih"</option>
+           <option value="Aqidah Akhlaq"</option>
+                <option value="Al Quran Hadits"</option>
+            <option value="SKI"</option>
+                <option value="PKN"</option>
+            <option value="SBDP"</option>
+                <option value="PJOK"</option>
+                <option value="BTQ/Praktek Ibadah"</option>
+              
+          </select>
         
         </div>
       </div>
