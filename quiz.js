@@ -94,7 +94,7 @@ Math.round(
 (benar/dataSoal.length)*100
 );
 let status=
-nilai>=75
+nilai>=70
 ? "LULUS"
 : "TIDAK LULUS";
 document.getElementById("hasil")
