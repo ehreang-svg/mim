@@ -1252,7 +1252,8 @@ placeholder="Masukkan NISN">
   </div>
 
   <div class="rbm-container max-w-6xl mx-auto bg-white rounded-xl shadow-lg p-6">
-    
+    <button class="btn-small btn-add" onclick="show('tambahMateriPage')">➕ Tambah Materi</button>
+      
     <div class="rbm-header-area border-b pb-4 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div class="rbm-header-title">
         <h1 class="text-2xl font-bold text-slate-800">🎯 KEGIATAN BELAJAR MENGAJAR</h1>
@@ -1332,8 +1333,6 @@ placeholder="Masukkan NISN">
           </tbody>
       </table>
     </div>
-<button class="back" onclick="goBack()" style="margin-bottom:24px;">
-            <span style="margin-right:8px;">←</span> Kembali
         </button>
     <div id="emptyState" class="rbm-empty-state rbm-hidden hidden text-center py-12 text-slate-500">
       📭 Tidak ada materi yang cocok dengan kombinasi filter pilihan Anda.
@@ -1402,7 +1401,7 @@ placeholder="Masukkan NISN">
   </div>
 </div>
 
-<div id="tambahMateriPage" class="page">
+<div id="tambahMateriPage" class="hiden page">
 
 <button class="back" onclick="goBack()" style="margin-bottom:24px;">
             <span style="margin-right:8px;">←</span> Kembali
