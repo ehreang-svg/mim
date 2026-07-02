@@ -1115,11 +1115,38 @@ async function loadKelasEditIdentitas() {
     }
 }    
 
+function clearEditForm() {
+    const map = {
+        namaPanggilan: "editNamaPanggilan", nama: "editNama", kelas: "editKelas",
+        nik: "editNik", nisn: "editNisn", jenisKelamin: "editGender",
+        ttl: "editTTL", agama: "editAgama", anakKe: "editAnakKe",
+        tahunMasuk: "editTahunMasuk", namaAyah: "editAyah", namaIbu: "editIbu",
+        pekerjaanAyah: "editKerjaAyah", pekerjaanIbu: "editKerjaIbu",
+        desa: "editDesa", kecamatan: "editKecamatan", kabupaten: "editKabupaten",
+        provinsi: "editProvinsi", kodePos: "editKodePos"
+    };
+
+    // Kosongkan semua input text & select form
+    Object.keys(map).forEach(key => {
+        const el = document.getElementById(map[key]);
+        if (el) el.value = "";
+    });
+
+    // Reset input file foto dan gambar preview
+    const fotoInput = document.getElementById("editFoto");
+    if (fotoInput) fotoInput.value = "";
+    
+    const img = document.getElementById("previewFotoEdit");
+    if (img) img.src = ""; // atau beri gambar placeholder default
+}
+
 function loadNamaEditIdentitas() {
     const kelas = document.getElementById("editFilterKelas").value;
     const namaSelect = document.getElementById("editFilterNama");
 
     namaSelect.innerHTML = `<option value="">Pilih Nama</option>`;
+    clearEditForm(); // <--- Kosongkan form identitas setiap kali kelas diganti
+    
     if (!kelas) return;
 
     if (!Array.isArray(dataSiswaEdit)) {
@@ -1135,7 +1162,7 @@ function loadNamaEditIdentitas() {
     filtered
         .sort((a, b) => {
             const nameA = a.nama || a.NAMA || "";
-            const nameB = b.bama || b.NAMA || "";
+            const nameB = b.nama || b.NAMA || ""; // <--- Memperbaiki typo b.bama menjadi b.nama
             return nameA.localeCompare(nameB);
         })
         .forEach(siswa => {
@@ -1144,9 +1171,18 @@ function loadNamaEditIdentitas() {
         });
 }
 
+// --- 3. AMBIL DATA & TAMPILKAN SELURUHNYA KE FORM ---
 function loadEditIdentitas() {
     const nama = document.getElementById("editFilterNama").value;
     const kelas = document.getElementById("editFilterKelas").value;
+
+    // Pastikan form bersih terlebih dahulu sebelum data baru masuk
+    clearEditForm();
+
+    if (!nama || !kelas) {
+        alert("Silakan pilih Kelas dan Nama terlebih dahulu");
+        return;
+    }
 
     const siswa = dataSiswaEdit.find(s => {
         const sNama = s.nama || s.NAMA || "";
@@ -1164,6 +1200,7 @@ function loadEditIdentitas() {
     selectedNamaLama = siswa.nama || siswa.NAMA || "";
     selectedKelasLama = siswa.kelas || siswa.KELAS || "";
 
+    // Isi seluruh data ke dalam form
     fillEditForm(siswa);
 }
 
@@ -1221,13 +1258,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
     
     // Tambahkan event listener otomatis jika select nama berubah langsung load data form
-    const namaSelect = document.getElementById("editFilterNama");
-    if (namaSelect) {
-        namaSelect.addEventListener("change", () => {
-            if(namaSelect.value) loadEditIdentitas();
-        });
-    }
-});
+// Di dalam DOMContentLoaded Anda:
+const namaSelect = document.getElementById("editFilterNama");
+if (namaSelect) {
+    namaSelect.addEventListener("change", () => {
+        if (namaSelect.value) {
+            loadEditIdentitas();
+        } else {
+            clearEditForm(); // Jika user pilih "Pilih Nama" kembali, form kosong
+        }
+    });
+}
 
 
 async function compressImage(file) {
