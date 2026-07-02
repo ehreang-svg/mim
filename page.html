@@ -1295,6 +1295,9 @@ placeholder="Masukkan NISN">
           <option value="🟡 Proses">🟡 Proses</option>
           <option value="🟢 Selesai">🟢 Selesai</option>
         </select>
+          <button id="tambahMateriPage" onclick="tambahMateriBaru()" style="margin-bottom:24px;">
+    <span style="margin-right:8px;">←</span> Tambah Materi
+</button>
       </div>
     </div>
       
@@ -1378,13 +1381,12 @@ placeholder="Masukkan NISN">
       </div>
       
       <div class="flex flex-col sm:col-span-2">
-         <button id="tambahMateriPage" onclick="tambahMateriBaru()" style="margin-bottom:24px;">
-    <span style="margin-right:8px;">←</span> Tambah Materi
-</button>
+         
         <label class="rbm-siswa-label">Cari Judul Materi / Mata Pelajaran</label>
         <div class="rbm-siswa-search-wrapper">
           <input type="text" id="siswaKataKunci" oninput="siswaAplikasi.filterDanRender()" placeholder="Ketik kata kunci (misal: 'Penjumlahan', 'Matematika')..." class="rbm-siswa-input">
           <span class="rbm-siswa-search-icon">🔍</span>
+        
         </div>
       </div>
     </div>
