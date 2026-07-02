@@ -310,3 +310,38 @@ filtered.forEach(item => {
     });
   }
 };
+
+function submitMateriBaru() {
+  // Ambil data dari form input
+  const kelas = document.getElementById('inputKelas').value;
+  const pelajaran = document.getElementById('inputPelajaran').value;
+  const materi = document.getElementById('inputMateri').value;
+  const status = document.getElementById('inputStatus').value;
+  const catatan = document.getElementById('inputCatatan').value;
+
+  // Validasi sederhana agar field wajib terisi
+  if (!kelas || !pelajaran || !materi) {
+    alert("Mohon isi Kelas, Mata Pelajaran, dan Bab/Materi!");
+    return;
+  }
+
+  // Panggil fungsi backend Apps Script secara langsung menggunakan google.script.run
+  google.script.run
+    .withSuccessHandler(function(response) {
+      if (response.success) {
+        alert(response.message);
+        document.getElementById('formInputMateri').reset(); // Reset form setelah sukses
+        
+        // JIKA Anda punya fungsi untuk me-refresh/me-load ulang tabel data otomatis di Dashboard,
+        // Anda bisa panggil fungsinya di sini. Contoh:
+        // loadMateriData(); 
+        
+      } else {
+        alert("Gagal menyimpan data: " + response.error);
+      }
+    })
+    .withFailureHandler(function(error) {
+      alert("Terjadi kesalahan sistem: " + error.message);
+    })
+    .tambahMateriBaru(kelas, pelajaran, materi, status, catatan);
+}
