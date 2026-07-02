@@ -983,33 +983,24 @@ async function exportKartuKelas() {
 
 }
 
+// Tambahkan variabel global untuk mengunci nama & kelas sebelum diedit
+let selectedNamaLama = "";
+let selectedKelasLama = "";
+
 async function updateIdentitasSiswa() {
-
     try {
-
         // ================= FOTO =================
-
-        const fotoInput =
-            document.getElementById("editFoto");
-
-        const file =
-            fotoInput ? fotoInput.files[0] : null;
-
+        const fotoInput = document.getElementById("editFoto");
+        const file = fotoInput ? fotoInput.files[0] : null;
         let foto = "";
 
         if (file) {
-
             foto = await compressImage(file);
-
         }
 
         // ================= VALIDASI =================
-
-        const nama =
-            document.getElementById("editNama").value.trim();
-
-        const kelas =
-            document.getElementById("editKelas").value.trim();
+        const nama = document.getElementById("editNama").value.trim();
+        const kelas = document.getElementById("editKelas").value.trim();
 
         if (!nama) {
             alert("Nama siswa wajib diisi");
@@ -1022,151 +1013,78 @@ async function updateIdentitasSiswa() {
         }
 
         // ================= DATA =================
-
         const data = {
+            // SISIPKAN NAMA DAN KELAS SEBELUM DIUBAH UNTUK ACUAN UPDATE DI GOOGLE SCRIPT
+            namaLama: selectedNamaLama,
+            kelasLama: selectedKelasLama,
 
-            namaPanggilan:
-                document.getElementById("editNamaPanggilan").value,
-
-            nama:
-                document.getElementById("editNama").value,
-
-            kelas:
-                kelas,
-
-            nik:
-                document.getElementById("editNik").value,
-
-            nisn:
-                document.getElementById("editNisn").value,
-
-            jenisKelamin:
-                document.getElementById("editGender").value,
-
-            ttl:
-                document.getElementById("editTTL").value,
-
-            agama:
-                document.getElementById("editAgama").value,
-
-            anakKe:
-                document.getElementById("editAnakKe").value,
-
-            tahunMasuk:
-                document.getElementById("editTahunMasuk").value,
-
-            namaAyah:
-                document.getElementById("editAyah").value,
-
-            namaIbu:
-                document.getElementById("editIbu").value,
-
-            pekerjaanAyah:
-                document.getElementById("editKerjaAyah").value,
-
-            pekerjaanIbu:
-                document.getElementById("editKerjaIbu").value,
-
-            desa:
-                document.getElementById("editDesa").value,
-
-            kecamatan:
-                document.getElementById("editKecamatan").value,
-
-            kabupaten:
-                document.getElementById("editKabupaten").value,
-
-            provinsi:
-                document.getElementById("editProvinsi").value,
-
-            kodePos:
-                document.getElementById("editKodePos").value,
-
-            foto:
-                foto
-
+            namaPanggilan: document.getElementById("editNamaPanggilan").value,
+            nama: nama,
+            kelas: kelas,
+            nik: document.getElementById("editNik").value,
+            nisn: document.getElementById("editNisn").value,
+            jenisKelamin: document.getElementById("editGender").value,
+            ttl: document.getElementById("editTTL").value,
+            agama: document.getElementById("editAgama").value,
+            anakKe: document.getElementById("editAnakKe").value,
+            tahunMasuk: document.getElementById("editTahunMasuk").value,
+            namaAyah: document.getElementById("editAyah").value,
+            namaIbu: document.getElementById("editIbu").value,
+            pekerjaanAyah: document.getElementById("editKerjaAyah").value,
+            pekerjaanIbu: document.getElementById("editKerjaIbu").value,
+            desa: document.getElementById("editDesa").value,
+            kecamatan: document.getElementById("editKecamatan").value,
+            kabupaten: document.getElementById("editKabupaten").value,
+            provinsi: document.getElementById("editProvinsi").value,
+            kodePos: document.getElementById("editKodePos").value,
+            foto: foto
         };
 
         // ================= KIRIM =================
-const bodyData = JSON.stringify({
-    action: "updateIdentitasSiswa",
-    data: data
-});
+        const bodyData = JSON.stringify({
+            action: "updateIdentitasSiswa",
+            data: data
+        });
 
-console.log(
-    "Payload Size:",
-    (bodyData.length / 1024).toFixed(2),
-    "KB"
-);
-        
+        console.log("Payload Size:", (bodyData.length / 1024).toFixed(2), "KB");
+            
         const res = await fetch(TABUNGAN_API, {
-
             method: "POST",
-
             headers: {
-                "Content-Type":
-                    "text/plain;charset=utf-8"
+                "Content-Type": "text/plain;charset=utf-8"
             },
-
-            body: JSON.stringify({
-
-                action: "updateIdentitasSiswa",
-
-                data: data
-
-            })
-
+            body: bodyData
         });
 
         const json = await res.json();
-
         console.log(json);
 
         if (!json.status) {
-
-            alert(
-                json.message ||
-                "Gagal memperbarui data"
-            );
-
+            alert(json.message || "Gagal memperbarui data");
             return;
         }
 
         alert("Data berhasil diperbarui");
 
         // ================= RESET FOTO =================
-
         if (fotoInput) {
             fotoInput.value = "";
         }
 
-        // ================= REFRESH DATA =================
-
+        // ================= REFRESH DATA & KUNCI ULANG =================
+        selectedNamaLama = data.nama;
+        selectedKelasLama = data.kelas;
         await loadKelasEditIdentitas();
 
     } catch (err) {
-
-        console.error(
-            "Update Identitas Error:",
-            err
-        );
-
-        alert(
-            "Terjadi kesalahan : " +
-            err.message
-        );
-
+        console.error("Update Identitas Error:", err);
+        alert("Terjadi kesalahan : " + err.message);
     }
-
 }
+
 async function loadKelasEditIdentitas() {
-
     try {
-
-        const res = await fetch(
-            TABUNGAN_API + "?action=getDataSiswa"
-        );
-
+        const res = await fetch(TABUNGAN_API + "?action=getDataSiswa");
         const result = await res.json();
 
         if (!result.status) {
@@ -1175,49 +1093,33 @@ async function loadKelasEditIdentitas() {
         }
 
         dataSiswaEdit = result.data || [];
+        const kelasSelect = document.getElementById("editFilterKelas");
+        kelasSelect.innerHTML = `<option value="">Pilih Kelas</option>`;
 
-        const kelasSelect =
-            document.getElementById("editFilterKelas");
-
-        kelasSelect.innerHTML =
-            `<option value="">Pilih Kelas</option>`;
-
+        // Pastikan properti s.kelas sesuai dengan huruf dari respon database (case-sensitive)
         const kelasUnik = [
             ...new Set(
                 dataSiswaEdit
-                    .map(s => s.kelas)
+                    .map(s => s.kelas || s.KELAS) 
                     .filter(Boolean)
             )
         ].sort();
 
         kelasUnik.forEach(kelas => {
-
-            kelasSelect.innerHTML += `
-                <option value="${kelas}">
-                    ${kelas}
-                </option>
-            `;
-
+            kelasSelect.innerHTML += `<option value="${kelas}">${kelas}</option>`;
         });
 
     } catch (err) {
-
         console.error(err);
         alert("Gagal memuat data kelas");
-
     }
 }    
- function loadNamaEditIdentitas() {
 
-    const kelas =
-        document.getElementById("editFilterKelas").value;
+function loadNamaEditIdentitas() {
+    const kelas = document.getElementById("editFilterKelas").value;
+    const namaSelect = document.getElementById("editFilterNama");
 
-    const namaSelect =
-        document.getElementById("editFilterNama");
-
-    namaSelect.innerHTML =
-        `<option value="">Pilih Nama</option>`;
-
+    namaSelect.innerHTML = `<option value="">Pilih Nama</option>`;
     if (!kelas) return;
 
     if (!Array.isArray(dataSiswaEdit)) {
@@ -1225,50 +1127,48 @@ async function loadKelasEditIdentitas() {
         return;
     }
 
-    const filtered =
-        dataSiswaEdit.filter(siswa =>
-            String(siswa.kelas)
-                .trim()
-                .toLowerCase() ===
-            String(kelas)
-                .trim()
-                .toLowerCase()
-        );
+    const filtered = dataSiswaEdit.filter(siswa => {
+        const sKelas = siswa.kelas || siswa.KELAS || "";
+        return String(sKelas).trim().toLowerCase() === String(kelas).trim().toLowerCase();
+    });
 
     filtered
-        .sort((a, b) =>
-            a.nama.localeCompare(b.nama)
-        )
+        .sort((a, b) => {
+            const nameA = a.nama || a.NAMA || "";
+            const nameB = b.bama || b.NAMA || "";
+            return nameA.localeCompare(nameB);
+        })
         .forEach(siswa => {
-
-            namaSelect.innerHTML += `
-                <option value="${siswa.nama}">
-                    ${siswa.nama}
-                </option>
-            `;
-
+            const sNama = siswa.nama || siswa.NAMA || "";
+            namaSelect.innerHTML += `<option value="${sNama}">${sNama}</option>`;
         });
-
 }
+
 function loadEditIdentitas() {
     const nama = document.getElementById("editFilterNama").value;
     const kelas = document.getElementById("editFilterKelas").value;
 
-   const siswa = dataSiswaEdit.find(s =>
-    String(s.nama).trim().toLowerCase() === String(nama).trim().toLowerCase() &&
-    String(s.kelas).trim().toLowerCase() === String(kelas).trim().toLowerCase()
-);
+    const siswa = dataSiswaEdit.find(s => {
+        const sNama = s.nama || s.NAMA || "";
+        const sKelas = s.kelas || s.KELAS || "";
+        return String(sNama).trim().toLowerCase() === String(nama).trim().toLowerCase() &&
+               String(sKelas).trim().toLowerCase() === String(kelas).trim().toLowerCase();
+    });
 
     if (!siswa) {
         alert("Data tidak ditemukan");
         return;
     }
 
+    // KUNCI IDENTITAS LAMA SAAT DATA BERHASIL DIMUAT
+    selectedNamaLama = siswa.nama || siswa.NAMA || "";
+    selectedKelasLama = siswa.kelas || siswa.KELAS || "";
+
     fillEditForm(siswa);
 }
 
 function fillEditForm(siswa) {
-
+    // Menghandle fleksibilitas jika properti dari database menggunakan huruf besar (camelCase / UPPERCASE)
     const map = {
         namaPanggilan: "editNamaPanggilan",
         nama: "editNama",
@@ -1293,20 +1193,22 @@ function fillEditForm(siswa) {
 
     Object.keys(map).forEach(key => {
         const el = document.getElementById(map[key]);
-        if (el) el.value = siswa[key] || "";
+        if (el) {
+            // Cek key versi kecil atau versi UPPERCASE dari server
+            el.value = siswa[key] || siswa[key.toUpperCase()] || "";
+        }
     });
 
-    // FOTO preview (kalau ada)
-    if (siswa.foto) {
+    // FOTO preview
+    const fotoUrl = siswa.foto || siswa.FOTO;
+    if (fotoUrl) {
         const img = document.getElementById("previewFotoEdit");
-        if (img) img.src = siswa.foto;
+        if (img) img.src = fotoUrl;
     }
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-
     await loadKelasEditIdentitas();
-
     const kelas = document.getElementById("editFilterKelas");
 
     if (!kelas) {
@@ -1317,7 +1219,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     kelas.addEventListener("change", () => {
         loadNamaEditIdentitas();
     });
+    
+    // Tambahkan event listener otomatis jika select nama berubah langsung load data form
+    const namaSelect = document.getElementById("editFilterNama");
+    if (namaSelect) {
+        namaSelect.addEventListener("change", () => {
+            if(namaSelect.value) loadEditIdentitas();
+        });
+    }
 });
+
 
 async function compressImage(file) {
 
