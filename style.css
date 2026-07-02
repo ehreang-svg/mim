@@ -1,5 +1,5 @@
 /* ==========================================================================
-   GLOBAL RESET & MODERN VARIABLES
+   GLOBAL RESET, CORE VARIABLES & GLOBAL STYLES
    ========================================================================== */
 :root {
     --primary-gradient: linear-gradient(135deg, #115e59, #0f766e);
@@ -34,20 +34,20 @@ body {
     min-height: 100vh;
 }
 
-.hidden {
-    display: none !important;
+.hidden, .rbm-hidden { 
+    display: none !important; 
 }
 
-/* ==========================================================================
-   TYPOGRAPHY & FORM INPUTS
-   ========================================================================== */
 h1, h2, h3, h4 {
     font-weight: 700;
     color: var(--text-main);
     letter-spacing: -0.02em;
 }
 
-input, select, textarea {
+/* ==========================================================================
+   FORM INPUTS & BUTTONS
+   ========================================================================== */
+input, select, textarea, .rbm-filter-group select, .rbm-siswa-select, .rbm-siswa-input {
     width: 100%;
     padding: 12px 16px;
     border: 1px solid var(--border-color);
@@ -61,11 +61,32 @@ input, select, textarea {
     transition: all 0.2s ease;
 }
 
-input:focus, select:focus, textarea:focus {
+/* Penyesuaian spesifik rbm & siswa agar input/select bawaannya tetap proporsional */
+.rbm-filter-group select, .rbm-siswa-select, .rbm-siswa-input {
+    padding: 10px 12px;
+    border-radius: 8px;
+    border-color: #cbd5e1;
+    color: #334155;
+    margin-bottom: 0;
+    box-shadow: none;
+}
+.rbm-siswa-select, .rbm-siswa-input {
+    padding: 0.625rem 0.875rem;
+    border-radius: 0.5rem;
+    background-color: #f8fafc;
+}
+.rbm-siswa-input { padding-right: 2.5rem; color: #334155; }
+
+input:focus, select:focus, textarea:focus, .rbm-filter-group select:focus, .rbm-siswa-select:focus, .rbm-siswa-input:focus {
     outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+input:focus, select:focus, textarea:focus {
     border-color: var(--accent-color);
     box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.15);
 }
+.rbm-siswa-select:focus, .rbm-siswa-input:focus { background-color: #ffffff; }
 
 input[readonly] {
     background-color: #f1f5f9;
@@ -73,7 +94,7 @@ input[readonly] {
     cursor: not-allowed;
 }
 
-button {
+button, .rbm-siswa-btn-link, .rbm-siswa-btn-disabled {
     width: 100%;
     padding: 12px 24px;
     border: none;
@@ -85,34 +106,37 @@ button {
     cursor: pointer;
     box-shadow: var(--shadow-sm);
     transition: all 0.2s ease;
+    text-align: center;
+    text-decoration: none;
 }
+.rbm-siswa-btn-link { background-color: #2563eb; padding: 0.625rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; }
+.rbm-siswa-btn-link:hover { background-color: #1d4ed8; }
+.rbm-siswa-btn-disabled { background-color: #f1f5f9; color: #94a3b8; padding: 0.625rem 1rem; border-radius: 0.5rem; font-size: 0.75rem; font-weight: 500; cursor: not-allowed; box-shadow: none; }
 
 button:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);
     opacity: 0.95;
 }
-
-button:active {
-    transform: translateY(0);
-}
+button:active { transform: translateY(0); }
 
 /* ==========================================================================
-   LAYOUT, NAVIGATION & CORES
+   LAYOUT, CARDS & CONTAINERS
    ========================================================================== */
-.page {
+.page, .rbm-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 24px 16px 80px 16px;
     animation: fadeIn 0.3s ease;
 }
+.rbm-container { max-width: 1150px; background: #ffffff; padding: 30px; border-radius: 16px; box-shadow: var(--shadow-lg); }
 
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-.card {
+.card, .auth-box, .cardMD, .rbm-siswa-filter-panel, .rbm-siswa-card {
     background: var(--card-bg);
     padding: 28px;
     border-radius: var(--radius-lg);
@@ -120,6 +144,11 @@ button:active {
     margin-bottom: 24px;
     border: 1px solid rgba(226, 232, 240, 0.8);
 }
+.auth-box { max-width: 420px; margin: 10vh auto; padding: 40px 32px; text-align: center; }
+.cardMD { max-width: 1000px; margin: 0 auto; padding: 36px; }
+.rbm-siswa-filter-panel { border-color: #e2e8f0; padding: 1.25rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02); margin-bottom: 0; border-radius: 0.75rem; }
+.rbm-siswa-card { border-color: #f1f5f9; border-radius: 0.75rem; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02); transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s; margin-bottom: 0; }
+.rbm-siswa-card:hover { transform: translateY(-4px); border-color: #bfdbfe; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02); }
 
 .back {
     display: inline-flex;
@@ -135,11 +164,7 @@ button:active {
     margin-bottom: 20px;
     transition: all 0.2s ease;
 }
-
-.back:hover {
-    background: #f1f5f9;
-    border-color: var(--text-muted);
-}
+.back:hover { background: #f1f5f9; border-color: var(--text-muted); }
 
 /* Splash Screen */
 .splash {
@@ -153,48 +178,15 @@ button:active {
     text-align: center;
     padding: 20px;
 }
-
-.splash img {
-    width: 140px;
-    height: 140px;
-    margin-bottom: 24px;
-    filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2));
-}
-
-.splash h1 {
-    color: white;
-    font-size: 28px;
-    letter-spacing: 1px;
-    margin-bottom: 8px;
-}
-
-.splash p {
-    font-size: 14px;
-    opacity: 0.85;
-}
-
-/* Auth / Login Box */
-.auth-box {
-    width: 100%;
-    max-width: 420px;
-    margin: 10vh auto;
-    background: var(--card-bg);
-    padding: 40px 32px;
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-    text-align: center;
-}
-
-.auth-box h2 {
-    margin-bottom: 28px;
-    font-size: 22px;
-    position: relative;
-}
+.splash img { width: 140px; height: 140px; margin-bottom: 24px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2)); }
+.splash h1 { color: white; font-size: 28px; letter-spacing: 1px; margin-bottom: 8px; }
+.splash p { font-size: 14px; opacity: 0.85; }
+.auth-box h2 { margin-bottom: 28px; font-size: 22px; position: relative; }
 
 /* ==========================================================================
-   DASHBOARD ARCHITECTURE
+   TOPBAR & PROFILE
    ========================================================================== */
-.topbar {
+.topbar, .rbm-header-area {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -202,16 +194,14 @@ button:active {
     padding-bottom: 16px;
     border-bottom: 1px solid var(--border-color);
 }
+.rbm-header-area { border-bottom-width: 2px; padding-bottom: 20px; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
+.topbar .title { font-size: 24px; font-weight: 800; background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.rbm-header-title h1 { font-size: 24px; color: #1e293b; font-weight: 700; margin-bottom: 4px; line-height: 1.2; }
+.rbm-header-title p { font-size: 14px; color: #64748b; }
 
-.topbar .title {
-    font-size: 24px;
-    font-weight: 800;
-    background: var(--primary-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.logout {
+.logout, .rbm-loader-status {
+    display: flex;
+    align-items: center;
     background: #fee2e2;
     color: var(--danger);
     padding: 8px 16px;
@@ -221,13 +211,19 @@ button:active {
     cursor: pointer;
     transition: all 0.2s ease;
 }
+.logout:hover { background: var(--danger); color: white; }
+.rbm-loader-status { gap: 10px; background: #f1f5f9; border-radius: 30px; color: #475569; cursor: default; }
 
-.logout:hover {
-    background: var(--danger);
-    color: white;
+.rbm-spinner, .rbm-siswa-spinner {
+    border: 3px solid #cbd5e1;
+    border-top: 3px solid #1f497d;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    animation: rbm-spin 1s linear infinite;
 }
+@keyframes rbm-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-/* Profile Section Card */
 .profile {
     background: var(--primary-gradient);
     padding: 24px;
@@ -239,40 +235,27 @@ button:active {
     margin-bottom: 28px;
     box-shadow: var(--shadow-lg);
 }
-
-.profile img {
-    width: 72px;
-    height: 72px;
-    border-radius: 50%;
-    border: 3px solid rgba(255, 255, 255, 0.2);
-    object-fit: cover;
-    background: white;
-}
-
+.profile img { width: 72px; height: 72px; border-radius: 50%; border: 3px solid rgba(255, 255, 255, 0.2); object-fit: cover; background: white; }
 .profile h2 { color: white; font-size: 20px; margin-bottom: 2px; }
 .profile h3 { color: rgba(255,255,255,0.8); font-size: 14px; font-weight: 400; }
 .profile p { font-size: 13px; opacity: 0.75; }
-
-.profile .login {
-    display: inline-block;
-    margin-top: 10px;
-    background: rgba(255,255,255,0.2);
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-}
+.profile .login { display: inline-block; margin-top: 10px; background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
 .profile .login:hover { background: rgba(255,255,255,0.3); }
 
-/* Grid & Menu Functional Cards */
-.grid {
+/* ==========================================================================
+   GRIDS & FUNCTIONAL CARDS
+   ========================================================================== */
+.grid, .rbm-filter-panel, .rbm-stats-grid, .rbm-siswa-grid, .jadwal-container, .gridMD {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 16px;
     width: 100%;
 }
+.rbm-filter-panel { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 25px; }
+.rbm-stats-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 25px; }
+.rbm-siswa-grid { grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 1.5rem; }
+.jadwal-container { grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; margin-bottom: 24px; }
+.gridMD { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
 
 .menu-card {
     background: var(--card-bg);
@@ -288,170 +271,127 @@ button:active {
     min-height: 140px;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
+.menu-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--accent-color); }
+.menu-card img { width: 48px; height: 48px; margin-bottom: 12px; }
+.menu-card span, .menu-card .label { font-weight: 600; font-size: 14px; color: var(--text-main); }
 
-.menu-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
-    border-color: var(--accent-color);
-}
+.jadwal-card { margin-bottom: 0; text-align: left; }
+.jadwal-card h3 { font-size: 16px; color: #0f172a; margin-bottom: 16px; border-left: 4px solid var(--accent-color); padding-left: 10px; }
 
-.menu-card img {
-    width: 48px;
-    height: 48px;
-    margin-bottom: 12px;
-}
-
-/* Mengubah 'font' tag (deprecated) menjadi 'span' standar HTML5 */
-.menu-card span, 
-.menu-card .label {
-    font-weight: 600;
-    font-size: 14px;
-    color: var(--text-main);
-}
-
-/* Containers for Schedule (Jadwal) */
-.jadwal-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-    gap: 20px;
-    width: 100%;
-    margin-bottom: 24px;
-}
-
-.jadwal-card {
-    margin-bottom: 0;
-    text-align: left;
-}
-
-.jadwal-card h3 {
-    font-size: 16px;
-    color: #0f172a;
-    margin-bottom: 16px;
-    border-left: 4px solid var(--accent-color);
-    padding-left: 10px;
-}
+/* Stats Cards Specific */
+.rbm-stat-card { padding: 15px; border-radius: 10px; text-align: center; border: 1px solid transparent; }
+.rbm-stat-card .rbm-stat-label, .rbm-filter-group label, .form-group label, .rbm-siswa-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 6px; letter-spacing: 0.5px; }
+.rbm-stat-card .rbm-stat-value { font-size: 24px; font-weight: 700; color: #1e293b; }
+.rbm-card-total { background: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
+.rbm-card-selesai { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+.rbm-card-proses { background: #fefce8; border-color: #fef08a; color: #854d0e; }
+.rbm-card-persen { background: #f5f3ff; border-color: #ddd6fe; color: #5b21b6; }
 
 /* ==========================================================================
-   TABLES & GENERAL DATA LAYOUTS
+   TABLES & CONTROLS
    ========================================================================== */
-.table-card {
+.table-card, .rbm-table-container {
     background: white;
     border-radius: var(--radius-md);
     border: 1px solid var(--border-color);
     box-shadow: var(--shadow-sm);
     overflow-x: auto;
 }
+.rbm-table-container { border-radius: 12px; }
 
-table {
+table, .rbm-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 13px;
+    text-align: left;
 }
+.rbm-table { font-size: 14px; }
 
-th {
+th, .rbm-table th {
     background-color: #f8fafc;
     color: var(--text-muted);
     font-weight: 600;
-    text-align: left;
     padding: 14px 16px;
     border-bottom: 2px solid var(--border-color);
     text-transform: uppercase;
     font-size: 11px;
     letter-spacing: 0.05em;
 }
+.rbm-table th { background-color: #1e293b; color: #ffffff; font-size: 12px; letter-spacing: 0.5px; }
 
-td {
+td, .rbm-table td {
     padding: 14px 16px;
     border-bottom: 1px solid var(--border-color);
     color: var(--text-main);
     vertical-align: middle;
 }
+.rbm-table td { padding: 12px 16px; border-bottom-color: #e2e8f0; }
 
-tr:hover td {
-    background-color: #f1f5f9;
-}
+tr:hover td, .rbm-table tr:hover { background-color: #f1f5f9; }
+.rbm-table tr:nth-child(even) { background-color: #f8fafc; }
 
-/* Toolbar Controls */
-.data-header {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    margin-bottom: 24px;
-}
+.data-header, .form-group { display: flex; flex-direction: column; }
+.data-header { gap: 16px; margin-bottom: 24px; }
+.data-toolbar { display: flex; flex-wrap: wrap; gap: 8px; }
+.data-toolbar button { width: auto; padding: 10px 16px; font-size: 13px; }
 
-.data-toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
+.rbm-text-center { text-align: center; }
+.rbm-w-kelas { width: 80px; font-weight: 700; color: #475569; }
+.rbm-w-pelajaran { width: 160px; font-weight: 600; color: #334155; }
+.rbm-w-materi { font-weight: 500; color: #0f172a; }
 
-.data-toolbar button {
-    width: auto;
-    padding: 10px 16px;
-    font-size: 13px;
-}
+.rbm-status-select { width: 100%; max-width: 150px; padding: 6px 8px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 13px; background: #ffffff; cursor: pointer; }
+.rbm-catatan-input { width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 12px; transition: border 0.2s; }
+.rbm-catatan-input:focus { border-color: #94a3b8; outline: none; }
 
 /* ==========================================================================
-   RAPORT SPECIALIZED DESIGN (MD / KOGNITIF / PAUD)
+   RAPORT SPECIALIZED DESIGN & EXTRA UTILITIES
    ========================================================================== */
-.cardMD {
-    max-width: 1000px;
-    margin: 0 auto;
-    background: var(--card-bg);
-    padding: 36px;
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-}
+.titleMD { text-align: center; color: #115e59; font-size: 22px; font-weight: 800; margin: 20px 0 28px 0; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; }
+.sectionMD { background: #f8fafc; border: 1px solid var(--border-color); padding: 24px; border-radius: var(--radius-md); margin-bottom: 24px; }
+.form-group label { font-size: 13px; }
+.badge-rata { display: inline-block; padding: 4px 10px; background: #e2e8f0; color: var(--text-main); border-radius: 6px; font-weight: 700; }
 
-.titleMD {
+.rbm-empty-state, .rbm-siswa-empty {
     text-align: center;
-    color: #115e59;
-    font-size: 22px;
-    font-weight: 800;
-    margin: 20px 0 28px 0;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-bottom: 2px solid #e2e8f0;
-    padding-bottom: 12px;
-}
-
-.sectionMD {
-    background: #f8fafc;
-    border: 1px solid var(--border-color);
-    padding: 24px;
-    border-radius: var(--radius-md);
-    margin-bottom: 24px;
-}
-
-.gridMD {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-}
-
-.form-group label {
-    font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 6px;
-    color: var(--text-muted);
-}
-
-.badge-rata {
-    display: inline-block;
-    padding: 4px 10px;
-    background: #e2e8f0;
-    color: var(--text-main);
-    border-radius: 6px;
-    font-weight: 700;
+    padding: 40px;
+    color: #64748b;
+    font-size: 15px;
+    font-weight: 500;
+    border: 1px dashed #cbd5e1;
+    border-radius: 12px;
+    margin-top: 15px;
 }
 
 /* ==========================================================================
-   BOTTOM STICKY COPYRIGHT BAR
+   Siswa Materi Page Module
+   ========================================================================== */
+#siswaMateriPage { font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: #f8fafc; min-height: 100vh; padding: 1.5rem 0 3rem 0; }
+.rbm-siswa-banner { background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%); border-radius: 1rem; padding: 1.75rem; color: #ffffff; box-shadow: var(--shadow-sm); }
+.rbm-siswa-banner h1 { font-size: 1.625rem; font-weight: 800; letter-spacing: -0.025em; margin: 0; }
+.rbm-siswa-banner p { color: #dbeafe; font-size: 0.875rem; margin-top: 0.375rem; }
+
+.rbm-siswa-loader { display: inline-flex; align-items: center; gap: 0.5rem; background-color: rgba(255, 255, 255, 0.15); backdrop-filter: blur(4px); padding: 0.5rem 0.875rem; border-radius: 0.5rem; font-size: 0.75rem; font-weight: 600; }
+.rbm-siswa-spinner { width: 1rem; height: 1rem; border: 2px solid rgba(255, 255, 255, 0.3); border-top-color: #ffffff; border-radius: 50%; animation: rbmSiswaSpin 0.6s linear infinite; }
+@keyframes rbmSiswaSpin { to { transform: rotate(360deg); } }
+
+.rbm-siswa-label { color: #94a3b8; letter-spacing: 0.05em; margin-bottom: 0.375rem; }
+.rbm-siswa-search-wrapper { position: relative; }
+.rbm-siswa-search-icon { position: absolute; right: 0.875rem; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; font-size: 0.875rem; }
+
+.rbm-siswa-card-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+.rbm-siswa-badge { font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.625rem; border-radius: 9999px; }
+.rbm-siswa-badge-kelas { font-size: 0.75rem; font-weight: 800; color: #64748b; background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 0.125rem 0.5rem; border-radius: 0.375rem; }
+.rbm-siswa-card h3 { font-size: 1rem; font-weight: 700; color: #1e293b; line-height: 1.4; margin: 0 0 0.75rem 0; }
+.rbm-siswa-note { font-size: 0.75rem; background-color: #fef9c3; color: #713f12; padding: 0.625rem; border-radius: 0.5rem; border: 1px solid #fef08a; margin-bottom: 1rem; }
+
+.rbm-siswa-empty { background-color: #ffffff; border-radius: 0.75rem; border-width: 2px; max-width: 28rem; margin: 2rem auto 0 auto; padding: 3.5rem 1.5rem; }
+.rbm-siswa-empty-icon { font-size: 2.5rem; display: block; }
+.rbm-siswa-empty h3 { font-size: 1rem; font-weight: 700; color: #334155; margin: 0.75rem 0 0.25rem 0; }
+.rbm-siswa-empty p { font-size: 0.75rem; color: #94a3b8; margin: 0; }
+
+/* ==========================================================================
+   STICKY BARS & MEDIA QUERIES
    ========================================================================== */
 .copyright {
     position: fixed;
@@ -469,9 +409,15 @@ tr:hover td {
     letter-spacing: 0.5px;
 }
 
-/* ==========================================================================
-   RESPONSIVE LAYOUT RESPONSES
-   ========================================================================== */
+@media (min-width: 640px) {
+    .rbm-stats-grid { grid-template-columns: repeat(4, 1fr); }
+    .rbm-siswa-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1024px) {
+    .rbm-siswa-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
 @media (max-width: 768px) {
     .page { padding: 16px 12px 100px 12px; }
     .grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
@@ -480,476 +426,4 @@ tr:hover td {
     .topbar .title { font-size: 18px; }
     .jadwal-container, .gridMD { grid-template-columns: 1fr; }
     .cardMD { padding: 20px; }
-}
-
-/* ==========================================================================
-   CSS UNTUK MODUL RUANG BELAJAR MANDIRI (RBM) SD 
-   ========================================================================== */
-
-/* --- CONTAINER UTAMA --- */
-.rbm-container {
-  max-width: 1150px;
-  margin: 0 auto;
-  background: #ffffff;
-  padding: 30px;
-  border-radius: 16px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-}
-
-/* --- HEADER AREA --- */
-.rbm-header-area {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 2px solid #e2e8f0;
-  padding-bottom: 20px;
-  margin-bottom: 25px;
-  flex-wrap: wrap;
-  gap: 15px;
-}
-.rbm-header-title h1 {
-  font-size: 24px;
-  color: #1e293b;
-  font-weight: 700;
-  margin-bottom: 4px;
-  line-height: 1.2;
-}
-.rbm-header-title p {
-  font-size: 14px;
-  color: #64748b;
-}
-
-/* --- LOADER / SINKRONISASI --- */
-.rbm-loader-status {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: #f1f5f9;
-  padding: 8px 16px;
-  border-radius: 30px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #475569;
-}
-.rbm-spinner {
-  border: 3px solid #cbd5e1;
-  border-top: 3px solid #1f497d;
-  border-radius: 50%;
-  width: 18px;
-  height: 18px;
-  animation: rbm-spin 1s linear infinite;
-}
-@keyframes rbm-spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* --- KONTROL FILTER --- */
-.rbm-filter-panel {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 15px;
-  background: #f8fafc;
-  padding: 20px;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  margin-bottom: 25px;
-}
-.rbm-filter-group {
-  display: flex;
-  flex-direction: column;
-}
-.rbm-filter-group label {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: #64748b;
-  margin-bottom: 6px;
-  letter-spacing: 0.5px;
-}
-.rbm-filter-group select {
-  padding: 10px 12px;
-  background-color: #ffffff;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  font-size: 14px;
-  color: #334155;
-  outline: none;
-  transition: all 0.2s;
-  cursor: pointer;
-}
-.rbm-filter-group select:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-}
-
-/* --- KARTU PROGRES STATISTIK --- */
-.rbm-stats-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
-  margin-bottom: 25px;
-}
-@media (min-width: 640px) {
-  .rbm-stats-grid { grid-template-columns: repeat(4, 1fr); }
-}
-.rbm-stat-card {
-  padding: 15px;
-  border-radius: 10px;
-  text-align: center;
-  border: 1px solid transparent;
-}
-.rbm-stat-card .rbm-stat-label {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  margin-bottom: 4px;
-}
-.rbm-stat-card .rbm-stat-value {
-  font-size: 24px;
-  font-weight: 700;
-  color: #1e293b;
-}
-.rbm-card-total { background: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
-.rbm-card-selesai { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
-.rbm-card-proses { background: #fefce8; border-color: #fef08a; color: #854d0e; }
-.rbm-card-persen { background: #f5f3ff; border-color: #ddd6fe; color: #5b21b6; }
-
-/* --- TABEL STRUKTUR --- */
-.rbm-table-container {
-  overflow-x: auto;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-}
-.rbm-table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: left;
-  font-size: 14px;
-}
-.rbm-table th {
-  background-color: #1e293b;
-  color: #ffffff;
-  font-weight: 600;
-  text-transform: uppercase;
-  font-size: 12px;
-  padding: 14px 16px;
-  letter-spacing: 0.5px;
-}
-.rbm-table td {
-  padding: 12px 16px;
-  border-bottom: 1px solid #e2e8f0;
-  vertical-align: middle;
-}
-.rbm-table tr:nth-child(even) { background-color: #f8fafc; }
-.rbm-table tr:hover { background-color: #f1f5f9; transition: background 0.15s ease; }
-
-.rbm-text-center { text-align: center; }
-.rbm-w-kelas { width: 80px; font-weight: 700; color: #475569; }
-.rbm-w-pelajaran { width: 160px; font-weight: 600; color: #334155; }
-.rbm-w-materi { font-weight: 500; color: #0f172a; }
-
-/* INPUT & DROPDOWN TABEL */
-.rbm-status-select {
-  width: 100%;
-  max-width: 150px;
-  padding: 6px 8px;
-  border-radius: 6px;
-  border: 1px solid #cbd5e1;
-  font-size: 13px;
-  background: #ffffff;
-  cursor: pointer;
-}
-.rbm-catatan-input {
-  width: 100%;
-  padding: 8px 10px;
-  border-radius: 6px;
-  border: 1px solid #e2e8f0;
-  font-size: 12px;
-  transition: border 0.2s;
-}
-.rbm-catatan-input:focus {
-  border-color: #94a3b8;
-  outline: none;
-}
-
-/* EMPTY STATE NOTIF */
-.rbm-empty-state {
-  text-align: center;
-  padding: 40px;
-  color: #64748b;
-  font-size: 15px;
-  font-weight: 500;
-  border: 1px dashed #cbd5e1;
-  border-radius: 12px;
-  margin-top: 15px;
-}
-
-/* UTILITY UTK UTAMA */
-.rbm-hidden { display: none !important; }
-
-/* ==========================================================================
-   CSS KHUSUS: RUANG BELAJAR MANDIRI (HALAMAN SISWA)
-   ========================================================================== */
-
-/* 1. Kontainer Utama */
-#siswaMateriPage {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    background-color: #f8fafc; /* Slate 50 */
-    min-height: 100vh;
-    padding-top: 1.5rem;
-    padding-bottom: 3rem;
-}
-
-/* 2. Banner Header Animasi Gradient */
-.rbm-siswa-banner {
-    background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
-    border-radius: 1rem;
-    padding: 1.75rem;
-    color: #ffffff;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-}
-
-.rbm-siswa-banner h1 {
-    font-size: 1.625rem;
-    font-weight: 800;
-    letter-spacing: -0.025em;
-    margin: 0;
-}
-
-.rbm-siswa-banner p {
-    color: #dbeafe;
-    font-size: 0.875rem;
-    margin-top: 0.375rem;
-}
-
-/* 3. Status Sinkronisasi Mini */
-.rbm-siswa-loader {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background-color: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(4px);
-    padding: 0.5rem 0.875rem;
-    border-radius: 0.5rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
-.rbm-siswa-spinner {
-    width: 1rem;
-    height: 1rem;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top-color: #ffffff;
-    border-radius: 50%;
-    animation: rbmSiswaSpin 0.6s linear infinite;
-}
-
-@keyframes rbmSiswaSpin {
-    to { transform: rotate(360deg); }
-}
-
-/* 4. Panel Filter & Pencarian */
-.rbm-siswa-filter-panel {
-    background-color: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 0.75rem;
-    padding: 1.25rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-}
-
-.rbm-siswa-label {
-    display: block;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: #94a3b8; /* Slate 400 */
-    margin-bottom: 0.375rem;
-    letter-spacing: 0.05em;
-}
-
-.rbm-siswa-select {
-    width: 100%;
-    background-color: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 0.5rem;
-    padding: 0.625rem 0.875rem;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #334155;
-    outline: none;
-    transition: all 0.2s;
-    cursor: pointer;
-}
-
-.rbm-siswa-select:focus, 
-.rbm-siswa-input:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-    background-color: #ffffff;
-}
-
-.rbm-siswa-search-wrapper {
-    position: relative;
-}
-
-.rbm-siswa-input {
-    width: 100%;
-    background-color: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 0.5rem;
-    padding: 0.625rem 2.5rem 0.625rem 0.875rem;
-    font-size: 0.875rem;
-    color: #334155;
-    outline: none;
-    transition: all 0.2s;
-}
-
-.rbm-siswa-search-icon {
-    position: absolute;
-    right: 0.875rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #94a3b8;
-    pointer-events: none;
-    font-size: 0.875rem;
-}
-
-/* 5. Grid & Komponen Kartu Materi (Card) */
-.rbm-siswa-grid {
-    display: grid;
-    grid-template-columns: repeat(1, minmax(0, 1fr));
-    gap: 1.5rem;
-}
-
-@media (min-width: 640px) {
-    .rbm-siswa-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-@media (min-width: 1024px) {
-    .rbm-siswa-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-}
-
-.rbm-siswa-card {
-    background-color: #ffffff;
-    border: 1px solid #f1f5f9;
-    border-radius: 0.75rem;
-    padding: 1.25rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
-    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
-}
-
-.rbm-siswa-card:hover {
-    transform: translateY(-4px);
-    border-color: #bfdbfe;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
-}
-
-/* 6. Metadata Badge Pelajaran & Kelas */
-.rbm-siswa-card-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.75rem;
-}
-
-.rbm-siswa-badge {
-    font-size: 0.75rem;
-    font-weight: 700;
-    padding: 0.25rem 0.625rem;
-    border-radius: 9999px;
-}
-
-.rbm-siswa-badge-kelas {
-    font-size: 0.75rem;
-    font-weight: 800;
-    color: #64748b;
-    background-color: #f8fafc;
-    border: 1px solid #e2e8f0;
-    padding: 0.125rem 0.5rem;
-    border-radius: 0.375rem;
-}
-
-.rbm-siswa-card h3 {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #1e293b;
-    line-height: 1.4;
-    margin: 0 0 0.75rem 0;
-}
-
-/* 7. Catatan Guru Non-Link */
-.rbm-siswa-note {
-    font-size: 0.75rem;
-    background-color: #fef9c3; /* Yellow 100 */
-    color: #713f12;
-    padding: 0.625rem;
-    border-radius: 0.5rem;
-    border: 1px solid #fef08a;
-    margin-bottom: 1rem;
-}
-
-/* 8. Tombol Aksi Belajar */
-.rbm-siswa-btn-link {
-    display: block;
-    width: 100%;
-    text-align: center;
-    background-color: #2563eb;
-    color: #ffffff;
-    font-size: 0.875rem;
-    font-weight: 600;
-    padding: 0.625rem 1rem;
-    border-radius: 0.5rem;
-    text-decoration: none;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    transition: background-color 0.2s;
-}
-
-.rbm-siswa-btn-link:hover {
-    background-color: #1d4ed8;
-}
-
-.rbm-siswa-btn-disabled {
-    display: block;
-    width: 100%;
-    text-align: center;
-    background-color: #f1f5f9;
-    color: #94a3b8;
-    font-size: 0.75rem;
-    font-weight: 500;
-    padding: 0.625rem 1rem;
-    border-radius: 0.5rem;
-    border: none;
-    cursor: not-allowed;
-}
-
-/* 9. Empty State (Data Tidak Ditemukan) */
-.rbm-siswa-empty {
-    text-center: center;
-    padding: 3.5rem 1.5rem;
-    background-color: #ffffff;
-    border-radius: 0.75rem;
-    border: 2px dashed #cbd5e1;
-    max-width: 28rem;
-    margin: 2rem auto 0 auto;
-}
-
-.rbm-siswa-empty-icon {
-    font-size: 2.5rem;
-    display: block;
-}
-
-.rbm-siswa-empty h3 {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #334155;
-    margin: 0.75rem 0 0.25rem 0;
-}
-
-.rbm-siswa-empty p {
-    font-size: 0.75rem;
-    color: #94a3b8;
-    margin: 0;
 }
