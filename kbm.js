@@ -313,30 +313,31 @@ filtered.forEach(item => {
 };
 
 function submitMateriBaru() {
-  // Ambil data dari form input
+  // Ambil data berdasarkan ID baru yang telah diperbaiki
   const kelas = document.getElementById('inputKelas').value;
   const pelajaran = document.getElementById('inputPelajaran').value;
   const materi = document.getElementById('inputMateri').value;
   const status = document.getElementById('inputStatus').value;
   const catatan = document.getElementById('inputCatatan').value;
 
-  // Validasi sederhana agar field wajib terisi
+  // Validasi wajib terisi
   if (!kelas || !pelajaran || !materi) {
     alert("Mohon isi Kelas, Mata Pelajaran, dan Bab/Materi!");
     return;
   }
 
-  // Panggil fungsi backend Apps Script secara langsung menggunakan google.script.run
+  // Panggil Google Apps Script Backend
   google.script.run
     .withSuccessHandler(function(response) {
       if (response.success) {
         alert(response.message);
-        document.getElementById('formInputMateri').reset(); // Reset form setelah sukses
+        document.getElementById('formInputMateri').reset(); // Reset form
+        goBack(); // Otomatis kembali ke materiPage setelah sukses
         
-        // JIKA Anda punya fungsi untuk me-refresh/me-load ulang tabel data otomatis di Dashboard,
-        // Anda bisa panggil fungsinya di sini. Contoh:
-        // loadMateriData(); 
-        
+        // Opsional: Jika Anda punya fungsi load data otomatis untuk merefresh tabel
+        if (typeof aplikasi !== "undefined" && typeof aplikasi.init === "function") {
+            aplikasi.init();
+        }
       } else {
         alert("Gagal menyimpan data: " + response.error);
       }
