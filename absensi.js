@@ -96,7 +96,7 @@ async function submitAbsen(){
 
                 const jarak = getDistance(lat, lng, SEKOLAH_LAT, SEKOLAH_LNG);
 
-                if(jarak > 500){
+                if(jarak > 100){
                     alert("Diluar radius sekolah");
                     return;
                 }
