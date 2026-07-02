@@ -71,7 +71,7 @@ ${s.D}
 html+=`
 <button type="button"
 onclick="koreksi()">
-Kirim Jawaban
+Kirim
 </button>
 `;
 document.getElementById("quiz")
