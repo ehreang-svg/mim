@@ -1242,117 +1242,6 @@ placeholder="Masukkan NISN">
 
 </div>
 
-<div id="materiPage" class="page">
-  
-  <div class="max-w-6xl mx-auto mb-4">
-    <button class="btn-small btn-back bg-slate-600 hover:bg-slate-700 text-white text-xs font-medium py-2 px-4 rounded transition alignment-left" onclick="goBack()">
-      ⬅ Kembali
-    </button>
-  </div>
-
-  <div class="rbm-container max-w-6xl mx-auto bg-white rounded-xl shadow-lg p-6">
-    <button class="btn-small btn-add" onclick="show('tambahMateriPage')">➕ Tambah Materi</button>
-      
-    <div class="rbm-header-area border-b pb-4 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-      <div class="rbm-header-title">
-        <h1 class="text-2xl font-bold text-slate-800">🎯 KEGIATAN BELAJAR MENGAJAR</h1>
-        <p class="text-sm text-slate-500">Pelacakan kurikulum materi Kelas 1 - 6 secara real-time</p>
-      </div>
-      <div id="loadingStatus" class="rbm-loader-status flex items-center gap-2 bg-slate-100 px-4 py-2 rounded-lg text-sm font-medium text-slate-600">
-        <div class="rbm-spinner loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-5 w-5"></div>
-        <span>Memuat data dari Database...</span>
-      </div>
-    </div>
-
-<div class="rbm-filter-panel grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 bg-slate-50 p-4 rounded-lg border">
-      <div class="rbm-filter-group flex flex-col">
-        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Pilih Kelas</label>
-        <select id="filterKelas" onchange="aplikasi.filterDanTampilkan(this)" class="w-full bg-white border border-slate-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
-          <option value="Semua">Semua Kelas (1-6)</option>
-          <option value="1">Kelas 1</option>
-          <option value="2">Kelas 2</option>
-          <option value="3">Kelas 3</option>
-          <option value="4">Kelas 4</option>
-          <option value="5">Kelas 5</option>
-          <option value="6">Kelas 6</option>
-        </select>
-      </div>
-      <div class="rbm-filter-group flex flex-col">
-        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Mata Pelajaran</label>
-        <select id="filterPelajaran" onchange="aplikasi.filterDanTampilkan(this)" class="w-full bg-white border border-slate-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
-          <option value="Semua Pelajaran"</option>
-                <option value="Matematika"</option>
-                <option value="Bahasa Indonesia"</option>
-                    <option value="Bahasa Arab"</option>
-            <option value="Bahasa Inggris"</option>
-                <option value="Bahasa Cirebon"</option>
-            <option value="IPA (IPAS)"</option>
-                <option value="Fiqih"</option>
-           <option value="Aqidah Akhlaq"</option>
-                <option value="Al Quran Hadits"</option>
-            <option value="SKI"</option>
-                <option value="PKN"</option>
-            <option value="SBDP"</option>
-                <option value="PJOK"</option>
-                <option value="BTQ/Praktek Ibadah"</option>
-        </select>
-      </div>
-      <div class="rbm-filter-group flex flex-col">
-        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Status Progress</label>
-        <select id="filterStatus" onchange="aplikasi.filterDanTampilkan(this)" class="w-full bg-white border border-slate-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
-          <option value="Semua">Semua Status</option>
-          <option value="🔴 Belum">🔴 Belum</option>
-          <option value="🟡 Proses">🟡 Proses</option>
-          <option value="🟢 Selesai">🟢 Selesai</option>
-        </select>
-          <button id="tambahMateriPage" onclick="tambahMateriBaru()" style="margin-bottom:24px;">
-    <span style="margin-right:8px;">←</span> Tambah Materi
-</button>
-      </div>
-    </div>
-      
-    <div class="rbm-stats-grid grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6 text-center">
-      <div class="rbm-stat-card rbm-card-total bg-blue-50 p-3 rounded-lg border border-blue-200">
-        <div class="rbm-stat-label text-xs text-blue-600 font-bold uppercase">Total Materi</div>
-        <div id="statTotal" class="rbm-stat-value text-xl font-bold text-slate-800">0</div>
-      </div>
-      <div class="rbm-stat-card rbm-card-selesai bg-green-50 p-3 rounded-lg border border-green-200">
-        <div class="rbm-stat-label text-xs text-green-600 font-bold uppercase">Selesai</div>
-        <div id="statSelesai" class="rbm-stat-value text-xl font-bold text-slate-800">0</div>
-      </div>
-      <div class="rbm-stat-card rbm-card-proses bg-yellow-50 p-3 rounded-lg border border-yellow-200">
-        <div class="rbm-stat-label text-xs text-yellow-600 font-bold uppercase">Dalam Proses</div>
-        <div id="statProses" class="rbm-stat-value text-xl font-bold text-slate-800">0</div>
-      </div>
-      <div class="rbm-stat-card rbm-card-persen bg-indigo-50 p-3 rounded-lg border border-indigo-200">
-        <div class="rbm-stat-label text-xs text-indigo-600 font-bold uppercase">Persentase</div>
-        <div id="statPersen" class="rbm-stat-value text-xl font-bold text-slate-800">0%</div>
-      </div>
-    </div>
-
-    <div class="rbm-table-container overflow-x-auto rounded-lg border border-slate-200">
-      <table class="rbm-table w-full text-left border-collapse bg-white">
-        <thead>
-          <tr class="bg-slate-800 text-white text-xs uppercase font-semibold">
-            <th class="rbm-text-center py-3 px-4 text-center w-16">Kelas</th>
-            <th class="py-3 px-4 w-40">Mata Pelajaran</th>
-            <th class="py-3 px-4">Topik / Bab Materi</th>
-            <th class="rbm-text-center py-3 px-4 w-44 text-center">Status Belajar</th>
-            <th class="py-3 px-4 w-60">Sumber / Catatan</th>
-          </tr>
-        </thead>
-        <tbody id="tabelMateriBody" class="text-sm text-slate-700 divide-y divide-slate-200">
-          </tbody>
-      </table>
-    </div>
-        </button>
-    <div id="emptyState" class="rbm-empty-state rbm-hidden hidden text-center py-12 text-slate-500">
-      📭 Tidak ada materi yang cocok dengan kombinasi filter pilihan Anda.
-    </div>
-
-  </div>
-</div>
-
 <div id="siswaMateriPage" class="page hidden">
   
   <div class="max-w-6xl mx-auto mb-4 px-4 sm:px-0">
@@ -1423,62 +1312,173 @@ placeholder="Masukkan NISN">
   </div>
 </div>
 
-<div id="tambahMateriPage" class="hidden page">
-
-<button class="back" onclick="goBack()" style="margin-bottom:24px;">
-            <span style="margin-right:8px;">←</span> Kembali
-        </button>
-<div class="form-container" style="margin-bottom: 30px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
-  <h3>Tambah Materi KBM Baru</h3>
-  <form id="formInputMateri">
-    <div style="margin-bottom: 10px;">
-      <label style="display:block; font-weight:bold;">Kelas:</label>
-        <select id="kelas tambah materi">
-                <option value="1">Kelas 1</option>
-                <option value="2">Kelas 2</option>
-            <option value="3">Kelas 3</option>
-                <option value="4">Kelas 4</option>
-            <option value="5">Kelas 5</option>
-                <option value="6">Kelas 6</option>
-            </select>
-    </div>
-    <div style="margin-bottom: 10px;">
-      <label style="display:block; font-weight:bold;">Mata Pelajaran:</label>
-       <select id="input pelajaran">
-                <option value="Matematika"</option>
-                <option value="Bahasa Indonesia"</option>
-                    <option value="Bahasa Arab"</option>
-            <option value="Bahasa Inggris"</option>
-                <option value="Bahasa Cirebon"</option>
-            <option value="IPA (IPAS)"</option>
-                <option value="Fiqih"</option>
-           <option value="Aqidah Akhlaq"</option>
-                <option value="Al Quran Hadits"</option>
-            <option value="SKI"</option>
-                <option value="PKN"</option>
-            <option value="SBDP"</option>
-                <option value="PJOK"</option>
-                <option value="BTQ/Praktek Ibadah"</option>
-            </select>
-    </div>
-    <div style="margin-bottom: 10px;">
-      <label style="display:block; font-weight:bold;">Bab / Topik Materi:</label>
-      <input type="text" id="inputMateri" required style="width:100%; padding:8px; margin-top:5px;">
-    </div>
-    <div style="margin-bottom: 10px;">
-      <label style="display:block; font-weight:bold;">Status Belajar:</label>
-      <select id="inputStatus" style="width:100%; padding:8px; margin-top:5px;">
-        <option value="🔴 Belum">🔴 Belum</option>
-        <option value="🟡 Sedang">🟡 Sedang</option>
-        <option value="🟢 Selesai">🟢 Selesai</option>
-      </select>
-    </div>
-    <div style="margin-bottom: 15px;">
-      <label style="display:block; font-weight:bold;">Catatan / Sumber Belajar (Link):</label>
-      <input type="text" id="inputCatatan" style="width:100%; padding:8px; margin-top:5px;">
-    </div>
-    <button type="button" onclick="submitMateriBaru()" style="background-color: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
-      Simpan Materi
+<div id="materiPage" class="page">
+  
+  <div class="max-w-6xl mx-auto mb-4">
+    <button class="btn-small btn-back bg-slate-600 hover:bg-slate-700 text-white text-xs font-medium py-2 px-4 rounded transition alignment-left" onclick="goBack()">
+      Implies ⬅ Kembali
     </button>
-  </form>
+  </div>
+
+  <div class="rbm-container max-w-6xl mx-auto bg-white rounded-xl shadow-lg p-6">
+    <button class="btn-small btn-add bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded mb-4" onclick="nav('tambahMateriPage')">
+      ➕ Tambah Materi
+    </button>
+      
+    <div class="rbm-header-area border-b pb-4 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div class="rbm-header-title">
+        <h1 class="text-2xl font-bold text-slate-800">🎯 KEGIATAN BELAJAR MENGAJAR</h1>
+        <p class="text-sm text-slate-500">Pelacakan kurikulum materi Kelas 1 - 6 secara real-time</p>
+      </div>
+      <div id="loadingStatus" class="rbm-loader-status flex items-center gap-2 bg-slate-100 px-4 py-2 rounded-lg text-sm font-medium text-slate-600">
+        <div class="rbm-spinner loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-5 w-5"></div>
+        <span>Memuat data dari Database...</span>
+      </div>
+    </div>
+
+    <div class="rbm-filter-panel grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 bg-slate-50 p-4 rounded-lg border">
+      <div class="rbm-filter-group flex flex-col">
+        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Pilih Kelas</label>
+        <select id="filterKelas" onchange="aplikasi.filterDanTampilkan(this)" class="w-full bg-white border border-slate-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+          <option value="Semua">Semua Kelas (1-6)</option>
+          <option value="1">Kelas 1</option>
+          <option value="2">Kelas 2</option>
+          <option value="3">Kelas 3</option>
+          <option value="4">Kelas 4</option>
+          <option value="5">Kelas 5</option>
+          <option value="6">Kelas 6</option>
+        </select>
+      </div>
+      <div class="rbm-filter-group flex flex-col">
+        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Mata Pelajaran</label>
+        <select id="filterPelajaran" onchange="aplikasi.filterDanTampilkan(this)" class="w-full bg-white border border-slate-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+          <option value="Semua Pelajaran">Semua Pelajaran</option>
+          <option value="Matematika">Matematika</option>
+          <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+          <option value="Bahasa Arab">Bahasa Arab</option>
+          <option value="Bahasa Inggris">Bahasa Inggris</option>
+          <option value="Bahasa Cirebon">Bahasa Cirebon</option>
+          <option value="IPA (IPAS)">IPA (IPAS)</option>
+          <option value="Fiqih">Fiqih</option>
+          <option value="Aqidah Akhlaq">Aqidah Akhlaq</option>
+          <option value="Al Quran Hadits">Al Quran Hadits</option>
+          <option value="SKI">SKI</option>
+          <option value="PKN">PKN</option>
+          <option value="SBDP">SBDP</option>
+          <option value="PJOK">PJOK</option>
+          <option value="BTQ/Praktek Ibadah">BTQ/Praktek Ibadah</option>
+        </select>
+      </div>
+      <div class="rbm-filter-group flex flex-col">
+        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Status Progress</label>
+        <select id="filterStatus" onchange="aplikasi.filterDanTampilkan(this)" class="w-full bg-white border border-slate-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+          <option value="Semua">Semua Status</option>
+          <option value="🔴 Belum">🔴 Belum</option>
+          <option value="🟡 Proses">🟡 Proses</option>
+          <option value="🟢 Selesai">🟢 Selesai</option>
+        </select>
+      </div>
+    </div>
+      
+    <div class="rbm-stats-grid grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6 text-center">
+      <div class="rbm-stat-card rbm-card-total bg-blue-50 p-3 rounded-lg border border-blue-200">
+        <div class="rbm-stat-label text-xs text-blue-600 font-bold uppercase">Total Materi</div>
+        <div id="statTotal" class="rbm-stat-value text-xl font-bold text-slate-800">0</div>
+      </div>
+      <div class="rbm-stat-card rbm-card-selesai bg-green-50 p-3 rounded-lg border border-green-200">
+        <div class="rbm-stat-label text-xs text-green-600 font-bold uppercase">Selesai</div>
+        <div id="statSelesai" class="rbm-stat-value text-xl font-bold text-slate-800">0</div>
+      </div>
+      <div class="rbm-stat-card rbm-card-proses bg-yellow-50 p-3 rounded-lg border border-yellow-200">
+        <div class="rbm-stat-label text-xs text-yellow-600 font-bold uppercase">Dalam Proses</div>
+        <div id="statProses" class="rbm-stat-value text-xl font-bold text-slate-800">0</div>
+      </div>
+      <div class="rbm-stat-card rbm-card-persen bg-indigo-50 p-3 rounded-lg border border-indigo-200">
+        <div class="rbm-stat-label text-xs text-indigo-600 font-bold uppercase">Persentase</div>
+        <div id="statPersen" class="rbm-stat-value text-xl font-bold text-slate-800">0%</div>
+      </div>
+    </div>
+
+    <div class="rbm-table-container overflow-x-auto rounded-lg border border-slate-200">
+      <table class="rbm-table w-full text-left border-collapse bg-white">
+        <thead>
+          <tr class="bg-slate-800 text-white text-xs uppercase font-semibold">
+            <th class="rbm-text-center py-3 px-4 text-center w-16">Kelas</th>
+            <th class="py-3 px-4 w-40">Mata Pelajaran</th>
+            <th class="py-3 px-4">Topik / Bab Materi</th>
+            <th class="rbm-text-center py-3 px-4 w-44 text-center">Status Belajar</th>
+            <th class="py-3 px-4 w-60">Sumber / Catatan</th>
+          </tr>
+        </thead>
+        <tbody id="tabelMateriBody" class="text-sm text-slate-700 divide-y divide-slate-200">
+          </tbody>
+      </table>
+    </div>
+
+    <div id="emptyState" class="rbm-empty-state text-center py-12 text-slate-500 hidden">
+      📭 Tidak ada materi yang cocok dengan kombinasi filter pilihan Anda.
+    </div>
+
+  </div>
+</div>
+
+<div id="tambahMateriPage" class="hidden page max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-xl mt-6">
+  <button class="back bg-slate-600 hover:bg-slate-700 text-white py-2 px-4 rounded text-xs mb-4" onclick="goBack()">
+    <span style="margin-right:8px;">←</span> Kembali
+  </button>
+  
+  <div class="form-container style="padding: 10px 0;">
+    <h3 class="text-xl font-bold text-slate-800 mb-4">Tambah Materi KBM Baru</h3>
+    <form id="formInputMateri">
+      <div style="margin-bottom: 15px;">
+        <label style="display:block; font-weight:bold;" for="inputKelas">Kelas:</label>
+        <select id="inputKelas" style="width:100%; padding:8px; margin-top:5px; border:1px solid #ccc; border-radius:4px;">
+          <option value="1">Kelas 1</option>
+          <option value="2">Kelas 2</option>
+          <option value="3">Kelas 3</option>
+          <option value="4">Kelas 4</option>
+          <option value="5">Kelas 5</option>
+          <option value="6">Kelas 6</option>
+        </select>
+      </div>
+      <div style="margin-bottom: 15px;">
+        <label style="display:block; font-weight:bold;" for="inputPelajaran">Mata Pelajaran:</label>
+        <select id="inputPelajaran" style="width:100%; padding:8px; margin-top:5px; border:1px solid #ccc; border-radius:4px;">
+          <option value="Matematika">Matematika</option>
+          <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+          <option value="Bahasa Arab">Bahasa Arab</option>
+          <option value="Bahasa Inggris">Bahasa Inggris</option>
+          <option value="Bahasa Cirebon">Bahasa Cirebon</option>
+          <option value="IPA (IPAS)">IPA (IPAS)</option>
+          <option value="Fiqih">Fiqih</option>
+          <option value="Aqidah Akhlaq">Aqidah Akhlaq</option>
+          <option value="Al Quran Hadits">Al Quran Hadits</option>
+          <option value="SKI">SKI</option>
+          <option value="PKN">PKN</option>
+          <option value="SBDP">SBDP</option>
+          <option value="PJOK">PJOK</option>
+          <option value="BTQ/Praktek Ibadah">BTQ/Praktek Ibadah</option>
+        </select>
+      </div>
+      <div style="margin-bottom: 15px;">
+        <label style="display:block; font-weight:bold;" for="inputMateri">Bab / Topik Materi:</label>
+        <input type="text" id="inputMateri" required style="width:100%; padding:8px; margin-top:5px; border:1px solid #ccc; border-radius:4px;">
+      </div>
+      <div style="margin-bottom: 15px;">
+        <label style="display:block; font-weight:bold;" for="inputStatus">Status Belajar:</label>
+        <select id="inputStatus" style="width:100%; padding:8px; margin-top:5px; border:1px solid #ccc; border-radius:4px;">
+          <option value="🔴 Belum">🔴 Belum</option>
+          <option value="🟡 Proses">🟡 Proses</option>
+          <option value="🟢 Selesai">🟢 Selesai</option>
+        </select>
+      </div>
+      <div style="margin-bottom: 20px;">
+        <label style="display:block; font-weight:bold;" for="inputCatatan">Catatan / Sumber Belajar (Link):</label>
+        <input type="text" id="inputCatatan" style="width:100%; padding:8px; margin-top:5px; border:1px solid #ccc; border-radius:4px;">
+      </div>
+      <button type="button" onclick="submitMateriBaru()" style="background-color: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%;">
+        Simpan Materi
+      </button>
+    </form>
+  </div>
 </div>
