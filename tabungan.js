@@ -1029,7 +1029,7 @@ async function updateIdentitasSiswa() {
                 document.getElementById("editNamaPanggilan").value,
 
             nama:
-                nama,
+                document.getElementById("editNama").value,
 
             kelas:
                 kelas,
