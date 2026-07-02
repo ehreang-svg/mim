@@ -29,6 +29,7 @@ const pages = [
    "ijazahPage",
    "ijazahMDPage",
    "siswaMateriPage",
+   "tambahMateriPage",
      "raportMDPage"
 ];
 /* ===========================
