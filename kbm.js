@@ -313,37 +313,65 @@ filtered.forEach(item => {
 };
 
 function submitMateriBaru() {
-  // Ambil data berdasarkan ID baru yang telah diperbaiki
+  // 1. Ambil data dari elemen HTML input
   const kelas = document.getElementById('inputKelas').value;
   const pelajaran = document.getElementById('inputPelajaran').value;
   const materi = document.getElementById('inputMateri').value;
   const status = document.getElementById('inputStatus').value;
   const catatan = document.getElementById('inputCatatan').value;
 
-  // Validasi wajib terisi
+  // 2. Validasi field wajib
   if (!kelas || !pelajaran || !materi) {
     alert("Mohon isi Kelas, Mata Pelajaran, dan Bab/Materi!");
     return;
   }
 
-  // Panggil Google Apps Script Backend
-  google.script.run
-    .withSuccessHandler(function(response) {
-      if (response.success) {
-        alert(response.message);
-        document.getElementById('formInputMateri').reset(); // Reset form
-        goBack(); // Otomatis kembali ke materiPage setelah sukses
-        
-        // Opsional: Jika Anda punya fungsi load data otomatis untuk merefresh tabel
-        if (typeof aplikasi !== "undefined" && typeof aplikasi.init === "function") {
+  // Tampilkan indikator loading jika fungsi showLoading tersedia
+  if (typeof aplikasi !== "undefined" && typeof aplikasi.showLoading === "function") {
+    aplikasi.showLoading(true);
+  }
+
+  // 3. Cek ketersediaan URL API KBM
+  if (window.KBM_API) {
+    // Susun URL dengan query parameter agar diterima oleh fungsi doGet(e) di Apps Script
+    const urlTambahkan = `${window.KBM_API}?action=tambahMateriBaru` +
+                         `&kelas=${encodeURIComponent(kelas)}` +
+                         `&pelajaran=${encodeURIComponent(pelajaran)}` +
+                         `&materi=${encodeURIComponent(materi)}` +
+                         `&status=${encodeURIComponent(status)}` +
+                         `&catatan=${encodeURIComponent(catatan)}`;
+
+    fetch(urlTambahkan)
+      .then(res => res.json())
+      .then(response => {
+        if (response.success) {
+          alert(response.message || "Data materi berhasil disimpan!");
+          document.getElementById('formInputMateri').reset(); // Reset form input
+          
+          if (typeof goBack === "function") goBack(); // Kembali ke halaman tabel utama
+          
+          // Refresh data tabel otomatis setelah data baru masuk
+          if (typeof aplikasi !== "undefined" && typeof aplikasi.init === "function") {
             aplikasi.init();
+          }
+        } else {
+          alert("Gagal menyimpan data ke Sheets: " + response.error);
         }
-      } else {
-        alert("Gagal menyimpan data: " + response.error);
-      }
-    })
-    .withFailureHandler(function(error) {
-      alert("Terjadi kesalahan sistem: " + error.message);
-    })
-    .tambahMateriBaru(kelas, pelajaran, materi, status, catatan);
+        if (typeof aplikasi !== "undefined" && typeof aplikasi.showLoading === "function") {
+          aplikasi.showLoading(false);
+        }
+      })
+      .catch(err => {
+        alert("Terjadi kesalahan jaringan/API KBM: " + err);
+        if (typeof aplikasi !== "undefined" && typeof aplikasi.showLoading === "function") {
+          aplikasi.showLoading(false);
+        }
+      });
+  } else {
+    // Mode cadangan (Fallback) jika API tidak diatur di hosting lokal
+    alert("API KBM (window.KBM_API) belum didefinisikan di file konfigurasi Anda.");
+    if (typeof aplikasi !== "undefined" && typeof aplikasi.showLoading === "function") {
+      aplikasi.showLoading(false);
+    }
+  }
 }
