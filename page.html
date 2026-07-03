@@ -1488,28 +1488,45 @@ placeholder="Masukkan NISN">
 </div>
 
 
+<!-- =========================
+     CHAT PAGE
+========================= -->
+
 <div class="page hidden" id="chatPage">
 
-<div class="back" onclick="goBack()">
-← Kembali
-</div>
+    <div class="topbar">
 
-<div class="chatHeader">
-Ruang Pesan Waraga MIS Miftahul Mubtadiin
-</div>
+        <div class="back" onclick="goBack()">
+            ←
+        </div>
 
-<div id="chatList"></div>
+        <div class="chatTitle">
 
-<div class="chatInput">
+            <h2>Chat Seluruh User</h2>
 
-<input
-id="chatText"
-placeholder="Tulis pesan dengan bahasa yang sopan...">
+            <small id="chatStatus">
+                Online
+            </small>
 
-<button onclick="kirimChat()">
-Kirim
-</button>
+        </div>
 
-</div>
+    </div>
+
+    <div id="chatList"></div>
+
+    <div class="chatInput">
+
+        <input
+            type="text"
+            id="chatText"
+            placeholder="Tulis pesan dengan bahasa yang sopan..."
+            autocomplete="off"
+            maxlength="500">
+
+        <button onclick="kirimChat()">
+            Kirim
+        </button>
+
+    </div>
 
 </div>
