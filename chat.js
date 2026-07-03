@@ -1,67 +1,91 @@
-async function kirimChat(){
+let chatInterval = null;
 
-try{
+async function kirimChat() {
 
-const pesan=document
-.getElementById("chatText")
-.value.trim();
+    try {
 
-if(!pesan) return;
+        const pesan = document
+            .getElementById("chatText")
+            .value
+            .trim();
 
-const nama=localStorage.getItem("nama");
+        if (!pesan) return;
 
-const foto=localStorage.getItem("foto");
+        const user =
+            currentUser ||
+            JSON.parse(localStorage.getItem("user") || "{}");
 
-await fetch(
+        const params = new URLSearchParams({
 
-CHAT_API+
-"?action=kirimChat"+
-"&nama="+encodeURIComponent(nama)+
-"&foto="+encodeURIComponent(foto)+
-"&pesan="+encodeURIComponent(pesan)
+            action: "kirimChat",
+            username: user.username || "",
+            nama: user.nama || "",
+            foto: user.foto || "",
+            pesan: pesan
 
-);
+        });
 
-document
-.getElementById("chatText")
-.value="";
+        const res = await fetch(
 
-loadChat();
+            CHAT_API + "?" + params.toString()
 
-}catch(err){
+        );
 
-alert(err);
+        const result = await res.json();
+
+        if (!result.status) {
+
+            alert(result.message);
+            return;
+
+        }
+
+        document.getElementById("chatText").value = "";
+
+        loadChat();
+
+    } catch (err) {
+
+        console.error(err);
+
+        alert(err.message);
+
+    }
 
 }
 
-}
-async function loadChat(){
+async function loadChat() {
 
-try{
+    try {
 
-const res=await fetch(
+        const res = await fetch(
 
-CHAT_API+
-"?action=getChat"
+            CHAT_API + "?action=getChat"
 
-);
+        );
 
-const result=await res.json();
+        const result = await res.json();
 
-if(!result.status) return;
+        if (!result.status) return;
 
-const box=document
-.getElementById("chatList");
+        const box = document.getElementById("chatList");
 
-box.innerHTML="";
+        const user =
+            currentUser ||
+            JSON.parse(localStorage.getItem("user") || "{}");
 
-result.data.forEach(item=>{
+        box.innerHTML = "";
 
-box.innerHTML+=`
+        result.data.forEach(item => {
 
-<div class="chatItem">
+            const sendiri =
+                item.username === user.username;
 
-<img src="${item.foto}">
+            box.innerHTML += `
+
+<div class="chatItem ${sendiri ? "me" : ""}">
+
+<img src="${item.foto || "https://cdn-icons-png.flaticon.com/512/149/149071.png"}">
 
 <div>
 
@@ -83,37 +107,42 @@ ${item.pesan}
 
 `;
 
-});
+        });
 
-}catch(err){
+        box.scrollTop = box.scrollHeight;
 
-console.log(err);
+    } catch (err) {
+
+        console.log(err);
+
+    }
 
 }
 
-}
-
-let chatInterval = null;
-
-function openChat(){
+function openChat() {
 
     nav("chatPage");
 
     loadChat();
 
-    if(chatInterval){
+    if (chatInterval) {
+
         clearInterval(chatInterval);
+
     }
 
-    chatInterval = setInterval(loadChat,2000);
+    chatInterval = setInterval(loadChat, 2000);
 
 }
 
-function stopChat(){
+function stopChat() {
 
-    if(chatInterval){
+    if (chatInterval) {
+
         clearInterval(chatInterval);
+
         chatInterval = null;
+
     }
 
 }
