@@ -206,15 +206,13 @@ async function loadChat() {
 
         box.innerHTML = "";
 
-        lastChat = 0;
-
-        json.data.reverse().forEach(item => {
+        json.data.forEach(item => {
 
             renderChat(item);
 
-            lastChat++;
-
         });
+
+        lastChat = json.last;
 
         box.scrollTop = box.scrollHeight;
 
@@ -245,15 +243,18 @@ function renderChat(item) {
 
     const sendiri = item.username === user.username;
 
-    const foto = item.foto && item.foto.trim() !== ""
+    const foto =
+        item.foto && item.foto.trim() !== ""
         ? item.foto
         : "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
     const html = `
 
-<div class="chatItem ${sendiri ? "me" : ""}">
+<div id="chat_${item.id}" class="chatItem ${sendiri ? "me" : ""}">
 
-    <img class="chatFoto" src="${foto}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/149/149071.png'">
+    <img class="chatFoto"
+         src="${foto}"
+         onerror="this.src='https://cdn-icons-png.flaticon.com/512/149/149071.png'">
 
     <div class="chatBubble">
 
@@ -278,7 +279,6 @@ function renderChat(item) {
     box.insertAdjacentHTML("beforeend", html);
 
 }
-
 /* =====================================================
    LOAD CHAT BARU
 ===================================================== */
@@ -311,7 +311,11 @@ async function loadChatBaru() {
 
         json.data.forEach(item => {
 
-            renderChat(item);
+            if (!document.getElementById("chat_" + item.id)) {
+
+                renderChat(item);
+
+            }
 
         });
 
@@ -330,7 +334,6 @@ async function loadChatBaru() {
     }
 
 }
-
 /* =====================================================
    FORMAT WAKTU
 ===================================================== */
