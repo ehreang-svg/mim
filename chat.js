@@ -1,98 +1,36 @@
+/* ===========================
+   CHAT
+=========================== */
+
 let chatInterval = null;
 
-async function kirimChat() {
+/* ===========================
+   USER LOGIN
+=========================== */
 
-    try {
+function getChatUser() {
 
-        const pesan = document
-            .getElementById("chatText")
-            .value
-            .trim();
+    if (currentUser) return currentUser;
 
-        if (!pesan) return;
+    const user = localStorage.getItem("user");
 
-        const user =
-            currentUser ||
-            JSON.parse(localStorage.getItem("user") || "{}");
+    if (user) {
 
-        const params = new URLSearchParams({
+        try {
 
-            action: "kirimChat",
-            username: user.username || "",
-            nama: user.nama || "",
-            foto: user.foto || "",
-            pesan: pesan
+            return JSON.parse(user);
 
-        });
-
-        const res = await fetch(
-
-            CHAT_API + "?" + params.toString()
-
-        );
-
-        const result = await res.json();
-
-        if (!result.status) {
-
-            alert(result.message);
-            return;
-
-        }
-
-        document.getElementById("chatText").value = "";
-
-        loadChat();
-
-    } catch (err) {
-
-        console.error(err);
-
-        alert(err.message);
+        } catch (e) {}
 
     }
 
-}
-
-async function loadChat() {
-
-    try {
-
-        const res = await fetch(CHAT_API + "?action=getChat");
-
-        const text = await res.text();
-
-        console.log("Response:", text);
-
-        const result = JSON.parse(text);
-
-        if (!result.status) return;
-
-        const box = document.getElementById("chatList");
-
-        box.innerHTML = "";
-
-        result.data.forEach(item => {
-
-            box.innerHTML += `
-                <div class="chatItem">
-                    <img src="${item.foto || 'https://cdn-icons-png.flaticon.com/512/149/149071.png'}">
-                    <div>
-                        <div class="chatNama">${item.nama}</div>
-                        <div class="chatPesan">${item.pesan}</div>
-                    </div>
-                </div>
-            `;
-
-        });
-
-    } catch (err) {
-
-        console.error("Load Chat Error:", err);
-
-    }
+    return {};
 
 }
+
+/* ===========================
+   BUKA CHAT
+=========================== */
 
 function openChat() {
 
@@ -110,6 +48,10 @@ function openChat() {
 
 }
 
+/* ===========================
+   TUTUP CHAT
+=========================== */
+
 function stopChat() {
 
     if (chatInterval) {
@@ -117,6 +59,180 @@ function stopChat() {
         clearInterval(chatInterval);
 
         chatInterval = null;
+
+    }
+
+}
+
+/* ===========================
+   ENTER = KIRIM
+=========================== */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const input = document.getElementById("chatText");
+
+    if (!input) return;
+
+    input.addEventListener("keydown", e => {
+
+        if (e.key === "Enter") {
+
+            e.preventDefault();
+
+            kirimChat();
+
+        }
+
+    });
+
+});
+
+/* ===========================
+   KIRIM CHAT
+=========================== */
+
+async function kirimChat() {
+
+    try {
+
+        const input = document.getElementById("chatText");
+
+        const pesan = input.value.trim();
+
+        if (!pesan) return;
+
+        const user = getChatUser();
+
+        const body = {
+
+            action: "kirimChat",
+
+            username: user.username || "",
+
+            nama: user.nama || "",
+
+            foto: user.foto || "",
+
+            pesan: pesan
+
+        };
+
+        const res = await fetch(CHAT_API, {
+
+            method: "POST",
+
+            headers: {
+
+                "Content-Type": "text/plain;charset=utf-8"
+
+            },
+
+            body: JSON.stringify(body)
+
+        });
+
+        const text = await res.text();
+
+        const json = JSON.parse(text);
+
+        if (!json.status) {
+
+            alert(json.message);
+
+            return;
+
+        }
+
+        input.value = "";
+
+        loadChat();
+
+    } catch (err) {
+
+        console.error(err);
+
+        alert(err.message);
+
+    }
+
+}
+
+/* ===========================
+   LOAD CHAT
+=========================== */
+
+async function loadChat() {
+
+    try {
+
+        const res = await fetch(
+
+            CHAT_API + "?action=getChat"
+
+        );
+
+        const text = await res.text();
+
+        const json = JSON.parse(text);
+
+        if (!json.status) return;
+
+        const box = document.getElementById("chatList");
+
+        const user = getChatUser();
+
+        box.innerHTML = "";
+
+        json.data.reverse().forEach(item => {
+
+            const sendiri =
+
+                item.username === user.username;
+
+            const foto = item.foto ||
+
+                "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+
+            box.innerHTML += `
+
+<div class="chatItem ${sendiri ? "me" : ""}">
+
+<img class="chatFoto" src="${foto}">
+
+<div class="chatBubble">
+
+<div class="chatNama">
+
+${item.nama}
+
+</div>
+
+<div class="chatPesan">
+
+${item.pesan}
+
+</div>
+
+<div class="chatWaktu">
+
+${item.waktu}
+
+</div>
+
+</div>
+
+</div>
+
+`;
+
+        });
+
+        box.scrollTop = box.scrollHeight;
+
+    } catch (err) {
+
+        console.error(err);
 
     }
 
