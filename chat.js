@@ -58,21 +58,37 @@ async function loadChat() {
 
     try {
 
-        const url = CHAT_API + "?action=getChat";
-
-        console.log(url);
-
-        const res = await fetch(url);
-
-        console.log("Status :", res.status);
+        const res = await fetch(CHAT_API + "?action=getChat");
 
         const text = await res.text();
 
-        console.log(text);
+        console.log("Response:", text);
+
+        const result = JSON.parse(text);
+
+        if (!result.status) return;
+
+        const box = document.getElementById("chatList");
+
+        box.innerHTML = "";
+
+        result.data.forEach(item => {
+
+            box.innerHTML += `
+                <div class="chatItem">
+                    <img src="${item.foto || 'https://cdn-icons-png.flaticon.com/512/149/149071.png'}">
+                    <div>
+                        <div class="chatNama">${item.nama}</div>
+                        <div class="chatPesan">${item.pesan}</div>
+                    </div>
+                </div>
+            `;
+
+        });
 
     } catch (err) {
 
-        console.error(err);
+        console.error("Load Chat Error:", err);
 
     }
 
