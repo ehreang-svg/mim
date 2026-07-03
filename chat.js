@@ -44,7 +44,7 @@ function openChat() {
 
     }
 
-    chatInterval = setInterval(loadChat, 2000);
+chatInterval=setInterval(loadChatBaru,2000);
 
 }
 
@@ -182,17 +182,13 @@ async function loadChat() {
 
         const user = getChatUser();
 
-        box.innerHTML = "";
+        box.innerHTML="";
 
-        json.data.reverse().forEach(item => {
+json.data.forEach(renderChat);
 
-            const sendiri =
+lastChat=json.data.length;
 
-                item.username === user.username;
-
-            const foto = item.foto ||
-
-                "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+box.scrollTop=box.scrollHeight;
 
             box.innerHTML += `
 
@@ -235,5 +231,97 @@ ${item.waktu}
         console.error(err);
 
     }
+
+}
+let lastChat = 0;
+function renderChat(item){
+
+    const box=document.getElementById("chatList");
+
+    const user=getChatUser();
+
+    const sendiri=item.username===user.username;
+
+    const foto=item.foto ||
+
+    "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+
+    const html=`
+
+<div class="chatItem ${sendiri?"me":""}">
+
+<img class="chatFoto" src="${foto}">
+
+<div class="chatBubble">
+
+<div class="chatNama">
+
+${item.nama}
+
+</div>
+
+<div class="chatPesan">
+
+${item.pesan}
+
+</div>
+
+<div class="chatWaktu">
+
+${item.waktu}
+
+</div>
+
+</div>
+
+</div>
+
+`;
+
+    box.insertAdjacentHTML("beforeend",html);
+
+}
+async function loadChatBaru(){
+
+try{
+
+const res=await fetch(
+
+CHAT_API+
+"?action=getChatBaru"+
+"&last="+lastChat
+
+);
+
+const result=await res.json();
+
+if(!result.status) return;
+
+if(result.data.length){
+
+const box=document.getElementById("chatList");
+
+const autoScroll=
+
+box.scrollTop+box.clientHeight>=
+box.scrollHeight-50;
+
+result.data.forEach(renderChat);
+
+lastChat=result.last;
+
+if(autoScroll){
+
+box.scrollTop=box.scrollHeight;
+
+}
+
+}
+
+}catch(err){
+
+console.log(err);
+
+}
 
 }
