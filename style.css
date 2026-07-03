@@ -428,70 +428,166 @@ tr:hover td, .rbm-table tr:hover { background-color: #f1f5f9; }
     .cardMD { padding: 20px; }
 }
 
+/*==========================
+CHAT
+==========================*/
+
 #chatPage{
 
 display:flex;
 flex-direction:column;
 height:100vh;
+background:#ece5dd;
 
 }
 
-.chatHeader{
+.topbar{
 
-padding:15px;
-font-size:22px;
-font-weight:bold;
-background:#2196F3;
+display:flex;
+align-items:center;
+gap:12px;
+padding:12px 16px;
+background:#0b8457;
 color:white;
+box-shadow:0 2px 5px rgba(0,0,0,.2);
+
+}
+
+.chatTitle{
+
+display:flex;
+flex-direction:column;
+
+}
+
+.chatTitle h2{
+
+margin:0;
+font-size:18px;
+
+}
+
+.chatTitle small{
+
+opacity:.8;
 
 }
 
 #chatList{
 
 flex:1;
-overflow:auto;
+overflow-y:auto;
 padding:15px;
-background:#eee;
+
+display:flex;
+flex-direction:column;
+
+gap:12px;
 
 }
+
+/*==========================
+ITEM
+==========================*/
 
 .chatItem{
 
-background:white;
-margin-bottom:12px;
-padding:10px;
-border-radius:10px;
 display:flex;
 gap:10px;
+align-items:flex-start;
 
 }
 
-.chatItem img{
+.chatItem.me{
 
-width:45px;
-height:45px;
+flex-direction:row-reverse;
+
+}
+
+/*==========================
+FOTO
+==========================*/
+
+.chatFoto{
+
+width:42px;
+height:42px;
 border-radius:50%;
 object-fit:cover;
+background:#ddd;
+flex-shrink:0;
 
 }
+
+/*==========================
+BUBBLE
+==========================*/
+
+.chatBubble{
+
+background:white;
+padding:10px 14px;
+border-radius:12px;
+max-width:70%;
+box-shadow:0 2px 4px rgba(0,0,0,.08);
+
+}
+
+.chatItem.me .chatBubble{
+
+background:#dcf8c6;
+
+}
+
+/*==========================
+NAMA
+==========================*/
 
 .chatNama{
 
+font-size:13px;
 font-weight:bold;
+color:#0b8457;
+margin-bottom:5px;
 
 }
+
+/*==========================
+PESAN
+==========================*/
 
 .chatPesan{
 
-margin-top:5px;
+font-size:15px;
+white-space:pre-wrap;
+word-break:break-word;
 
 }
+
+/*==========================
+WAKTU
+==========================*/
+
+.chatWaktu{
+
+font-size:11px;
+color:#888;
+margin-top:6px;
+text-align:right;
+
+}
+
+/*==========================
+INPUT
+==========================*/
 
 .chatInput{
 
 display:flex;
-padding:10px;
+gap:10px;
+padding:12px;
 background:white;
+border-top:1px solid #ddd;
 
 }
 
@@ -499,12 +595,63 @@ background:white;
 
 flex:1;
 padding:12px;
-font-size:16px;
+border:1px solid #ccc;
+border-radius:25px;
+outline:none;
+font-size:15px;
 
 }
 
 .chatInput button{
 
-width:90px;
+padding:0 22px;
+border:none;
+background:#0b8457;
+color:white;
+border-radius:25px;
+cursor:pointer;
+font-size:15px;
 
+}
+
+.chatInput button:hover{
+
+opacity:.9;
+
+}
+
+/*==========================
+RESPONSIVE
+==========================*/
+
+@media(max-width:600px){
+
+.chatBubble{
+
+max-width:85%;
+
+}
+.chatItem{
+
+animation:chatIn .2s ease;
+
+}
+
+@keyframes chatIn{
+
+from{
+
+opacity:0;
+transform:translateY(10px);
+
+}
+
+to{
+
+opacity:1;
+transform:translateY(0);
+
+}
+
+}
 }
