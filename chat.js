@@ -98,16 +98,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function kirimChat() {
 
-    try {
+    const input = document.getElementById("chatText");
+    const btn = document.getElementById("btnSend");
 
-        const input = document.getElementById("chatText");
-       const btn = document.getElementById("btnSend");
+    try {
 
         const pesan = input.value.trim();
 
         if (!pesan) return;
-       btn.disabled = true;
-btn.textContent = "Mengirim pesan...";
+
+        btn.disabled = true;
+        btn.textContent = "Mengirim pesan...";
 
         const user = getChatUser();
 
@@ -130,9 +131,7 @@ btn.textContent = "Mengirim pesan...";
             method: "POST",
 
             headers: {
-
                 "Content-Type": "text/plain;charset=utf-8"
-
             },
 
             body: JSON.stringify(body)
@@ -150,25 +149,25 @@ btn.textContent = "Mengirim pesan...";
             return;
 
         }
-        
+
         input.value = "";
 
         await loadChatBaru();
 
     } catch (err) {
-       btn.disabled = false;
-btn.textContent = "Kirim";
 
         console.error(err);
 
         alert(err.message);
 
+    } finally {
+
+        btn.disabled = false;
+        btn.textContent = "Kirim";
+
     }
 
-       btn.disabled = false;
-btn.textContent = "Kirim";
 }
-
 /* =====================================================
    LOAD CHAT PERTAMA
 ===================================================== */
@@ -193,7 +192,17 @@ async function loadChat() {
 
         const json = JSON.parse(text);
 
-        if (!json.status) return;
+        if (!json.status) {
+
+            box.innerHTML = `
+                <div class="chatLoading">
+                    Tidak ada pesan.
+                </div>
+            `;
+
+            return;
+
+        }
 
         box.innerHTML = "";
 
@@ -211,7 +220,7 @@ async function loadChat() {
 
     } catch (err) {
 
-        console.error(err);
+        console.error("Load Chat :", err);
 
         box.innerHTML = `
             <div class="chatLoading">
