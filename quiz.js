@@ -96,7 +96,7 @@ Math.round(
 let status=
 nilai>=75
 ? "LULUS"
-: "TIDAK LULUS";
+: "BELUM LULUS";
 document.getElementById("hasil")
 .innerHTML=
 `
