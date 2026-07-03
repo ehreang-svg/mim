@@ -246,18 +246,18 @@ function renderChat(item) {
     const html = `
 <div id="chat_${item.id}" class="chatItem ${sendiri ? "me" : ""}">
 
-    <img class="chatFoto"
-         src="${foto}"
-         onerror="this.src='https://cdn-icons-png.flaticon.com/512/149/149071.png'">
+    <img
+        class="chatFoto"
+        src="${foto}"
+        onerror="this.src='https://cdn-icons-png.flaticon.com/512/149/149071.png'">
 
-    <div class="chatContent">
+    <div class="chatBubble">
 
-        <div class="chatBubble">
+        <div class="chatNama">
+            ${item.nama}
+        </div>
+
         <div class="chatBody">
-
-            <div class="chatNama">
-                ${item.nama}
-            </div>
 
             <div class="chatPesan">
                 ${escapeHtml(item.pesan)}
@@ -266,14 +266,13 @@ function renderChat(item) {
             <div class="chatWaktu">
                 ${formatWaktu(item.waktu)}
             </div>
-            </div>
+
         </div>
 
     </div>
 
 </div>
 `;
-
     box.insertAdjacentHTML("beforeend", html);
 
 }
