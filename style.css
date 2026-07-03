@@ -484,11 +484,16 @@ tr:hover td, .rbm-table tr:hover { background-color: #f1f5f9; }
    ITEM CHAT
 ========================== */
 
+/* ==========================
+   ITEM CHAT
+========================== */
+
 .chatItem{
     display:flex;
     align-items:flex-end;
     gap:10px;
     width:100%;
+    margin-bottom:14px;
 }
 
 .chatItem.me{
@@ -506,7 +511,6 @@ tr:hover td, .rbm-table tr:hover { background-color: #f1f5f9; }
     border-radius:50%;
     object-fit:cover;
     flex-shrink:0;
-    background:#ddd;
 }
 
 /* ==========================
@@ -515,29 +519,63 @@ tr:hover td, .rbm-table tr:hover { background-color: #f1f5f9; }
 
 .chatBubble{
 
-    display:inline-flex;
+    position:relative;
+
+    display:flex;
     flex-direction:column;
 
-    width:auto;
-    min-width:80px;
-    max-width:min(70%,420px);
+    min-width:120px;
+    max-width:420px;
 
-    padding:10px 14px;
+    padding:10px 14px 8px;
 
     background:#fff;
 
-    border-radius:16px;
+    border-radius:18px;
 
-    box-shadow:0 1px 2px rgba(0,0,0,.15);
+    box-shadow:0 2px 8px rgba(0,0,0,.08);
 
     word-break:break-word;
     white-space:pre-wrap;
 
-    flex:0 0 auto;
+}
+
+/* Bubble Saya */
+
+.chatItem.me .chatBubble{
+
+    background:#dcf8c6;
 
 }
 
-.chatItem.me .chatBubble{
+/* ==========================
+   Ekor Bubble
+========================== */
+
+.chatBubble::before{
+
+    content:"";
+
+    position:absolute;
+
+    left:-7px;
+    bottom:8px;
+
+    width:16px;
+    height:16px;
+
+    background:#fff;
+
+    border-radius:0 0 16px 0;
+
+    transform:rotate(45deg);
+
+}
+
+.chatItem.me .chatBubble::before{
+
+    left:auto;
+    right:-7px;
 
     background:#dcf8c6;
 
@@ -548,10 +586,17 @@ tr:hover td, .rbm-table tr:hover { background-color: #f1f5f9; }
 ========================== */
 
 .chatNama{
+
+    margin:0 0 6px;
+
     font-size:13px;
+
     font-weight:700;
+
     color:#0b8457;
-    margin-bottom:4px;
+
+    line-height:1.2;
+
 }
 
 /* ==========================
@@ -560,12 +605,18 @@ tr:hover td, .rbm-table tr:hover { background-color: #f1f5f9; }
 
 .chatPesan{
 
-    display:inline;
+    margin:0;
 
     font-size:15px;
-    line-height:1.5;
+
+    line-height:1.6;
+
+    color:#222;
+
+    text-align:left;
 
     white-space:pre-wrap;
+
     word-break:break-word;
 
 }
@@ -575,10 +626,17 @@ tr:hover td, .rbm-table tr:hover { background-color: #f1f5f9; }
 ========================== */
 
 .chatWaktu{
-    margin-top:6px;
+
+    margin-top:8px;
+
+    align-self:flex-end;
+
     font-size:11px;
+
     color:#777;
-    text-align:right;
+
+    line-height:1;
+
 }
 
 /* ==========================
