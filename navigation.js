@@ -155,9 +155,19 @@ if (
 =========================== */
 
 function goBack() {
+
+    if (currentPage === "chatPage") {
+
+        stopChat();
+
+    }
+
     if (!pageHistory.length) return;
 
     const last = pageHistory.pop();
+
     currentPage = last;
+
     show(last);
+
 }
