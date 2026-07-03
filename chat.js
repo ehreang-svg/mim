@@ -167,9 +167,7 @@ async function loadChat() {
     try {
 
         const res = await fetch(
-
             CHAT_API + "?action=getChat"
-
         );
 
         const text = await res.text();
@@ -180,47 +178,15 @@ async function loadChat() {
 
         const box = document.getElementById("chatList");
 
-        const user = getChatUser();
+        box.innerHTML = "";
 
-        box.innerHTML="";
+        lastChat = 0;
 
-json.data.forEach(renderChat);
+        json.data.reverse().forEach(item => {
 
-lastChat=json.data.length;
+            renderChat(item);
 
-box.scrollTop=box.scrollHeight;
-
-            box.innerHTML += `
-
-<div class="chatItem ${sendiri ? "me" : ""}">
-
-<img class="chatFoto" src="${foto}">
-
-<div class="chatBubble">
-
-<div class="chatNama">
-
-${item.nama}
-
-</div>
-
-<div class="chatPesan">
-
-${item.pesan}
-
-</div>
-
-<div class="chatWaktu">
-
-${item.waktu}
-
-</div>
-
-</div>
-
-</div>
-
-`;
+            lastChat++;
 
         });
 
@@ -233,6 +199,7 @@ ${item.waktu}
     }
 
 }
+
 let lastChat = 0;
 function renderChat(item){
 
