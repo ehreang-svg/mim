@@ -92,11 +92,28 @@ console.log(err);
 }
 
 }
-setInterval(loadChat,2000);
+
+let chatInterval = null;
+
 function openChat(){
 
-showPage("chatPage");
+    nav("chatPage");
 
-loadChat();
+    loadChat();
+
+    if(chatInterval){
+        clearInterval(chatInterval);
+    }
+
+    chatInterval = setInterval(loadChat,2000);
+
+}
+
+function stopChat(){
+
+    if(chatInterval){
+        clearInterval(chatInterval);
+        chatInterval = null;
+    }
 
 }
