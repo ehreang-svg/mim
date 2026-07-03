@@ -1488,12 +1488,9 @@ placeholder="Masukkan NISN">
 </div>
 
 
-<!-- =========================
-     CHAT PAGE
-========================= -->
-
 <div class="page hidden" id="chatPage">
 
+    <!-- HEADER -->
     <div class="topbar">
 
         <div class="back" onclick="goBack()">
@@ -1502,7 +1499,7 @@ placeholder="Masukkan NISN">
 
         <div class="chatTitle">
 
-            <h2>Selamat datang di 💬MaaXChat</h2>
+            <h2>💬 MaaXChat</h2>
 
             <small id="chatStatus">
                 Online
@@ -1512,8 +1509,16 @@ placeholder="Masukkan NISN">
 
     </div>
 
-    <div id="chatList"></div>
+    <!-- LIST CHAT -->
+    <div id="chatList">
 
+        <div class="chatLoading">
+            Sedang memuat pesan...
+        </div>
+
+    </div>
+
+    <!-- INPUT -->
     <div class="chatInput">
 
         <input
@@ -1521,9 +1526,12 @@ placeholder="Masukkan NISN">
             id="chatText"
             placeholder="Tulis pesan dengan bahasa yang sopan..."
             autocomplete="off"
+            spellcheck="false"
             maxlength="500">
 
-        <button onclick="kirimChat()">
+        <button
+            id="btnSend"
+            onclick="kirimChat()">
             Kirim
         </button>
 
