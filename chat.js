@@ -101,10 +101,13 @@ async function kirimChat() {
     try {
 
         const input = document.getElementById("chatText");
+       const btn = document.getElementById("btnSend");
 
         const pesan = input.value.trim();
 
         if (!pesan) return;
+       btn.disabled = true;
+btn.textContent = "Mengirim pesan...";
 
         const user = getChatUser();
 
@@ -147,12 +150,14 @@ async function kirimChat() {
             return;
 
         }
-
+        
         input.value = "";
 
         await loadChatBaru();
 
     } catch (err) {
+       btn.disabled = false;
+btn.textContent = "Kirim";
 
         console.error(err);
 
@@ -160,6 +165,8 @@ async function kirimChat() {
 
     }
 
+       btn.disabled = false;
+btn.textContent = "Kirim";
 }
 
 /* =====================================================
@@ -168,12 +175,18 @@ async function kirimChat() {
 
 async function loadChat() {
 
+    const box = document.getElementById("chatList");
+
+    box.innerHTML = `
+        <div class="chatLoading">
+            Sedang memuat pesan...
+        </div>
+    `;
+
     try {
 
         const res = await fetch(
-
             CHAT_API + "?action=getChat"
-
         );
 
         const text = await res.text();
@@ -181,8 +194,6 @@ async function loadChat() {
         const json = JSON.parse(text);
 
         if (!json.status) return;
-
-        const box = document.getElementById("chatList");
 
         box.innerHTML = "";
 
@@ -200,7 +211,13 @@ async function loadChat() {
 
     } catch (err) {
 
-        console.error("Load Chat :", err);
+        console.error(err);
+
+        box.innerHTML = `
+            <div class="chatLoading">
+                Gagal memuat pesan.
+            </div>
+        `;
 
     }
 
