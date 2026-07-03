@@ -1,36 +1,42 @@
-/* ===========================
-   CHAT
-=========================== */
+/* =====================================================
+   CHAT.JS
+   BAGIAN A
+===================================================== */
 
 let chatInterval = null;
+let lastChat = 0;
 
-/* ===========================
-   USER LOGIN
-=========================== */
+/* =====================================================
+   AMBIL USER LOGIN
+===================================================== */
 
 function getChatUser() {
 
-    if (currentUser) return currentUser;
+    if (currentUser) {
+        return currentUser;
+    }
 
-    const user = localStorage.getItem("user");
+    const data = localStorage.getItem("user");
 
-    if (user) {
+    if (!data) {
+        return {};
+    }
 
-        try {
+    try {
 
-            return JSON.parse(user);
+        return JSON.parse(data);
 
-        } catch (e) {}
+    } catch (e) {
+
+        return {};
 
     }
 
-    return {};
-
 }
 
-/* ===========================
+/* =====================================================
    BUKA CHAT
-=========================== */
+===================================================== */
 
 function openChat() {
 
@@ -39,18 +45,16 @@ function openChat() {
     loadChat();
 
     if (chatInterval) {
-
         clearInterval(chatInterval);
-
     }
 
-chatInterval=setInterval(loadChatBaru,2000);
+    chatInterval = setInterval(loadChatBaru, 2000);
 
 }
 
-/* ===========================
+/* =====================================================
    TUTUP CHAT
-=========================== */
+===================================================== */
 
 function stopChat() {
 
@@ -64,9 +68,9 @@ function stopChat() {
 
 }
 
-/* ===========================
-   ENTER = KIRIM
-=========================== */
+/* =====================================================
+   ENTER UNTUK KIRIM
+===================================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -74,7 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!input) return;
 
-    input.addEventListener("keydown", e => {
+    input.addEventListener("keydown", function (e) {
 
         if (e.key === "Enter") {
 
@@ -88,9 +92,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
-/* ===========================
+/* =====================================================
    KIRIM CHAT
-=========================== */
+===================================================== */
 
 async function kirimChat() {
 
@@ -146,7 +150,7 @@ async function kirimChat() {
 
         input.value = "";
 
-        loadChat();
+        await loadChatBaru();
 
     } catch (err) {
 
@@ -158,16 +162,18 @@ async function kirimChat() {
 
 }
 
-/* ===========================
-   LOAD CHAT
-=========================== */
+/* =====================================================
+   LOAD CHAT PERTAMA
+===================================================== */
 
 async function loadChat() {
 
     try {
 
         const res = await fetch(
+
             CHAT_API + "?action=getChat"
+
         );
 
         const text = await res.text();
@@ -194,101 +200,163 @@ async function loadChat() {
 
     } catch (err) {
 
-        console.error(err);
+        console.error("Load Chat :", err);
 
     }
 
 }
+/* =====================================================
+   RENDER CHAT
+===================================================== */
 
-let lastChat = 0;
-function renderChat(item){
+function renderChat(item) {
 
-    const box=document.getElementById("chatList");
+    const box = document.getElementById("chatList");
 
-    const user=getChatUser();
+    if (!box) return;
 
-    const sendiri=item.username===user.username;
+    const user = getChatUser();
 
-    const foto=item.foto ||
+    const sendiri = item.username === user.username;
 
-    "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+    const foto = item.foto && item.foto.trim() !== ""
+        ? item.foto
+        : "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
-    const html=`
+    const html = `
 
-<div class="chatItem ${sendiri?"me":""}">
+<div class="chatItem ${sendiri ? "me" : ""}">
 
-<img class="chatFoto" src="${foto}">
+    <img class="chatFoto" src="${foto}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/149/149071.png'">
 
-<div class="chatBubble">
+    <div class="chatBubble">
 
-<div class="chatNama">
+        <div class="chatNama">
+            ${item.nama}
+        </div>
 
-${item.nama}
+        <div class="chatPesan">
+            ${escapeHtml(item.pesan)}
+        </div>
 
-</div>
+        <div class="chatWaktu">
+            ${formatWaktu(item.waktu)}
+        </div>
 
-<div class="chatPesan">
-
-${item.pesan}
-
-</div>
-
-<div class="chatWaktu">
-
-${item.waktu}
-
-</div>
-
-</div>
+    </div>
 
 </div>
 
 `;
 
-    box.insertAdjacentHTML("beforeend",html);
-
-}
-async function loadChatBaru(){
-
-try{
-
-const res=await fetch(
-
-CHAT_API+
-"?action=getChatBaru"+
-"&last="+lastChat
-
-);
-
-const result=await res.json();
-
-if(!result.status) return;
-
-if(result.data.length){
-
-const box=document.getElementById("chatList");
-
-const autoScroll=
-
-box.scrollTop+box.clientHeight>=
-box.scrollHeight-50;
-
-result.data.forEach(renderChat);
-
-lastChat=result.last;
-
-if(autoScroll){
-
-box.scrollTop=box.scrollHeight;
+    box.insertAdjacentHTML("beforeend", html);
 
 }
 
+/* =====================================================
+   LOAD CHAT BARU
+===================================================== */
+
+async function loadChatBaru() {
+
+    try {
+
+        const res = await fetch(
+
+            CHAT_API +
+            "?action=getChatBaru&last=" +
+            lastChat
+
+        );
+
+        const text = await res.text();
+
+        const json = JSON.parse(text);
+
+        if (!json.status) return;
+
+        if (!json.data.length) return;
+
+        const box = document.getElementById("chatList");
+
+        const autoScroll =
+            box.scrollTop + box.clientHeight >=
+            box.scrollHeight - 50;
+
+        json.data.forEach(item => {
+
+            renderChat(item);
+
+        });
+
+        lastChat = json.last;
+
+        if (autoScroll) {
+
+            box.scrollTop = box.scrollHeight;
+
+        }
+
+    } catch (err) {
+
+        console.error("Chat Baru :", err);
+
+    }
+
 }
 
-}catch(err){
+/* =====================================================
+   FORMAT WAKTU
+===================================================== */
 
-console.log(err);
+function formatWaktu(waktu) {
+
+    if (!waktu) return "";
+
+    if (waktu.includes("/")) {
+
+        return waktu;
+
+    }
+
+    const d = new Date(waktu);
+
+    return d.toLocaleString("id-ID", {
+
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+
+    });
 
 }
 
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHtml(text) {
+
+    if (!text) return "";
+
+    return text
+
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
 }
+
+/* =====================================================
+   KELUAR HALAMAN
+===================================================== */
+
+window.addEventListener("beforeunload", function () {
+
+    stopChat();
+
+});
