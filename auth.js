@@ -1,54 +1,88 @@
 /* ================= LOGIN ================= */
-async function login(){
-    try{
-        if(!u.value || !p.value){
+async function login() {
+
+    try {
+
+        if (!u.value || !p.value) {
             alert("Username dan Password harus diisi!");
             return;
         }
 
-let res = await fetch(API_URL + `?action=login&username=${encodeURIComponent(u.value)}&password=${encodeURIComponent(p.value)}`);
+        const res = await fetch(
+            API_URL +
+            `?action=login&username=${encodeURIComponent(u.value)}&password=${encodeURIComponent(p.value)}`
+        );
 
-if (!res.ok) {
-    console.error(await res.text());
-    alert("API Error " + res.status);
-    return;
-}
-
-let data = await res.json();
-        if(!data.status){ alert("Login gagal"); return; }
-        
-        let user = data.user;
-
-        // Bersihkan format link Google Drive sesaat setelah login berhasil
-        if (user.foto && user.foto.includes("drive.google.com/file/d/")) {
-            user.foto = user.foto.replace("/view?usp=sharing", "")
-                                 .replace("/view", "")
-                                 .replace("file/d/", "uc?export=view&id=");
+        if (!res.ok) {
+            console.error(await res.text());
+            alert("API Error " + res.status);
+            return;
         }
 
+        const data = await res.json();
+
+        if (!data.status) {
+            alert("Login gagal");
+            return;
+        }
+
+        let user = data.user;
+
+        if (user.foto && user.foto.includes("drive.google.com/file/d/")) {
+
+            user.foto = user.foto
+                .replace("/view?usp=sharing", "")
+                .replace("/view", "")
+                .replace("file/d/", "uc?export=view&id=");
+
+        }
+
+        // simpan user global
+        currentUser = user;
+
+        // simpan ke localStorage
         localStorage.setItem("user", JSON.stringify(user));
+
         loadDashboard(user);
-    }catch(err){ alert(err); }
+
+    } catch (err) {
+
+        alert(err);
+
+    }
+
 }
 
-function cekLogin(){
+function cekLogin() {
+
     const savedUser = localStorage.getItem("user");
-    if(savedUser){
+
+    if (savedUser) {
+
         let user = JSON.parse(savedUser);
 
         if (user.foto && user.foto.includes("drive.google.com/file/d/")) {
-            user.foto = user.foto.replace("/view?usp=sharing", "")
-                                 .replace("/view", "")
-                                 .replace("file/d/", "uc?export=view&id=");
-            localStorage.setItem("user", JSON.stringify(user));
+
+            user.foto = user.foto
+                .replace("/view?usp=sharing", "")
+                .replace("/view", "")
+                .replace("file/d/", "uc?export=view&id=");
+
         }
 
-        loadDashboard(user);
-    } else {
-        nav("loginPage");
-    }
-}
+        currentUser = user;
 
+        localStorage.setItem("user", JSON.stringify(user));
+
+        loadDashboard(user);
+
+    } else {
+
+        nav("loginPage");
+
+    }
+
+}
 function logout(){ localStorage.clear(); location.reload(); }
 
 
