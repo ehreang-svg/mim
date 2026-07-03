@@ -518,26 +518,12 @@ tr:hover td, .rbm-table tr:hover { background-color: #f1f5f9; }
 ========================== */
 
 .chatBubble{
-
-    position:relative;
-
     display:flex;
     flex-direction:column;
-
     width:fit-content;
-    min-width:60px;
-    max-width:min(70%,420px);
-
-    padding:10px 14px;
-
-    background:#fff;
-
-    border-radius:18px;
-
-    box-shadow:0 2px 6px rgba(0,0,0,.10);
-
-    flex:0 0 auto;
-
+    max-width:70%;
+    padding:8px 12px;
+    border-radius:16px;
 }
 
 .chatItem.me .chatBubble{
@@ -580,55 +566,31 @@ tr:hover td, .rbm-table tr:hover { background-color: #f1f5f9; }
 ========================== */
 
 .chatNama{
-
-    font-size:13px;
+    margin-bottom:3px;
+    font-size:12px;
     font-weight:700;
-    color:#0b8457;
-
-    margin-bottom:5px;
-
-    line-height:1.2;
-
 }
 
-/* ==========================
-   PESAN
-========================== */
+.chatBody{
+    display:flex;
+    align-items:flex-end;
+    gap:8px;
+}
 
 .chatPesan{
-
     font-size:15px;
-
-    line-height:1.5;
-
-    color:#222;
-
+    line-height:1.35;
     white-space:pre-wrap;
-
     overflow-wrap:anywhere;
-
-    word-break:break-word;
-
+    flex:1;
 }
-
-/* ==========================
-   WAKTU
-========================== */
 
 .chatWaktu{
-
-    margin-top:6px;
-
-    align-self:flex-end;
-
     font-size:11px;
-
     color:#777;
-
     white-space:nowrap;
-
+    flex-shrink:0;
 }
-
 /* ==========================
    INPUT
 ========================== */
