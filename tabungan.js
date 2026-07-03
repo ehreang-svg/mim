@@ -700,7 +700,7 @@ async function updateIdentitasSiswa() {
 // ==========================================
 // 3. FUNGSI UNTUK MEMUAT HALAMAN UTAMA & EDIT
 // ==========================================
-async function loadDataSiswaPage() {
+async function loadDataSiswaPage(options = {}) {
     try {
         const res = await fetch(TABUNGAN_API + "?action=getDataSiswa");
         const result = await res.json();
@@ -709,7 +709,12 @@ async function loadDataSiswaPage() {
         // Simpan ke satu variabel global utama
         dataSiswaGlobal = result.data || [];
         
-        // Render Tabel Utama
+        // Jaminan keamanan: Sebelum user klik "Ambil Data", form pengeditan HARUS kosong bersih
+        if (options.skipFillForm) {
+            clearEditForm();
+        }
+
+        // Render Tabel Utama (Jika ada di halaman lain)
         if (typeof renderDataSiswa === "function") {
             renderDataSiswa(dataSiswaGlobal);
         }
@@ -722,12 +727,16 @@ async function loadDataSiswaPage() {
             daftarKelas.forEach(kelas => { filter.innerHTML += `<option value="${kelas}">${kelas}</option>`; });
         }
 
-        // Isi Dropdown Filter Halaman Edit (Sinkronisasi Otomatis)
+        // Isi Dropdown Filter Halaman Edit (Hanya menyiapkan pilihan menu drop-down)
         const kelasSelectEdit = document.getElementById("editFilterKelas");
         if (kelasSelectEdit) {
+            const currentSelectedKelas = kelasSelectEdit.value; // Simpan posisi jika user sedang memilih
             kelasSelectEdit.innerHTML = `<option value="">Pilih Kelas</option>`;
             const kelasUnikEdit = [...new Set(dataSiswaGlobal.map(s => (s.kelas || s.KELAS || "").trim()).filter(Boolean))].sort();
-            kelasUnikEdit.forEach(kelas => { kelasSelectEdit.innerHTML += `<option value="${kelas}">${kelas}</option>`; });
+            kelasUnikEdit.forEach(kelas => { 
+                kelasSelectEdit.innerHTML += `<option value="${kelas}">${kelas}</option>`; 
+            });
+            if(currentSelectedKelas) kelasSelectEdit.value = currentSelectedKelas;
         }
 
     } catch (err) { 
@@ -738,11 +747,16 @@ async function loadDataSiswaPage() {
 function loadNamaEditIdentitas() {
     const kelas = document.getElementById("editFilterKelas").value;
     const namaSelect = document.getElementById("editFilterNama");
+    
     namaSelect.innerHTML = `<option value="">Pilih Nama</option>`;
-    clearEditForm();
+    
+    // PENTING: Saat kelas diganti, form wajib dikosongkan kembali 
+    // agar data milik siswa dari kelas sebelumnya tidak tertinggal di layar.
+    clearEditForm(); 
+    
     if (!kelas) return;
 
-    // Menggunakan dataSiswaGlobal
+    // Filter siswa berdasarkan kelas yang dipilih
     const filtered = dataSiswaGlobal.filter(siswa => {
         const sKelas = siswa.kelas || siswa.KELAS || "";
         return String(sKelas).trim().toLowerCase() === String(kelas).trim().toLowerCase();
@@ -756,19 +770,22 @@ function loadNamaEditIdentitas() {
 }
 
 function loadEditIdentitas() {
-    // 1. Ambil nama dan kelas dari dropdown filter yang dipilih user
     const namaTerpilih = document.getElementById("editFilterNama").value;
     const kelasTerpilih = document.getElementById("editFilterKelas").value;
     
-    // Kosongkan form dulu agar data siswa sebelumnya hilang
+    // Kosongkan form terlebih dahulu
     clearEditForm(); 
     
-    if (!namaTerpilih || !kelasTerpilih) {
-        alert("Pilih kelas dan nama terlebih dahulu!");
+    if (!kelasTerpilih) {
+        alert("Silakan pilih KELAS terlebih dahulu!");
+        return;
+    }
+    if (!namaTerpilih) {
+        alert("Silakan pilih NAMA SISWA terlebih dahulu!");
         return;
     }
 
-    // 2. Cari data siswa di dalam array
+    // Cari data siswa secara presisi di dalam data global array
     const siswa = dataSiswaGlobal.find(s => {
         const sNama = s.nama || s.NAMA || "";
         const sKelas = s.kelas || s.KELAS || "";
@@ -777,18 +794,18 @@ function loadEditIdentitas() {
     });
 
     if (!siswa) { 
-        alert("Data tidak ditemukan"); 
+        alert("Data siswa tidak ditemukan di database!"); 
         return; 
     }
     
-    // Simpan data lama untuk keperluan query update nanti
+    // Simpan data kunci lama untuk query pembaruan dokumen
     selectedNamaLama = siswa.nama || siswa.NAMA || namaTerpilih;
     selectedKelasLama = siswa.kelas || siswa.KELAS || kelasTerpilih;
     
-    // 3. Masukkan data ke form via fungsi fillEditForm
+    // Masukkan data siswa ke dalam form field
     fillEditForm(siswa);
 
-    // 4. JAMINAN UTAMA: Jika input Nama Lengkap dan Kelas masih kosong, paksa isi dari dropdown!
+    // Validasi penegasan nilai text input utama
     const inputNama = document.getElementById("editNama");
     const inputKelas = document.getElementById("editKelas");
     
@@ -817,9 +834,13 @@ function fillEditForm(siswa) {
         const el = document.getElementById(map[key]);
         if (el) el.value = siswa[key] || siswa[key.toUpperCase()] || "";
     });
+    
     const fotoUrl = siswa.foto || siswa.FOTO;
     const img = document.getElementById("previewFotoEdit");
-    if (img && fotoUrl) img.src = fotoUrl;
+    if (img) {
+        // Jika ada URL foto valid, tampilkan. Jika tidak, kosongkan src-nya.
+        img.src = (fotoUrl && fotoUrl.trim() !== "") ? fotoUrl : "";
+    }
 }
 
 function clearEditForm() {
@@ -874,21 +895,17 @@ async function compressImage(file) {
 document.addEventListener("DOMContentLoaded", function() {
     loadDataSiswaPage(); 
 });
-async function loadKelasEditIdentitas() {
-    try {
-        const res = await fetch(TABUNGAN_API + "?action=getDataSiswa");
-        const result = await res.json();
-        if (!result.status) return;
-
-        dataSiswaEdit = result.data || [];
-        const kelasSelect = document.getElementById("editFilterKelas");
-        kelasSelect.innerHTML = `<option value="">Pilih Kelas</option>`;
-
-        const kelasUnik = [...new Set(dataSiswaEdit.map(s => s.kelas || s.KELAS).filter(Boolean))].sort();
-        kelasUnik.forEach(kelas => { kelasSelect.innerHTML += `<option value="${kelas}">${kelas}</option>`; });
-    } catch (err) { console.error(err); }
+function loadKelasEditIdentitas() {
+    // 1. Bersihkan form edit total agar tidak membawa data sisa/sebelumnya
+    clearEditForm(); 
+    
+    // 2. Kosongkan pilihan nama
+    const namaSelect = document.getElementById("editFilterNama");
+    if (namaSelect) namaSelect.innerHTML = `<option value="">Pilih Nama</option>`;
+    
+    // 3. Pastikan data master ditarik ulang secara bersih tanpa mengisi form input
+    loadDataSiswaPage({ skipFillForm: true });
 }
-
 function renderDataSiswa(data) {
     const tbody = document.getElementById("tbodySiswa");
     tbody.innerHTML = "";
