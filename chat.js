@@ -38,20 +38,19 @@ function getChatUser() {
    BUKA CHAT
 ===================================================== */
 
-function openChat() {
+async function openChat() {
 
     nav("chatPage");
-
-    loadChat();
 
     if (chatInterval) {
         clearInterval(chatInterval);
     }
 
+    await loadChat();
+
     chatInterval = setInterval(loadChatBaru, 2000);
 
 }
-
 /* =====================================================
    TUTUP CHAT
 ===================================================== */
