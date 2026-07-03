@@ -428,13 +428,9 @@ tr:hover td, .rbm-table tr:hover { background-color: #f1f5f9; }
     .cardMD { padding: 20px; }
 }
 
-/*==========================
-CHAT
-==========================*/
-
-/*==========================
-CHAT
-==========================*/
+/* ==========================
+   CHAT PAGE
+========================== */
 
 #chatPage{
     display:flex;
@@ -442,6 +438,10 @@ CHAT
     height:100vh;
     background:#ece5dd;
 }
+
+/* ==========================
+   HEADER
+========================== */
 
 .topbar{
     display:flex;
@@ -467,22 +467,26 @@ CHAT
     opacity:.8;
 }
 
+/* ==========================
+   CHAT LIST
+========================== */
+
 #chatList{
     flex:1;
+    overflow-y:auto;
+    padding:15px;
     display:flex;
     flex-direction:column;
     gap:12px;
-    overflow-y:auto;
-    padding:15px;
 }
 
-/*==========================
-ITEM
-==========================*/
+/* ==========================
+   ITEM CHAT
+========================== */
 
 .chatItem{
     display:flex;
-    align-items:flex-start;
+    align-items:flex-end;
     gap:10px;
 }
 
@@ -490,90 +494,74 @@ ITEM
     flex-direction:row-reverse;
 }
 
-/*==========================
-FOTO
-==========================*/
+/* ==========================
+   FOTO
+========================== */
 
 .chatFoto{
     width:42px;
     height:42px;
-    flex-shrink:0;
     border-radius:50%;
     object-fit:cover;
+    flex-shrink:0;
     background:#ddd;
 }
 
-/*==========================
-BUBBLE
-==========================*/
+/* ==========================
+   BUBBLE
+========================== */
 
 .chatBubble{
     display:inline-block;
     width:fit-content;
     max-width:75%;
     padding:10px 14px;
-    border-radius:14px;
+    border-radius:16px;
     word-break:break-word;
-}
-
-.chatLeft{
+    box-shadow:0 1px 2px rgba(0,0,0,.12);
     background:#fff;
-    align-self:flex-start;
 }
 
-.chatRight{
+.chatItem.me .chatBubble{
     background:#dcf8c6;
-    align-self:flex-end;
-}
-.chatItem{
-    display:flex;
-    flex-direction:column;
-    margin:8px 12px;
 }
 
-.chatItem.left{
-    align-items:flex-start;
-}
-
-.chatItem.right{
-    align-items:flex-end;
-}
-
-/*==========================
-NAMA
-==========================*/
+/* ==========================
+   NAMA
+========================== */
 
 .chatNama{
-    margin-bottom:5px;
     font-size:13px;
     font-weight:700;
     color:#0b8457;
+    margin-bottom:4px;
 }
 
-/*==========================
-PESAN
-==========================*/
+/* ==========================
+   PESAN
+========================== */
 
 .chatPesan{
     font-size:15px;
+    line-height:1.45;
     white-space:pre-wrap;
     word-break:break-word;
 }
 
-/*==========================
-WAKTU
-==========================*/
+/* ==========================
+   WAKTU
+========================== */
 
 .chatWaktu{
     margin-top:6px;
+    text-align:right;
     font-size:11px;
     color:#888;
-    text-align:right;
 }
 
-/*==========================
-INPUT
-==========================*/
+/* ==========================
+   INPUT
+========================== */
 
 .chatInput{
     display:flex;
@@ -592,19 +580,25 @@ INPUT
 
 .chatInput button{
     width:auto;
-    padding:12px 18px;
     margin:0;
+    padding:12px 18px;
+    white-space:nowrap;
 }
+
+/* ==========================
+   LOADING
+========================== */
+
 .chatLoading{
     text-align:center;
-    padding:20px;
+    padding:24px;
     color:#777;
     font-style:italic;
 }
 
-/*==========================
-RESPONSIVE
-==========================*/
+/* ==========================
+   RESPONSIVE
+========================== */
 
 @media (max-width:600px){
 
@@ -616,15 +610,18 @@ RESPONSIVE
         animation:chatIn .2s ease;
     }
 
-    @keyframes chatIn{
-        from{
-            opacity:0;
-            transform:translateY(10px);
-        }
-        to{
-            opacity:1;
-            transform:translateY(0);
-        }
+}
+
+@keyframes chatIn{
+
+    from{
+        opacity:0;
+        transform:translateY(10px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
     }
 
 }
