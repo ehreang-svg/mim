@@ -253,6 +253,7 @@ function renderChat(item) {
     <div class="chatContent">
 
         <div class="chatBubble">
+        <div class="chatBody">
 
             <div class="chatNama">
                 ${item.nama}
@@ -265,7 +266,7 @@ function renderChat(item) {
             <div class="chatWaktu">
                 ${formatWaktu(item.waktu)}
             </div>
-
+            </div>
         </div>
 
     </div>
