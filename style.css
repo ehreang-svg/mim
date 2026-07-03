@@ -432,6 +432,10 @@ tr:hover td, .rbm-table tr:hover { background-color: #f1f5f9; }
    CHAT PAGE
 ========================== */
 
+/* ==========================
+   CHAT PAGE
+========================== */
+
 #chatPage{
     display:flex;
     flex-direction:column;
@@ -450,7 +454,7 @@ tr:hover td, .rbm-table tr:hover { background-color: #f1f5f9; }
     padding:12px 16px;
     background:#0b8457;
     color:#fff;
-    box-shadow:0 2px 5px rgba(0,0,0,.2);
+    box-shadow:0 2px 5px rgba(0,0,0,.15);
 }
 
 .chatTitle{
@@ -461,10 +465,11 @@ tr:hover td, .rbm-table tr:hover { background-color: #f1f5f9; }
 .chatTitle h2{
     margin:0;
     font-size:18px;
+    color:#fff;
 }
 
 .chatTitle small{
-    opacity:.85;
+    color:rgba(255,255,255,.85);
 }
 
 /* ==========================
@@ -484,16 +489,11 @@ tr:hover td, .rbm-table tr:hover { background-color: #f1f5f9; }
    ITEM CHAT
 ========================== */
 
-/* ==========================
-   ITEM CHAT
-========================== */
-
 .chatItem{
     display:flex;
     align-items:flex-end;
     gap:10px;
     width:100%;
-    margin-bottom:14px;
 }
 
 .chatItem.me{
@@ -524,58 +524,52 @@ tr:hover td, .rbm-table tr:hover { background-color: #f1f5f9; }
     display:flex;
     flex-direction:column;
 
-    min-width:120px;
-    max-width:420px;
+    width:fit-content;
+    min-width:60px;
+    max-width:min(70%,420px);
 
-    padding:10px 14px 8px;
+    padding:10px 14px;
 
     background:#fff;
 
     border-radius:18px;
 
-    box-shadow:0 2px 8px rgba(0,0,0,.08);
+    box-shadow:0 2px 6px rgba(0,0,0,.10);
 
-    word-break:break-word;
-    white-space:pre-wrap;
+    flex:0 0 auto;
 
 }
 
-/* Bubble Saya */
-
 .chatItem.me .chatBubble{
-
     background:#dcf8c6;
-
 }
 
 /* ==========================
-   Ekor Bubble
+   TAIL
 ========================== */
 
-.chatBubble::before{
+.chatBubble::after{
 
     content:"";
 
     position:absolute;
 
-    left:-7px;
-    bottom:8px;
+    left:-6px;
+    bottom:10px;
 
-    width:16px;
-    height:16px;
+    width:12px;
+    height:12px;
 
     background:#fff;
-
-    border-radius:0 0 16px 0;
 
     transform:rotate(45deg);
 
 }
 
-.chatItem.me .chatBubble::before{
+.chatItem.me .chatBubble::after{
 
     left:auto;
-    right:-7px;
+    right:-6px;
 
     background:#dcf8c6;
 
@@ -587,13 +581,11 @@ tr:hover td, .rbm-table tr:hover { background-color: #f1f5f9; }
 
 .chatNama{
 
-    margin:0 0 6px;
-
     font-size:13px;
-
     font-weight:700;
-
     color:#0b8457;
+
+    margin-bottom:5px;
 
     line-height:1.2;
 
@@ -605,17 +597,15 @@ tr:hover td, .rbm-table tr:hover { background-color: #f1f5f9; }
 
 .chatPesan{
 
-    margin:0;
-
     font-size:15px;
 
-    line-height:1.6;
+    line-height:1.5;
 
     color:#222;
 
-    text-align:left;
-
     white-space:pre-wrap;
+
+    overflow-wrap:anywhere;
 
     word-break:break-word;
 
@@ -627,7 +617,7 @@ tr:hover td, .rbm-table tr:hover { background-color: #f1f5f9; }
 
 .chatWaktu{
 
-    margin-top:8px;
+    margin-top:6px;
 
     align-self:flex-end;
 
@@ -635,7 +625,7 @@ tr:hover td, .rbm-table tr:hover { background-color: #f1f5f9; }
 
     color:#777;
 
-    line-height:1;
+    white-space:nowrap;
 
 }
 
@@ -654,7 +644,6 @@ tr:hover td, .rbm-table tr:hover { background-color: #f1f5f9; }
 
 .chatInput input{
     flex:1;
-    width:auto;
     margin:0;
     padding:12px;
 }
