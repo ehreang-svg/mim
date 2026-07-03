@@ -58,62 +58,21 @@ async function loadChat() {
 
     try {
 
-        const res = await fetch(
+        const url = CHAT_API + "?action=getChat";
 
-            CHAT_API + "?action=getChat"
+        console.log(url);
 
-        );
+        const res = await fetch(url);
 
-        const result = await res.json();
+        console.log("Status :", res.status);
 
-        if (!result.status) return;
+        const text = await res.text();
 
-        const box = document.getElementById("chatList");
-
-        const user =
-            currentUser ||
-            JSON.parse(localStorage.getItem("user") || "{}");
-
-        box.innerHTML = "";
-
-        result.data.forEach(item => {
-
-            const sendiri =
-                item.username === user.username;
-
-            box.innerHTML += `
-
-<div class="chatItem ${sendiri ? "me" : ""}">
-
-<img src="${item.foto || "https://cdn-icons-png.flaticon.com/512/149/149071.png"}">
-
-<div>
-
-<div class="chatNama">
-
-${item.nama}
-
-</div>
-
-<div class="chatPesan">
-
-${item.pesan}
-
-</div>
-
-</div>
-
-</div>
-
-`;
-
-        });
-
-        box.scrollTop = box.scrollHeight;
+        console.log(text);
 
     } catch (err) {
 
-        console.log(err);
+        console.error(err);
 
     }
 
