@@ -29,6 +29,10 @@ function stopChat() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    // 1. Langsung set online jika data user sudah tersimpan di localStorage (sesudah login)
+    setUserOnlineAwal();
+
+    // 2. Listener input chat yang sudah ada sebelumnya
     const input = document.getElementById("chatText");
     if (!input) return;
     input.addEventListener("keydown", function (e) {
@@ -228,6 +232,27 @@ function formatWaktu(waktu) {
 function escapeHtml(text) {
     if (!text) return "";
     return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+// Fungsi untuk menandai user online segera setelah login atau muat halaman
+async function setUserOnlineAwal() {
+    try {
+        const user = getChatUser();
+        if (!user.username) return; // Batalkan jika data user belum ada/belum login
+
+        await fetch(CHAT_API, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({
+                action: "registerOnline",
+                username: user.username,
+                nama: user.nama || "",
+                foto: user.foto || ""
+            })
+        });
+        console.log("Status online berhasil didaftarkan sejak login.");
+    } catch (err) {
+        console.error("Gagal mengaktifkan status online awal:", err);
+    }
 }
 
 window.addEventListener("beforeunload", () => { stopChat(); });
