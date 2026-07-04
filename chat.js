@@ -89,14 +89,25 @@ async function loadChat() {
 
     try {
         const user = getChatUser();
-        
-        // Kirim foto HANYA di load awal ini. 
-        // Jika Base64 terlalu panjang dan tetap error 400, Anda harus mengubah sistem login/session Anda.
-        const url = CHAT_API + `?action=getChat` +
-                    `&username=${encodeURIComponent(user.username || '')}` +
-                    `&nama=${encodeURIComponent(user.nama || '')}` +
-                    `&foto=${encodeURIComponent(user.foto || '')}`; // Kirim di sini sekali saja
-        
+
+        // LANGKAH 1: Daftarkan status online + FOTO via POST (Aman untuk Base64)
+        try {
+            await fetch(CHAT_API, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify({
+                    action: "registerOnline",
+                    username: user.username || "",
+                    nama: user.nama || "",
+                    foto: user.foto || "" // Base64 dikirim lewat body POST, dijamin sukses
+                })
+            });
+        } catch (postErr) {
+            console.warn("Gagal register online awal:", postErr);
+        }
+
+        // LANGKAH 2: Ambil data chat menggunakan GET biasa (Tanpa membawa foto di URL)
+        const url = CHAT_API + `?action=getChat&username=${encodeURIComponent(user.username || '')}`;
         const res = await fetch(url);
         const text = await res.text();
         const json = JSON.parse(text);
@@ -121,6 +132,7 @@ async function loadChat() {
         }
     } catch (err) {
         console.error("LOAD CHAT ERROR =", err);
+        box.innerHTML = '<div class="chatLoading">Terjadi kesalahan koneksi.</div>';
     }
 }
 
