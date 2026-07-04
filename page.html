@@ -1489,52 +1489,35 @@ placeholder="Masukkan NISN">
 
 
 <div class="page hidden" id="chatPage">
-
-    <!-- HEADER -->
     <div class="topbar">
-
-        <div class="back" onclick="goBack()">
-            ←
+        <div class="btn-small btn-back" onclick="goBack(); stopChat();">
+          ⬅ 
         </div>
-
         <div class="chatTitle">
-
             <h2>💬 MaaXChat</h2>
+            <small id="chatStatus">Online</small>
+        </div>
+    </div>
 
-            <small id="chatStatus">
-                Online
-            </small>
+    <div class="chatMainLayout">
+        
+        <div class="chatRoomArea">
+            <div id="chatList">
+                <div class="chatLoading">Sedang memuat pesan...</div>
+            </div>
+            <div class="chatInput">
+                <input type="text" id="chatText" placeholder="Ketik pesan..." autocomplete="off" spellcheck="false" maxlength="500">
+                <button id="btnSend" onclick="kirimChat()">KIRIM</button>
+            </div>
+        </div>
 
+        <div class="chatUserSidebar">
+            <div class="sidebarHeader">
+                Akun sedang online (<span id="userOnlineCount">0</span>)
+            </div>
+            <div id="userOnlineList">
+                </div>
         </div>
 
     </div>
-
-    <!-- LIST CHAT -->
-    <div id="chatList">
-
-        <div class="chatLoading">
-            Sedang memuat pesan...
-        </div>
-
-    </div>
-
-    <!-- INPUT -->
-    <div class="chatInput">
-
-        <input
-            type="text"
-            id="chatText"
-            placeholder="Tulis pesan dengan bahasa yang sopan..."
-            autocomplete="off"
-            spellcheck="false"
-            maxlength="500">
-
-        <button
-            id="btnSend"
-            onclick="kirimChat()">
-            KIRIM
-        </button>
-
-    </div>
-
 </div>
