@@ -1506,6 +1506,9 @@ placeholder="Masukkan NISN">
                 <div class="chatLoading">Sedang memuat pesan...</div>
             </div>
             <div class="chatInput">
+                <div class="chatInputContainer">
+                <input type="file" id="chatFile" style="display: none;" onchange="handleFileSelected()">
+                <button type="button" onclick="document.getElementById('chatFile').click()">📎</button>
                 <input type="text" id="chatText" placeholder="Ketik pesan..." autocomplete="off" spellcheck="false" maxlength="500">
                 <button id="btnSend" onclick="kirimChat()">KIRIM</button>
             </div>
