@@ -1,6 +1,6 @@
 const aplikasi = {
   masterData: [],
-  isFirstLoad: true, // Penanda untuk membedakan muat pertama vs saat filter diubah
+  isFirstLoad: true,
 
   init: function() {
     this.isFirstLoad = true;
