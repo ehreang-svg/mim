@@ -89,29 +89,16 @@ async function loadChat() {
 
     try {
         const user = getChatUser();
-        // Kirim info tanpa foto agar URL tidak kepanjangan
-        const url = CHAT_API + `?action=getChat&username=${encodeURIComponent(user.username || '')}&nama=${encodeURIComponent(user.nama || '')}`;
         
-        // Tambahkan mode: "cors" untuk memastikan browser mengizinkan pengalihan dari Google
-        const res = await fetch(url, {
-            method: "GET",
-            mode: "cors",
-            headers: {
-                "Accept": "application/json"
-            }
-        });
-
-        if (!res.ok) {
-            throw new Error(`HTTP error! status: ${res.status}`);
-        }
-
+        // Kirim foto HANYA di load awal ini. 
+        // Jika Base64 terlalu panjang dan tetap error 400, Anda harus mengubah sistem login/session Anda.
+        const url = CHAT_API + `?action=getChat` +
+                    `&username=${encodeURIComponent(user.username || '')}` +
+                    `&nama=${encodeURIComponent(user.nama || '')}` +
+                    `&foto=${encodeURIComponent(user.foto || '')}`; // Kirim di sini sekali saja
+        
+        const res = await fetch(url);
         const text = await res.text();
-        
-        // Antisipasi jika response kosong atau bukan JSON valid
-        if (!text || text.trim() === "") {
-            throw new Error("Response dari server kosong");
-        }
-
         const json = JSON.parse(text);
 
         if (!json.status) {
@@ -133,13 +120,7 @@ async function loadChat() {
             updateOnlineUsersList(json.onlineUsers);
         }
     } catch (err) {
-        // Kita filter jika chat sebenarnya muncul, abaikan tulisan error yang mengganggu di UI
-        console.error("LOG INTERNAL ERROR =", err);
-        
-        // Jika box masih berisi tulisan "Sedang memuat", barulah ganti dengan pesan error
-        if (box.innerHTML.includes("Sedang memuat")) {
-            box.innerHTML = '<div class="chatLoading">Gagal memuat otomatis, mencoba menghubungkan kembali...</div>';
-        }
+        console.error("LOAD CHAT ERROR =", err);
     }
 }
 
