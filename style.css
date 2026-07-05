@@ -792,3 +792,130 @@ body:has(#chatPage:not(.hidden)) .copyright {
     .chatUserSidebar.mobile-open ~ .sidebar-overlay { display: block; opacity: 1; }
     #chatPage .chatItem { max-width: 88%; }
 }
+/* ==========================================================================
+   QUIZ & EXAM CUSTOM IMPROVEMENTS
+   ========================================================================== */
+.quiz-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.quiz-auth-box {
+    margin: 4vh auto !important;
+    border-top: 5px solid var(--accent-color);
+}
+
+.quiz-header-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+}
+
+/* Card Profile Siswa Saat Mengerjakan Soal */
+.cardQuizSiswa {
+    background: var(--primary-gradient);
+    color: white;
+    padding: 20px;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-md);
+}
+.cardQuizSiswa img {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.4);
+    object-fit: cover;
+    background: #fff;
+}
+.cardQuizSiswa h3 { color: #fff; font-size: 18px; margin-0; }
+.cardQuizSiswa p { font-size: 13px; opacity: 0.9; margin: 2px 0 0 0; }
+
+/* Card Soal */
+.cardSoal {
+    background: var(--card-bg);
+    padding: 24px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 16px;
+    transition: border-color 0.2s;
+}
+.cardSoal:hover {
+    border-color: #cbd5e1;
+}
+.soal-teks {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 16px;
+    display: block;
+}
+
+/* Kustomisasi Radio Button Pilihan Ganda */
+.opsi-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    margin-bottom: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    background: #ffffff;
+}
+.opsi-label:hover {
+    background-color: #f8fafc;
+    border-color: var(--accent-color);
+}
+.opsi-label input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    margin-bottom: 0;
+    cursor: pointer;
+    accent-color: var(--accent-color);
+    box-shadow: none;
+}
+
+/* Indikator terpilih lewat CSS (Opsional namun membantu kenyamanan user) */
+.opsi-label:has(input[type="radio"]:checked) {
+    background-color: #e6f4f1;
+    border-color: var(--accent-color);
+    font-weight: 600;
+}
+
+/* Hasil Nilai */
+.cardHasil {
+    background: #ffffff;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 30px;
+    text-align: center;
+    margin-top: 24px;
+    box-shadow: var(--shadow-lg);
+}
+.cardHasil.lulus { border-color: var(--success); background: #f0fdf4; }
+.cardHasil.gagal { border-color: var(--danger); background: #fef2f2; }
+
+.score-big {
+    font-size: 48px;
+    font-weight: 800;
+    margin: 10px 0;
+}
+.score-big.lulus { color: var(--success); }
+.score-big.gagal { color: var(--danger); }
+
+.badge-status {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 14px;
+    color: #fff;
+}
+.badge-status.lulus { background: var(--success); }
+.badge-status.gagal { background: var(--danger); }
