@@ -432,319 +432,363 @@ tr:hover td, .rbm-table tr:hover { background-color: #f1f5f9; }
    CHAT PAGE
 ========================== */
 
+/* ==========================================================================
+   EXCLUSIVE SCOPED WHATSAPP CHAT STYLE (Tema Putih - Hijau Bersih)
+   ========================================================================== */
 #chatPage {
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 40px);
-    max-width: 100% !important; /* Override layout .page global */
-    padding: 0 !important;          /* Override padding .page global */
-    background: #efeae2;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    height: 100vh !important;
+    height: 100dvh !important;
+    max-width: 100% !important; 
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #f4f7f6; /* Latar belakang abu kemerahan/kehijauan lembut */
+    font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    overflow: hidden;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 999;
 }
 
-/* Topbar khusus di dalam Ruang Chat */
+body:has(#chatPage:not(.hidden)) .copyright {
+    display: none !important;
+}
+
+/* Custom Topbar inside Chat Room */
 #chatPage .topbar {
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    gap: 12px;
-    padding: 10px 16px;
-    background: #008069; 
-    color: #fff;
+    gap: 16px;
+    padding: 0 20px;
+    background: #ffffff; 
+    color: var(--text-main);
     margin-bottom: 0;
-    border-bottom: none;
-    box-shadow: 0 1px 3px rgba(0,0,0,.1);
+    border-bottom: 1px solid var(--border-color);
+    height: 64px;
+    box-sizing: border-box;
+    flex-shrink: 0;
 }
 
-/* Tombol Back khusus di dalam Ruang Chat */
-#chatPage .back {
-    display: inline-flex;
-    margin-bottom: 0;
-    padding: 4px 8px;
-    font-size: 20px;
-    background: transparent;
-    color: #fff;
+.btn-back-chat {
+    background: none;
     border: none;
-    border-radius: 0;
+    font-size: 18px;
     cursor: pointer;
+    color: var(--text-muted);
+    padding: 8px;
+    width: auto;
+    box-shadow: none;
 }
-#chatPage .back:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
+.btn-back-chat:hover { transform: none; box-shadow: none; background: #f1f5f9; border-radius: 50%; }
 
-#chatPage .chatTitle {
+.chatTitle {
+    flex: 1;
     display: flex;
     flex-direction: column;
 }
-
-#chatPage .chatTitle h2 {
-    margin: 0;
+.chatTitle h2 {
+    color: var(--text-main) !important;
     font-size: 16px;
-    font-weight: 500;
-    color: #fff;
-}
-
-#chatPage .chatTitle small {
-    margin-top: 2px;
-    font-size: 12px;
-    color: rgba(255,255,255,.8);
-}
-
-/* Chat Container Area */
-#chatPage #chatList {
-    flex: 1;
-    overflow-y: auto;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-/* Bubble Items */
-#chatPage .chatItem {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    width: 100%;
-}
-
-#chatPage .chatItem.me {
-    justify-content: flex-end;
-}
-
-#chatPage .chatBubble {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    width: fit-content;
-    max-width: 75%;
-    padding: 6px 10px 8px;
-    background: #ffffff;
-    border-radius: 0px 8px 8px 8px;
-    box-shadow: 0 1px 1px rgba(0,0,0,.12);
-}
-
-#chatPage .chatItem.me .chatBubble {
-    background: #d9fdd3;
-    border-radius: 8px 0px 8px 8px;
-}
-
-/* Bubble Tails (Ekor Segitiga) */
-#chatPage .chatBubble::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -8px;
-    width: 8px;
-    height: 13px;
-    background: #ffffff;
-    clip-path: polygon(100% 0, 0 0, 100% 100%);
-}
-
-#chatPage .chatItem.me .chatBubble::after {
-    left: auto;
-    right: -8px;
-    background: #d9fdd3;
-    clip-path: polygon(0 0, 0 100%, 100% 0);
-}
-
-#chatPage .chatNama {
-    margin: 0 0 4px 0;
-    font-size: 12.5px;
-    font-weight: 600;
-    color: #128c7e;
-}
-
-#chatPage .chatBody {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    align-items: flex-end;
-    gap: 8px;
-}
-
-#chatPage .chatPesan {
     margin: 0;
-    flex: 1;
-    min-width: 60%;
-    font-size: 14.2px;
-    line-height: 1.4;
-    color: #111b21;
-    white-space: pre-wrap;
-    word-break: break-word;
+    font-weight: 700;
 }
-
-#chatPage .chatWaktu {
-    margin: 0;
-    font-size: 11px;
-    color: #667781;
-    white-space: nowrap;
-    user-select: none;
-    margin-bottom: -4px;
-}
-
-/* Chat Bar Input Khusus */
-#chatPage .chatInput {
+.chatStatus-wrapper {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 10px;
-    background: #f0f2f5;
+    gap: 6px;
+}
+.pulse-dot {
+    width: 6px;
+    height: 6px;
+    background-color: var(--success);
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+.chatTitle small {
+    color: var(--text-muted);
+    font-size: 12px;
 }
 
-#chatPage .chatInput input {
-    flex: 1;
-    margin: 0;
-    padding: 10px 14px;
-    border: none;
-    border-radius: 8px;
-    font-size: 15px;
-    outline: none;
-    background: #ffffff;
-    box-shadow: none; /* Reset shadow global */
-}
-
-#chatPage .chatInput button {
-    width: auto;
-    background: #008069;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 16px;
-    font-weight: 600;
-    font-size: 14px;
-    cursor: pointer;
-    box-shadow: none;
-    transition: background 0.2s;
-}
-
-#chatPage .chatInput button:hover {
-    background: #006653;
-    transform: none; /* Menghilangkan efek transform bawaan global */
-}
-
-#chatPage .chatLoading {
-    text-align: center;
-    padding: 24px;
-    color: #667781;
-    font-size: 14px;
-}
-
-/* ==========================================================================
-   RESPONSIVE LAYOUT RESPONSES
-   ========================================================================== */
-@media (max-width: 768px) {
-    .page { padding: 16px 12px 100px 12px; }
-    .grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
-    .menu-card { padding: 16px; min-height: 120px; }
-    .profile { flex-direction: column; text-align: center; gap: 12px; }
-    .topbar .title { font-size: 18px; }
-    .jadwal-container, .gridMD { grid-template-columns: 1fr; }
-    .cardMD { padding: 20px; }
-}
-
-@media (max-width: 600px) {
-    #chatPage .chatBubble {
-        max-width: 85%;
-    }
-}
-/* Styling Foto Profil Agar Bulat Sempurna (Chat Room) */
-.chatItem .chatFoto {
-    width: 40px;
-    height: 40px;
-    border-radius: 50% !important; /* Memaksa bulat */
-    object-fit: cover;
-    background: #ffffff;
+.btn-toggle-online {
+    display: none; 
+    background: var(--bg-light);
     border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    align-items: center;
+    gap: 6px;
+    width: auto;
 }
 
-/* Layout Gabungan Chat + Sidebar (Split Mode) */
+/* Layout Architecture */
 .chatMainLayout {
     display: flex;
     flex: 1;
     overflow: hidden;
-    height: calc(100% - 60px); /* Menyesuaikan tinggi sisa topbar */
+    height: calc(100% - 64px); 
+    position: relative;
 }
 
-/* Area Chat Room (Kiri) */
+/* Chat Room Area (Left/Main) */
 .chatRoomArea {
     flex: 3;
     display: flex;
     flex-direction: column;
-    background: #efeae2;
-    border-right: 1px solid rgba(0,0,0,0.08);
+    background: #f8fafc;
+    height: 100%;
 }
 
-/* Area Sidebar User Online (Kanan) */
-.chatUserSidebar {
-    flex: 1;
-    min-width: 240px;
-    background: #004d40; /* Warna gelap matching background tema mockup */
-    color: #ffffff;
-    display: flex;
-    flex-direction: column;
-    padding: 16px;
-}
-
-.sidebarHeader {
-    font-size: 15px;
-    font-weight: 600;
-    padding-bottom: 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    margin-bottom: 12px;
-    color: #e0f2f1;
-}
-
-#userOnlineList {
+/* Bubble Chat Feed */
+#chatPage #chatList {
     flex: 1;
     overflow-y: auto;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     gap: 12px;
+    background-color: #f3f7f5; /* Sentuhan hijau pudar tipis untuk area chat feed */
 }
 
-/* Item User Di Dalam List */
+.chatLoading {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 13px;
+    margin-top: 20px;
+}
+
+/* Refined Chat Bubbles */
+.chatItem {
+    display: flex;
+    gap: 10px;
+    max-width: 75%;
+    align-self: flex-start;
+    animation: bubbleIn 0.2s ease-out;
+}
+@keyframes bubbleIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.chatItem.me {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+}
+
+.chatFoto {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid var(--border-color);
+}
+
+/* Gelembung Pengirim Lain (Putih Bersih) */
+.chatBubble {
+    background: #ffffff;
+    padding: 10px 14px;
+    border-radius: 0px 16px 16px 16px;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    border: 1px solid rgba(226, 232, 240, 0.6);
+}
+/* Gelembung Saya sendiri (Hijau Mint Lembut Bersih) */
+.chatItem.me .chatBubble {
+    background: #e6f4f1;
+    border-radius: 16px 0px 16px 16px;
+    border-color: #cceae4;
+}
+
+/* Nama Pengirim Lain */
+.chatNama {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent-color);
+    margin-bottom: 3px;
+}
+/* Nama Saya Sendiri */
+.chatItem.me .chatNama {
+    color: #115e59;
+}
+
+.chatBody {
+    display: flex;
+    flex-direction: column;
+}
+.chatPesan {
+    font-size: 14px;
+    color: var(--text-main);
+    word-break: break-word;
+    white-space: pre-wrap;
+}
+.chatWaktu {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-align: right;
+    margin-top: 4px;
+}
+
+/* Input Bar Styling */
+#chatPage .chatInput {
+    background: #ffffff;
+    padding: 16px 20px;
+    border-top: 1px solid var(--border-color);
+}
+#chatPage .chatInputContainer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.btn-attach {
+    background: var(--bg-light) !important;
+    color: var(--text-muted) !important;
+    border: 1px solid var(--border-color) !important;
+    width: 44px !important;
+    height: 44px !important;
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    border-radius: 50% !important;
+}
+.btn-attach:hover { background: #e2e8f0 !important; }
+
+#chatPage .chatInput input[type="text"] {
+    flex: 1;
+    margin-bottom: 0 !important;
+    padding: 12px 18px;
+    border-radius: 24px;
+    background: var(--bg-light);
+    border: 1px solid var(--border-color);
+    box-shadow: none;
+}
+#chatPage .chatInput input[type="text"]:focus {
+    background: #fff;
+    border-color: var(--accent-color);
+}
+#chatPage .chatInput button#btnSend {
+    width: auto;
+    padding: 0 24px;
+    height: 44px;
+    border-radius: 24px;
+    background: var(--primary-gradient); /* Tombol kirim otomatis bergradasi Hijau Teal bawaan */
+    font-weight: 700;
+}
+
+/* Sidebar All Users (Right Side) */
+.chatUserSidebar {
+    flex: 1;
+    min-width: 280px;
+    max-width: 320px;
+    background: #ffffff; 
+    border-left: 1px solid var(--border-color);
+    color: var(--text-main);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    box-sizing: border-box;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 99;
+}
+.sidebarHeader {
+    padding: 20px;
+    font-size: 14px;
+    font-weight: 700;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-main);
+    background: #f8fafc;
+}
+#userOnlineList {
+    flex: 1;
+    overflow-y: auto;
+}
 .onlineUserItem {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 6px 8px;
-    border-radius: var(--radius-md);
+    padding: 12px 20px;
+    border-bottom: 1px solid #f1f5f9;
     transition: background 0.2s;
+    position: relative;
 }
+.onlineUserItem:hover { background: #f8fafc; }
 
-.onlineUserItem:hover {
-    background: rgba(255,255,255,0.05);
+.avatar-wrapper {
+    position: relative;
+    width: 40px;
+    height: 40px;
 }
-
+.userOnlineFoto {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--border-color);
+}
 .statusDot {
     width: 10px;
     height: 10px;
-    background-color: #10b981; /* Hijau aktif murni */
+    background-color: #cbd5e1; /* Default Offline */
+    border: 2px solid white;
     border-radius: 50%;
-    box-shadow: 0 0 8px #10b981;
+    position: absolute;
+    bottom: 1px;
+    right: 1px;
+    z-index: 2;
 }
-
-.userOnlineFoto {
-    width: 36px;
-    height: 36px;
-    border-radius: 50% !important; /* Paksa bulat */
-    object-fit: cover;
-    background: #fff;
+.statusDot.active {
+    background-color: var(--success);
 }
-
+.userMeta {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
 .userOnlineNama {
-    font-size: 14px;
-    font-weight: 500;
-    color: #ffffff;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+.userLastSeen {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 1px;
 }
 
-/* Responsive: Jika dibuka dari HP, sembunyikan sidebar agar tidak sempit */
-@media (max-width: 768px) {
+/* Mobile responsive overlay */
+.sidebar-overlay {
+    display: none;
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(15, 23, 42, 0.3);
+    backdrop-filter: blur(2px);
+    z-index: 90;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+@media (max-width: 900px) {
+    .btn-toggle-online { display: flex; }
     .chatUserSidebar {
-        display: none !important;
+        position: absolute;
+        right: 0; top: 0; bottom: 0;
+        width: 280px;
+        transform: translateX(100%); 
+        box-shadow: -10px 0 30px rgba(0,0,0,0.08);
     }
+    .chatUserSidebar.mobile-open { transform: translateX(0); }
+    .chatUserSidebar.mobile-open ~ .sidebar-overlay { display: block; opacity: 1; }
+    #chatPage .chatItem { max-width: 88%; }
 }
