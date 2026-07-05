@@ -30,6 +30,7 @@ const pages = [
    "ijazahMDPage",
    "siswaMateriPage",
    "tambahMateriPage",
+   "inputSoalPage",
    "chatPage",
      "raportMDPage"
 ];
