@@ -91,7 +91,7 @@ function handleFileSelected() {
         const previewName = document.getElementById("filePreviewName");
         if (previewContainer && previewName) {
             previewName.textContent = "Terpilih: " + file.name;
-            previewContainer.style.display = "block";
+            previewContainer.style.display = "flex";
         }
     };
     reader.readAsDataURL(file);
@@ -271,24 +271,76 @@ async function loadChatBaru() {
     }
 }
 
+// URUTKAN SEMUA USER SESUAI WAKTU TERAKHIR ONLINE & PASANG STATUS RELATIF
 function updateOnlineUsersList(users) {
     const container = document.getElementById("userOnlineList");
     const countSpan = document.getElementById("userOnlineCount");
+    const countBadge = document.getElementById("userOnlineCountBadge");
     if (!container || !users) return;
 
     container.innerHTML = "";
-    if (countSpan) countSpan.textContent = users.length;
+    
+    // 1. Hitung jumlah user yang saat ini benar-benar aktif (isOnline === true)
+    const activeOnlineCount = users.filter(u => u.isOnline === true).length;
+    if (countSpan) countSpan.textContent = activeOnlineCount;
+    if (countBadge) countBadge.textContent = activeOnlineCount;
 
+    // 2. ALGORITMA SORTING: Pengguna online bergeser ke atas, lalu urutkan berdasarkan lastSeen terbaru
+    users.sort((a, b) => {
+        let aOnline = a.isOnline ? 1 : 0;
+        let bOnline = b.isOnline ? 1 : 0;
+        
+        if (aOnline !== bOnline) {
+            return bOnline - aOnline; // Yang online (1) akan naik melebihi yang offline (0)
+        }
+        
+        // Jika status onlinenya sama, urutkan berdasarkan waktu lastSeen terbaru
+        let timeA = a.lastSeen ? new Date(a.lastSeen).getTime() : 0;
+        let timeB = b.lastSeen ? new Date(b.lastSeen).getTime() : 0;
+        return timeB - timeA; 
+    });
+
+    // 3. Render seluruh daftar user ke dalam komponen HTML
     users.forEach(u => {
         const foto = u.foto && u.foto.trim() !== "" ? u.foto : "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+        
+        // Memanfaatkan fungsi formatWaktuRelatif bawaan Anda untuk user yang offline
+        let lastSeenText = u.isOnline ? "Sedang Aktif" : (u.lastSeen ? "Aktif " + formatWaktuRelatif(u.lastSeen) : "Offline");
+
         const html = `
         <div class="onlineUserItem">
-            <div class="statusDot"></div>
-            <img class="userOnlineFoto" src="${foto}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/149/149071.png'">
-            <div class="userOnlineNama">${u.nama}</div>
+            <div class="avatar-wrapper">
+                <img class="userOnlineFoto" src="${foto}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/149/149071.png'">
+                <div class="statusDot ${u.isOnline ? 'active' : ''}"></div>
+            </div>
+            <div class="userMeta">
+                <div class="userOnlineNama">${u.nama || u.username}</div>
+                <div class="userLastSeen">${lastSeenText}</div>
+            </div>
         </div>`;
         container.insertAdjacentHTML("beforeend", html);
     });
+}
+
+// Fungsi pembantu untuk mengubah objek timestamp Tanggal menjadi teks string relatif Indonesia
+function formatWaktuRelatif(dateString) {
+    try {
+        const parsedDate = new Date(dateString);
+        if (isNaN(parsedDate)) return dateString;
+        const diffSeconds = Math.floor((new Date() - parsedDate) / 1000);
+        
+        if (diffSeconds < 60) return "baru saja";
+        
+        const diffMinutes = Math.floor(diffSeconds / 60);
+        if (diffMinutes < 60) return `${diffMinutes} menit lalu`;
+        
+        const diffHours = Math.floor(diffMinutes / 60);
+        if (diffHours < 24) return `${diffHours} jam lalu`;
+        
+        return parsedDate.toLocaleDateString("id-ID", { day: "numeric", month: "short" });
+    } catch (e) { 
+        return dateString; 
+    }
 }
 
 function formatWaktu(waktu) {
@@ -301,6 +353,21 @@ function formatWaktu(waktu) {
 function escapeHtml(text) {
     if (!text) return "";
     return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+
+function toggleSidebarMobile() {
+    const sidebar = document.querySelector(".chatUserSidebar");
+    const overlay = document.querySelector(".sidebar-overlay");
+    if (sidebar && overlay) {
+        const isOpen = sidebar.classList.toggle("mobile-open");
+        if (isOpen) {
+            overlay.style.display = "block";
+            setTimeout(() => overlay.style.opacity = "1", 10);
+        } else {
+            overlay.style.opacity = "0";
+            setTimeout(() => overlay.style.display = "none", 300);
+        }
+    }
 }
 
 window.addEventListener("beforeunload", () => { stopChat(); });
