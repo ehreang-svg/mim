@@ -747,17 +747,25 @@
 
 <!-- Quiz --->
 <div class="page hidden" id="loginQuiz">
-<div class="back" onclick="goBack()">← Kembali</div>
-<h2>LATIHAN SISAWA</h2>
-    
-<input type="text"
-id="nisn"
-placeholder="Masukkan NISN">
-<button onclick="mulai()">Mulai</button>
-<br><br>
-<div id="siswa" Style="text-align:left";></div>
-<form id="quiz" Style="text-align:left"></form>
-<div id="hasil" Style="text-align:left"></div>
+  <div class="back" onclick="goBack()">← Kembali</div>
+  <h2>LATIHAN SISWA</h2>
+  
+  <select id="selectKelas" onchange="loadSiswa()">
+    <option value="">-- Pilih Kelas --</option>
+  </select>
+
+  <select id="selectSiswa" disabled>
+    <option value="">-- Pilih Nama --</option>
+  </select>
+
+  <input type="password" id="passwordNisn" placeholder="Masukkan Password (NISN)">
+  
+  <button onclick="mulai()">Mulai</button>
+  <br><br>
+  
+  <div id="siswa" style="text-align:left;"></div>
+  <form id="quiz" style="text-align:left;"></form>
+  <div id="hasil" style="text-align:left;"></div>
 </div>
 
 <!-- INPUT IDENTITAS SISWA -->
