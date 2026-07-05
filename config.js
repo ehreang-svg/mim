@@ -2,7 +2,7 @@ window.API_URL = "https://script.google.com/macros/s/AKfycbxnpvxL8mQg-hVCDl6bOy7
 window.ABSEN_API = "https://script.google.com/macros/s/AKfycbxIdtImYj2YCJEcW2Q2dfn9pkjzgq88qnhB_kdln021rUdmqJEh2jQiz1kL0qeYRI8l/exec";
 window.TABUNGAN_API = "https://script.google.com/macros/s/AKfycbyCWL9Xrt-Dq4Cc4eah9OSYqYCGxY9tChXYYPSwOKwysNkZo4pgDbBVe6-YYDPmjVY/exec";
 window.JADWAL_API = "https://script.google.com/macros/s/AKfycbzGPnqxz0Fx9jQnPAm6OguEdN2yQ6ZvccVC6lb1KEovso4gVZDywLNZhTOsEHN3_VwL/exec";
-window.Quiz_API ="https://script.google.com/macros/s/AKfycbx76vMYaeEvwBdtM0sDrqFPDN7n78Z9qMVysyloix652KBctCHysJYRYyz3g2XjZWZ7/exec";
+window.Quiz_API ="https://script.google.com/macros/s/AKfycbwGySXrBY2dmNZDS-bf-pCB6tDukp0PO_RttP2XaENv4dk4FmfRWq95CBsWqQukB2jX/exec";
 window.KBM_API ="https://script.google.com/macros/s/AKfycbwz89jBhPTie4I13_YSgRkM4LTkcVuTZ0cWs1TtYeY37s6pRR0_muTXGpV5es6zboDs/exec";
 window.CHAT_API ="https://script.google.com/macros/s/AKfycby7YTM71QxM1khY_FDxkwh-Fu5F3kOT4EJBWzVM1GrO8ZGphfCCCeydfuL8-xKBzDh5/exec";
 
