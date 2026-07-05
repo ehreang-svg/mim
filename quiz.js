@@ -1,4 +1,27 @@
 let mataPelajaranTerpilih = ""; // Menyimpan mapel secara global saat ujian berlangsung
+document.addEventListener("DOMContentLoaded", function() {
+    loadKelas();
+});
+
+// 1. Fungsi mengambil daftar kelas dari spreadsheet
+async function loadKelas() {
+    try {
+        const res = await fetch(Quiz_API + "?aksi=getKelas");
+        const data = await res.json();
+        const selectKelas = document.getElementById("selectKelas");
+        
+        // Kosongkan dan isi opsi kelas
+        selectKelas.innerHTML = '<option value="">-- Pilih Kelas --</option>';
+        data.kelas.forEach(kelas => {
+            let opt = document.createElement("option");
+            opt.value = kelas;
+            opt.textContent = kelas;
+            selectKelas.appendChild(opt);
+        });
+    } catch (err) {
+        console.error("Gagal memuat data kelas:", err);
+    }
+}
 
 // Trigger gabungan saat kelas diubah
 function AksiPilihKelas() {
