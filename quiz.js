@@ -133,76 +133,114 @@ function tampilSiswaQuiz(){
 
 function tampilSoal(){
     let html = "";
+    if (dataSoal.length === 0) {
+        html = `<div class="rbm-siswa-empty"><h3>Belum ada soal untuk kelas ${dataSiswaQuiz.kelas}</h3></div>`;
+        document.getElementById("quiz").innerHTML = html;
+        return;
+    }
+
     dataSoal.forEach((s, index) => {
         html += `
-        <div class="cardSoal">
+        <div class="cardSoal" id="blokSoal${index}">
             <span class="soal-teks">${s.no}. ${s.soal}</span>
             
-            <label class="opsi-label">
+            <label class="opsi-label" id="label-${index}-A">
                 <input type="radio" name="q${index}" value="A">
                 <span><b>A.</b> ${s.A}</span>
             </label>
             
-            <label class="opsi-label">
+            <label class="opsi-label" id="label-${index}-B">
                 <input type="radio" name="q${index}" value="B">
                 <span><b>B.</b> ${s.B}</span>
             </label>
             
-            <label class="opsi-label">
+            <label class="opsi-label" id="label-${index}-C">
                 <input type="radio" name="q${index}" value="C">
                 <span><b>C.</b> ${s.C}</span>
             </label>
             
-            <label class="opsi-label">
+            <label class="opsi-label" id="label-${index}-D">
                 <input type="radio" name="q${index}" value="D">
                 <span><b>D.</b> ${s.D}</span>
             </label>
+
+            <div id="pembahasan${index}" class="hidden"></div>
         </div>
         `;
     });
     
     html += `
-        <button type="button" onclick="koreksi()" style="margin-top: 16px; font-size: 16px; padding: 14px;">
+        <button type="button" id="btnKirimQuiz" onclick="koreksi()" style="margin-top: 16px; font-size: 16px; padding: 14px;">
             🚀 Kirim Jawaban Anda
         </button>
     `;
     document.getElementById("quiz").innerHTML = html;
 }
 
-
 async function koreksi(){
-let benar=0;
-dataSoal.forEach((s,index)=>{
-let jwb=
-document.querySelector(
-`input[name=q${index}]:checked`
-);
-if(jwb &&
-jwb.value===s.jawaban){
-benar++;
-}
-});
-let nilai=
-Math.round(
-(benar/dataSoal.length)*100
-);
-let status=
-nilai>=75
-? "LULUS"
-: "BELUM LULUS";
-document.getElementById("hasil")
-.innerHTML=
-`
-<h2>Nilai : ${nilai}</h2>
-<h2>Status : ${status}</h2>
-`;
-await fetch(Quiz_API,{
-method:"POST",
-body:JSON.stringify({
-nisn:dataSiswaQuiz.nisn,
-nama:dataSiswaQuiz.nama,
-nilai:nilai,
-status:status
-})
-});
+    let benar = 0;
+    
+    // Sembunyikan tombol kirim agar tidak diklik dua kali
+    document.getElementById("btnKirimQuiz").classList.add("hidden");
+
+    dataSoal.forEach((s, index) => {
+        let pilihanUser = document.querySelector(`input[name=q${index}]:checked`);
+        let nilaiPilihan = pilihanUser ? pilihanUser.value : null;
+        let kunciJawaban = s.jawaban;
+
+        // 1. Kunci semua input radio agar tidak bisa diubah setelah kirim
+        let allRadios = document.querySelectorAll(`input[name=q${index}]`);
+        allRadios.forEach(radio => radio.disabled = true);
+
+        // 2. Beri warna visual pada pilihan jawaban
+        if (nilaiPilihan === kunciJawaban) {
+            benar++;
+            document.getElementById(`label-${index}-${nilaiPilihan}`).classList.add("benar-pilihan");
+        } else {
+            if (nilaiPilihan) {
+                document.getElementById(`label-${index}-${nilaiPilihan}`).classList.add("salah-pilihan");
+            }
+            // Tetap tunjukkan jawaban yang benar mana
+            document.getElementById(`label-${index}-${kunciJawaban}`).classList.add("benar-pilihan");
+        }
+
+        // 3. Tampilkan Kotak Penjelasan/Pembahasan Ujian
+        let boxPembahasan = document.getElementById(`pembahasan${index}`);
+        boxPembahasan.innerHTML = `
+            <div class="pembahasan-box">
+                <b>💡 Pembahasan:</b> ${s.penjelasan || 'Tidak ada penjelasan tertulis untuk soal ini.'}
+            </div>
+        `;
+        boxPembahasan.classList.remove("hidden");
+    });
+    
+    let nilai = Math.round((benar / dataSoal.length) * 100);
+    let isLulus = nilai >= 75;
+    let status = isLulus ? "LULUS" : "BELUM LULUS";
+    
+    // Tampilkan skor akhir ujian
+    document.getElementById("hasil").innerHTML = `
+        <div class="cardHasil ${isLulus ? 'lulus' : 'gagal'}">
+            <p style="font-size: 14px; color: var(--text-muted); font-weight: 600;">HASIL UJIAN</p>
+            <div class="score-big ${isLulus ? 'lulus' : 'gagal'}">${nilai}</div>
+            <div class="badge-status ${isLulus ? 'lulus' : 'gagal'}">${status}</div>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 12px;">
+                Jawaban Benar: ${benar} dari ${dataSoal.length} Soal. Silakan cek pembahasan di bawah masing-masing soal.
+            </p>
+        </div>
+    `;
+    
+    // Gulir otomatis ke atas box hasil nilai
+    document.getElementById("hasil").scrollIntoView({ behavior: 'smooth' });
+
+    // Kirim rekap hasil ujian ke sheet "Hasil"
+    await fetch(Quiz_API, {
+        method: "POST",
+        body: JSON.stringify({
+            nisn: dataSiswaQuiz.nisn,
+            nama: dataSiswaQuiz.nama,
+            nilai: nilai,
+            status: status
+        })
+    });
 }
