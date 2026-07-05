@@ -919,3 +919,24 @@ body:has(#chatPage:not(.hidden)) .copyright {
 }
 .badge-status.lulus { background: var(--success); }
 .badge-status.gagal { background: var(--danger); }
+/* Kotak Penjelasan Jawaban */
+.pembahasan-box {
+    margin-top: 14px;
+    padding: 14px 16px;
+    background-color: #f1f5f9;
+    border-left: 4px solid #64748b;
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    font-size: 13px;
+    color: #334155;
+}
+
+/* Penanda Jawaban Benar/Salah secara Visual */
+.opsi-label.benar-pilihan {
+    background-color: #d1fae5 !important;
+    border-color: var(--success) !important;
+    font-weight: 600;
+}
+.opsi-label.salah-pilihan {
+    background-color: #fee2e2 !important;
+    border-color: var(--danger) !important;
+}
