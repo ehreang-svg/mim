@@ -111,7 +111,7 @@ function tampilSiswaQuiz(){
             <img src="${dataSiswaQuiz.foto || 'https://via.placeholder.com/150'}">
             <div>
                 <h3>${dataSiswaQuiz.nama || '-'}</h3>
-                <p>Kelas: ${dataSiswaQuiz.kelas} | Mapel: <b>${mataPelajaranTerpilih}</b></p>
+                <p>${dataSiswaQuiz.kelas} | Mapel: <b>${mataPelajaranTerpilih}</b></p>
             </div>
         </div>
     `;
@@ -185,3 +185,20 @@ async function koreksi(){
         })
     });
 }
+
+async function simpanSoalBaru(event) {
+    event.preventDefault(); // Mencegah reload halaman saat form disubmit
+    
+    const btnSubmit = document.getElementById("btnSimpanSoal");
+    btnSubmit.disabled = true;
+    btnSubmit.innerText = "⏳ Sedang Menyimpan...";
+
+    // Ambil semua value dari form input
+    const payload = {
+        tipe: "tambahSoal", // Penanda instruksi untuk sisi backend gs
+        kelas: document.getElementById("inputKelas").value,
+        pelajaran: document.getElementById("inputPelajaran").value.trim(),
+        soal: document.getElementById("inputIsiSoal").value.trim(),
+        A: document.getElementById("inputA").value.trim(),
+        B: document.getElementById("inputB").value.trim(),
+        ...
