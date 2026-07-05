@@ -1490,13 +1490,19 @@ placeholder="Masukkan NISN">
 
 <div class="page hidden" id="chatPage">
     <div class="topbar">
-        <div class="btn-small btn-back" onclick="goBack(); stopChat();">
-            ⬅ 
-        </div>
+        <button type="button" class="btn-back-chat" onclick="goBack(); stopChat();">
+            ⬅
+        </button>
         <div class="chatTitle">
-            <h2>💬 MaaXChat</h2>
-            <small id="chatStatus">Online</small>
+            <h2>MaaXChat</h2>
+            <div class="chatStatus-wrapper">
+                <div class="pulse-dot"></div>
+                <small id="chatStatus">Online Hub</small>
+            </div>
         </div>
+        <button type="button" class="btn-toggle-online" onclick="toggleSidebarMobile()">
+            👥 <span id="userOnlineCountBadge">0</span>
+        </button>
     </div>
 
     <div class="chatMainLayout">
@@ -1507,24 +1513,28 @@ placeholder="Masukkan NISN">
             </div>
             
             <div class="chatInput">
-                <div id="filePreviewContainer" style="display: none; padding: 6px 10px; background: #f0f0f0; font-size: 12px; border-top: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;">
-                    <span id="filePreviewName" style="font-weight: bold; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80%;"></span>
-                    <button type="button" onclick="batalKirimFile()" style="background: #ff4d4d; color: white; border: none; padding: 2px 6px; border-radius: 3px; cursor: pointer; font-weight: bold;">X</button>
+                <div id="filePreviewContainer" style="display: none; padding: 8px 14px; background: #f1f5f9; font-size: 12px; border-radius: 8px; margin-bottom: 8px; justify-content: space-between; align-items: center; border: 1px solid var(--border-color);">
+                    <span id="filePreviewName" style="font-weight: 600; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80%;"></span>
+                    <button type="button" onclick="batalKirimFile()" style="background: var(--danger); color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-weight: bold; width:auto; box-shadow:none;">Batal</button>
                 </div>
 
                 <div class="chatInputContainer">
                     <input type="file" id="chatFile" style="display: none;" onchange="handleFileSelected()">
-                    <button type="button" onclick="document.getElementById('chatFile').click()">📎</button>
+                    <button type="button" class="btn-attach" onclick="document.getElementById('chatFile').click()">📎</button>
                     <input type="text" id="chatText" placeholder="Ketik pesan..." autocomplete="off" spellcheck="false" maxlength="500">
                     <button id="btnSend" onclick="kirimChat()">KIRIM</button>
                 </div>
-            </div> </div> <div class="chatUserSidebar">
+            </div> 
+        </div> 
+
+        <div class="chatUserSidebar">
             <div class="sidebarHeader">
-                Akun sedang online (<span id="userOnlineCount">0</span>)
+                Daftar Pengguna (<span id="userOnlineCount">0</span> Online)
             </div>
-            <div id="userOnlineList">
-                </div>
+            <div id="userOnlineList"></div>
         </div>
 
-    </div>
+        <div class="sidebar-overlay" onclick="toggleSidebarMobile()"></div>
+
+    </div> 
 </div>
