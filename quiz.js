@@ -126,6 +126,7 @@ function tampilSiswaQuiz(){
                 <h3>${dataSiswaQuiz.nama || '-'}</h3>
                 <p>Kelas: ${dataSiswaQuiz.kelas || '-'} | NISN: ${dataSiswaQuiz.nisn || '-'}</p>
             </div>
+    <br><br>
         </div>
     `;
 }
@@ -168,45 +169,6 @@ function tampilSoal(){
     document.getElementById("quiz").innerHTML = html;
 }
 
-async function koreksi(){
-    let benar = 0;
-    dataSoal.forEach((s, index) => {
-        let jwb = document.querySelector(`input[name=q${index}]:checked`);
-        if(jwb && jwb.value === s.jawaban){
-            benar++;
-        }
-    });
-    
-    let nilai = Math.round((benar / dataSoal.length) * 100);
-    let isLulus = nilai >= 75;
-    let status = isLulus ? "LULUS" : "BELUM LULUS";
-    
-    // Tampilan hasil skor akhir yang interaktif (Lulus hijau, Gagal merah)
-    document.getElementById("hasil").innerHTML = `
-        <div class="cardHasil ${isLulus ? 'lulus' : 'gagal'}">
-            <p style="font-size: 14px; color: var(--text-muted); font-weight: 600;">HASIL UJIAN</p>
-            <div class="score-big ${isLulus ? 'lulus' : 'gagal'}">${nilai}</div>
-            <div class="badge-status ${isLulus ? 'lulus' : 'gagal'}">${status}</div>
-            <p style="font-size: 13px; color: var(--text-muted); margin-top: 12px;">
-                Jawaban Benar: ${benar} dari ${dataSoal.length} Soal
-            </p>
-        </div>
-    `;
-    
-    // Scroll otomatis ke kotak hasil agar langsung terlihat oleh siswa
-    document.getElementById("hasil").scrollIntoView({ behavior: 'smooth' });
-
-    // Kirim data ke backend
-    await fetch(Quiz_API, {
-        method: "POST",
-        body: JSON.stringify({
-            nisn: dataSiswaQuiz.nisn,
-            nama: dataSiswaQuiz.nama,
-            nilai: nilai,
-            status: status
-        })
-    });
-}
 
 async function koreksi(){
 let benar=0;
