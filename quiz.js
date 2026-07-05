@@ -108,67 +108,106 @@ async function mulai() {
     }
 }
 function tampilSiswaQuiz(){
-
     console.log(dataSiswaQuiz);
-
     if(!dataSiswaQuiz){
         console.error("Data siswa tidak ditemukan");
         return;
     }
 
+    // Sembunyikan form login, tampilkan area kuis
+    document.getElementById("areaLogin").classList.add("hidden");
+    document.getElementById("areaKuis").classList.remove("hidden");
+
+    // Tampilkan profil dengan desain baru yang rapi
     document.getElementById("siswa").innerHTML = `
-        <div class="cardQuiz">
-            <img src="${dataSiswaQuiz.foto || ''}">
-            <h3>${dataSiswaQuiz.nama || '-'}</h3>
-            <p>NISN : ${dataSiswaQuiz.nisn || '-'}</p>
-            <p>Kelas : ${dataSiswaQuiz.kelas || '-'}</p>
+        <div class="cardQuizSiswa">
+            <img src="${dataSiswaQuiz.foto || 'https://via.placeholder.com/150'}" alt="Foto Siswa">
+            <div>
+                <h3>${dataSiswaQuiz.nama || '-'}</h3>
+                <p>Kelas: ${dataSiswaQuiz.kelas || '-'} | NISN: ${dataSiswaQuiz.nisn || '-'}</p>
+            </div>
         </div>
     `;
 }
+
 function tampilSoal(){
-let html="";
-dataSoal.forEach((s,index)=>{
-html+=`
-<div class="cardQuiz" style="text-align:left";>
-<p>
-<b>${s.no}. ${s.soal}</b>
-</p>
-<label>
-<input type="radio"
-name="q${index}"
-value="A">
-${s.A}
-</label><br>
-<label>
-<input type="radio"
-name="q${index}"
-value="B">
-${s.B}
-</label><br>
-<label>
-<input type="radio"
-name="q${index}"
-value="C">
-${s.C}
-</label><br>
-<label>
-<input type="radio"
-name="q${index}"
-value="D">
-${s.D}
-</label>
-</div>
-`;
-});
-html+=`
-<button type="button"
-onclick="koreksi()">
-Kirim
-</button>
-`;
-document.getElementById("quiz")
-.innerHTML=html;
+    let html = "";
+    dataSoal.forEach((s, index) => {
+        html += `
+        <div class="cardSoal">
+            <span class="soal-teks">${s.no}. ${s.soal}</span>
+            
+            <label class="opsi-label">
+                <input type="radio" name="q${index}" value="A">
+                <span><b>A.</b> ${s.A}</span>
+            </label>
+            
+            <label class="opsi-label">
+                <input type="radio" name="q${index}" value="B">
+                <span><b>B.</b> ${s.B}</span>
+            </label>
+            
+            <label class="opsi-label">
+                <input type="radio" name="q${index}" value="C">
+                <span><b>C.</b> ${s.C}</span>
+            </label>
+            
+            <label class="opsi-label">
+                <input type="radio" name="q${index}" value="D">
+                <span><b>D.</b> ${s.D}</span>
+            </label>
+        </div>
+        `;
+    });
+    
+    html += `
+        <button type="button" onclick="koreksi()" style="margin-top: 16px; font-size: 16px; padding: 14px;">
+            🚀 Kirim Jawaban Anda
+        </button>
+    `;
+    document.getElementById("quiz").innerHTML = html;
 }
+
+async function koreksi(){
+    let benar = 0;
+    dataSoal.forEach((s, index) => {
+        let jwb = document.querySelector(`input[name=q${index}]:checked`);
+        if(jwb && jwb.value === s.jawaban){
+            benar++;
+        }
+    });
+    
+    let nilai = Math.round((benar / dataSoal.length) * 100);
+    let isLulus = nilai >= 75;
+    let status = isLulus ? "LULUS" : "BELUM LULUS";
+    
+    // Tampilan hasil skor akhir yang interaktif (Lulus hijau, Gagal merah)
+    document.getElementById("hasil").innerHTML = `
+        <div class="cardHasil ${isLulus ? 'lulus' : 'gagal'}">
+            <p style="font-size: 14px; color: var(--text-muted); font-weight: 600;">HASIL UJIAN</p>
+            <div class="score-big ${isLulus ? 'lulus' : 'gagal'}">${nilai}</div>
+            <div class="badge-status ${isLulus ? 'lulus' : 'gagal'}">${status}</div>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 12px;">
+                Jawaban Benar: ${benar} dari ${dataSoal.length} Soal
+            </p>
+        </div>
+    `;
+    
+    // Scroll otomatis ke kotak hasil agar langsung terlihat oleh siswa
+    document.getElementById("hasil").scrollIntoView({ behavior: 'smooth' });
+
+    // Kirim data ke backend
+    await fetch(Quiz_API, {
+        method: "POST",
+        body: JSON.stringify({
+            nisn: dataSiswaQuiz.nisn,
+            nama: dataSiswaQuiz.nama,
+            nilai: nilai,
+            status: status
+        })
+    });
+}
+
 async function koreksi(){
 let benar=0;
 dataSoal.forEach((s,index)=>{
