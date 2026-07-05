@@ -190,15 +190,46 @@ async function simpanSoalBaru(event) {
     event.preventDefault(); // Mencegah reload halaman saat form disubmit
     
     const btnSubmit = document.getElementById("btnSimpanSoal");
+    const teksAsliTombol = btnSubmit.innerText;
+    
     btnSubmit.disabled = true;
     btnSubmit.innerText = "⏳ Sedang Menyimpan...";
 
     // Ambil semua value dari form input
     const payload = {
-        tipe: "tambahSoal", // Penanda instruksi untuk sisi backend gs
+        tipe: "tambahSoal", // Penanda instruksi untuk sisi backend Google Apps Script
         kelas: document.getElementById("inputKelas").value,
-        pelajaran: document.getElementById("inputPelajaran").value.trim(),
+        pelajaran: document.getElementById("inputPelajaran").value,
         soal: document.getElementById("inputIsiSoal").value.trim(),
         A: document.getElementById("inputA").value.trim(),
         B: document.getElementById("inputB").value.trim(),
-        ...
+        C: document.getElementById("inputC").value.trim(),
+        D: document.getElementById("inputD").value.trim(),
+        jawaban: document.getElementById("inputJawaban").value,
+        penjelasan: document.getElementById("inputPenjelasan").value.trim()
+    };
+
+    try {
+        // Mengirim data ke Google Apps Script menggunakan POST
+        const response = await fetch(Quiz_API, {
+            method: "POST",
+            body: JSON.stringify(payload)
+        });
+
+        const hasil = await response.text();
+
+        if (hasil === "OK_SOAL_TERSMPAN") {
+            alert("🎉 Soal berhasil disimpan ke database!");
+            document.getElementById("formInputSoal").reset(); // Kosongkan form kembali
+        } else {
+            alert("⚠️ Gagal menyimpan soal: " + hasil);
+        }
+    } catch (err) {
+        console.error(err);
+        alert("❌ Terjadi kesalahan jaringan / sistem gagal terhubung.");
+    } finally {
+        // Kembalikan status tombol seperti semula
+        btnSubmit.disabled = false;
+        btnSubmit.innerText = teksAsliTombol;
+    }
+}
