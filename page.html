@@ -793,6 +793,90 @@
     </div>
   </div>
 </div>
+
+<div class="page hidden" id="inputSoalPage">
+  <div class="back" onclick="goBack()">← Kembali</div>
+  
+  <div class="quiz-container" style="max-width: 650px;">
+    <div class="card">
+      <div style="text-align: center; font-size: 32px; margin-bottom: 8px;">➕</div>
+      <h2 style="text-align: center; margin-bottom: 20px;">INPUT SOAL BARU</h2>
+      
+      <form id="formInputSoal" onsubmit="simpanSoalBaru(event)">
+        
+        <div class="form-group" style="text-align: left;">
+          <label for="inputKelas">Kelas Target Soal</label>
+          <select id="inputKelas" required>
+            <option value="">-- Pilih Kelas --</option>
+            <option value="Kelas 1">Kelas 1</option>
+            <option value="Kelas 2">Kelas 2</option>
+            <option value="Kelas 3">Kelas 3</option>
+              <option value="Kelas 4">Kelas 4</option>
+              <option value="Kelas 5">Kelas 5</option>
+              <option value="Kelas 6">Kelas 6</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="text-align: left;">
+          <label for="inputPelajaran">Mata Pelajaran</label>
+          <select id="inputPelajaran" required>
+            <option value="">-- Pilih pelajaran --</option>
+            <option value="Literasi">Literasi</option>
+            <option value="Numerasi">Numerasi</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="text-align: left;">
+          <label for="inputIsiSoal">Pertanyaan / Soal</label>
+          <textarea id="inputIsiSoal" rows="4" placeholder="Tuliskan teks pertanyaan di sini..." required style="width:100%; border-radius:var(--radius-md); padding:12px; border:1px solid var(--border-color); font-family:inherit;"></textarea>
+        </div>
+
+        <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 0;">
+          <div class="form-group" style="text-align: left;">
+            <label for="inputA">Pilihan A</label>
+            <input type="text" id="inputA" placeholder="Teks Opsi A" required>
+          </div>
+          <div class="form-group" style="text-align: left;">
+            <label for="inputB">Pilihan B</label>
+            <input type="text" id="inputB" placeholder="Teks Opsi B" required>
+          </div>
+        </div>
+
+        <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 0;">
+          <div class="form-group" style="text-align: left;">
+            <label for="inputC">Pilihan C</label>
+            <input type="text" id="inputC" placeholder="Teks Opsi C" required>
+          </div>
+          <div class="form-group" style="text-align: left;">
+            <label for="inputD">Pilihan D</label>
+            <input type="text" id="inputD" placeholder="Teks Opsi D" required>
+          </div>
+        </div>
+
+        <div class="form-group" style="text-align: left;">
+          <label for="inputJawaban">Kunci Jawaban Benar</label>
+          <select id="inputJawaban" required>
+            <option value="">-- Pilih Kunci --</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="text-align: left;">
+          <label for="inputPenjelasan">Penjelasan / Pembahasan Jawaban</label>
+          <textarea id="inputPenjelasan" rows="3" placeholder="Tuliskan materi pembahasan mengapa jawaban tersebut benar..." style="width:100%; border-radius:var(--radius-md); padding:12px; border:1px solid var(--border-color); font-family:inherit;"></textarea>
+        </div>
+
+        <button type="submit" id="btnSimpanSoal" style="margin-top: 12px; background: linear-gradient(135deg, #0d9488, #115e59);">
+          💾 Simpan Soal ke Database
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
 <!-- INPUT IDENTITAS SISWA -->
 <div class="page hidden" id="identitasPage">
 <div class="toolbar-left data-toolbar">
