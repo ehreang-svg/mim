@@ -754,12 +754,12 @@
       <div class="quiz-header-icon">📝</div>
       <h2>LATIHAN SISWA</h2>
       <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 24px;">
-        Silakan pilih kelas, nama, dan masukkan NISN sebagai password Anda.
+        Silakan pilih kelas, nama, mata pelajaran, dan masukkan NISN Anda.
       </p>
       
       <div class="form-group" style="text-align: left;">
         <label for="selectKelas">Kelas</label>
-        <select id="selectKelas" onchange="loadSiswa()">
+        <select id="selectKelas" onchange="AksiPilihKelas()">
           <option value="">-- Pilih Kelas --</option>
         </select>
       </div>
@@ -768,6 +768,13 @@
         <label for="selectSiswa">Nama Siswa</label>
         <select id="selectSiswa" disabled>
           <option value="">-- Pilih Nama --</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="text-align: left;">
+        <label for="selectPelajaran">Mata Pelajaran</label>
+        <select id="selectPelajaran" disabled>
+          <option value="">-- Pilih Pelajaran --</option>
         </select>
       </div>
 
@@ -781,14 +788,11 @@
 
     <div id="areaKuis" class="hidden">
       <div id="siswa"></div>
-      
       <form id="quiz"></form>
-      
       <div id="hasil"></div>
     </div>
   </div>
 </div>
-
 <!-- INPUT IDENTITAS SISWA -->
 <div class="page hidden" id="identitasPage">
 <div class="toolbar-left data-toolbar">
