@@ -101,7 +101,7 @@ async function loadJadwalSekarang(){
             const jamSelesaiSuara = formatJamSuara(jadwalAktif.jamSelesai);
 
             // Menyusun kalimat dengan tanda koma (,) dan titik (.) yang pas untuk memberikan jeda napas pada robot
-            const teksPengumuman = `Saat ini, adalah waktunya pelajaran ${jadwalAktif.mapel}, untuk kelas ${jadwalAktif.kelas}. yang di ampu oleh ${jadwalAktif.guru}, sampai jam ${jamSelesaiSuara}.`;
+            const teksPengumuman = `saatnya masuk pelajaran ${jadwalAktif.mapel}, untuk kelas ${jadwalAktif.kelas}. yang di ampu oleh ${jadwalAktif.guru}, sampai jam ${jamSelesaiSuara}.`;
             
             panggilPesanSuara(teksPengumuman);
         }
@@ -118,8 +118,8 @@ function panggilPesanSuara(teks) {
 
         const ucapan = new SpeechSynthesisUtterance(teks);
         ucapan.lang = 'id-ID'; 
-        ucapan.rate = 0.85; // Sedikit diperlambat dari sebelumnya (0.9 -> 0.85) agar artikulasinya jelas
-        ucapan.pitch = 1.0;  // Nada suara normal (tidak terlalu cempreng/ngebas)
+        ucapan.rate = 0.72; // Sedikit diperlambat dari sebelumnya (0.9 -> 0.85) agar artikulasinya jelas
+        ucapan.pitch = 1.05;  // Nada suara normal (tidak terlalu cempreng/ngebas)
 
         // Fungsi internal untuk mengunci suara Bahasa Indonesia terbaik di perangkat
         const setSuaraIndonesia = () => {
