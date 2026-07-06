@@ -18,7 +18,7 @@ async function loadPages() {
     } else {
         nav("loginPage");
     }
-}, 2500); // Waktu tampil splash screen (2500ms = 2.5 detik)
+}, 2500);
 }
 
 window.onload = loadPages;
