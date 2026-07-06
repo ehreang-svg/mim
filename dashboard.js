@@ -62,18 +62,68 @@ data.menus
 loadJadwalSekarang();
 
 }
+
 async function loadJadwalSekarang(){
     try{
         const res = await fetch(JADWAL_API + "?action=jadwalSekarang");
         const data = await res.json();
-        if(!data.status){ jadwalSekarang.innerHTML = "Tidak ada jadwal"; return; }
+        
+        if(!data.status || data.data.length === 0){ 
+            jadwalSekarang.innerHTML = "Tidak ada jadwal"; 
+            return; 
+        }
+        
         let html = `<table><tr><th>Kelas</th><th>Mapel</th><th>Guru</th><th>Jam</th></tr>`;
-        data.data.forEach(r=>{ html += `<tr><td>${r.kelas}</td><td>${r.mapel}</td><td>${r.guru}</td><td>${r.jamMulai} - ${r.jamSelesai}</td></tr>`; });
+        
+        data.data.forEach(r => { 
+            html += `<tr><td>${r.kelas}</td><td>${r.mapel}</td><td>${r.guru}</td><td>${r.jamMulai} - ${r.jamSelesai}</td></tr>`; 
+        });
+        
         html += `</table>`;
         jadwalSekarang.innerHTML = html;
-    }catch(err){ console.log(err); }
+
+        // --- FITUR PESAN SUARA ---
+        // Kita ambil data jadwal yang pertama aktif saat ini
+        const jadwalAktif = data.data[0]; 
+        
+        // Buat teks yang akan diucapkan
+        const teksPengumuman = `Saat ini adalah waktunya pelajaran ${jadwalAktif.mapel} untuk kelas ${jadwalAktif.kelas}, yang diajar oleh ${jadwalAktif.guru}. Jam pelajaran dimulai dari jam ${jadwalAktif.jamMulai.replace('.', ':')} sampai jam ${jadwalAktif.jamSelesai.replace('.', ':')}.`;
+        
+        // Panggil fungsi untuk mengucapkan teks
+        panggilPesanSuara(teksPengumuman);
+        // --------------------------
+
+    }catch(err){ 
+        console.log(err); 
+    }
 }
 
+// Fungsi Helper untuk menjalankan Text-to-Speech Bahasa Indonesia
+function panggilPesanSuara(teks) {
+    if ('speechSynthesis' in window) {
+        // Batalkan suara lain yang sedang berjalan agar tidak tumpang tindih
+        window.speechSynthesis.cancel(); 
+
+        const ucapan = new SpeechSynthesisUtterance(teks);
+        
+        // Set bahasa ke Indonesia
+        ucapan.lang = 'id-ID'; 
+        ucapan.rate = 0.9; // Kecepatan berbicara (0.1 - 10), 0.9 sedikit melambat agar jelas
+        ucapan.pitch = 1.0; // Nada suara (0 - 2)
+
+        // Cari suara Bahasa Indonesia asli jika tersedia di sistem browser
+        const daftarSuara = window.speechSynthesis.getVoices();
+        const suaraIndo = daftarSuara.find(voice => voice.lang.includes('id'));
+        if (suaraIndo) {
+            ucapan.voice = suaraIndo;
+        }
+
+        // Eksekusi suara
+        window.speechSynthesis.speak(ucapan);
+    } else {
+        console.log("Browser Anda tidak mendukung fitur pesan suara (Text-to-Speech).");
+    }
+}
 async function loadJadwalHariIni(){
     try{
         const kelas = document.getElementById("pilihKelas").value;
