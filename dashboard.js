@@ -62,57 +62,18 @@ data.menus
 loadJadwalSekarang();
 
 }
-/* ================= LOAD JADWAL SEKARANG & SUARA ================= */
-/* ================= LOAD JADWAL SEKARANG & SUARA (PERBAIKAN) ================= */
-async function loadJadwalSekarang() {
-    const container = document.getElementById("jadwalSekarang");
-    if (!container) return;
-
-    try {
-        // Berikan indikasi bahwa data sedang dimuat
-        container.innerHTML = "<em>Memeriksa jadwal terbaru...</em>";
-
-        // Ambil data dari backend JADWAL_API
-        const response = await fetch(JADWAL_API + "?action=jadwalSekarang");
-        const result = await response.json();
-        
-        // Validasi struktur data agar tidak crash jika result.data kosong/undefined
-        if (result.status && result.data && Array.isArray(result.data) && result.data.length > 0) {
-            let html = "<ul style='padding-left: 20px; text-align: left; margin: 10px 0;'>";
-            let teksSuara = "Perhatian. Jadwal pelajaran saat ini adalah: ";
-
-            result.data.forEach(j => {
-                html += `<li style='margin-bottom: 8px;'>
-                            <b>Kelas ${j.kelas}</b>: ${j.mapel} oleh <i>${j.guru}</i> (${j.jamMulai} - ${j.jamSelesai})
-                         </li>`;
-                
-                // Merakit teks pengumuman suara yang natural
-                teksSuara += `Kelas ${j.kelas}, mata pelajaran ${j.mapel} bersama ${j.guru}. `;
-            });
-
-            html += "</ul>";
-            container.innerHTML = html;
-
-            // Jalankan suara dengan aman
-            putarPesanSuara(teksSuara);
-
-        } else {
-            container.innerHTML = "<p style='color: #888;'>Tidak ada jadwal pelajaran di jam sekarang.</p>";
-        }
-    } catch (err) {
-        console.error("Gagal memuat jadwal:", err);
-        container.innerHTML = "<p style='color: red;'>Gagal memuat data jadwal dari server.</p>";
-    }
+async function loadJadwalSekarang(){
+    try{
+        const res = await fetch(JADWAL_API + "?action=jadwalSekarang");
+        const data = await res.json();
+        if(!data.status){ jadwalSekarang.innerHTML = "Tidak ada jadwal"; return; }
+        let html = `<table><tr><th>Kelas</th><th>Mapel</th><th>Guru</th><th>Jam</th></tr>`;
+        data.data.forEach(r=>{ html += `<tr><td>${r.kelas}</td><td>${r.mapel}</td><td>${r.guru}</td><td>${r.jamMulai} - ${r.jamSelesai}</td></tr>`; });
+        html += `</table>`;
+        jadwalSekarang.innerHTML = html;
+    }catch(err){ console.log(err); }
 }
 
-/* ================= INITIALIZATION ================= */
-document.addEventListener("DOMContentLoaded", () => {
-    // Jalankan pengecekan hanya jika element-nya memang ada di halaman aktif
-    if (document.getElementById("jadwalSekarang")) {
-        // Berikan sedikit delay 500ms agar rendering halaman selesai sempurna sebelum fetch
-        setTimeout(loadJadwalSekarang, 500);
-    }
-});
 async function loadJadwalHariIni(){
     try{
         const kelas = document.getElementById("pilihKelas").value;
@@ -125,22 +86,6 @@ async function loadJadwalHariIni(){
         html += "</table>";
         jadwalHariIni.innerHTML = html;
     }catch(err){ console.log(err); }
-}
-/* ================= TEXT TO SPEECH (SUARA) ================= */
-function putarPesanSuara(teks) {
-    if ('speechSynthesis' in window) {
-        // Batalkan suara yang sedang berjalan agar tidak bertumpuk
-        window.speechSynthesis.cancel(); 
-        
-        const utterance = new SpeechSynthesisUtterance(teks);
-        utterance.lang = 'id-ID'; // Menggunakan pengaturan suara Bahasa Indonesia
-        utterance.rate = 1.0;     // Kecepatan bicara (normal)
-        utterance.pitch = 1.0;    // Nada suara
-        
-        window.speechSynthesis.speak(utterance);
-    } else {
-        console.warn("Browser ini tidak mendukung pesan suara (Web Speech API).");
-    }
 }
 
 /* ================= MENU CONTROL ================= */
@@ -232,7 +177,7 @@ function canShowSubmenu(menuName, submenuName, status){
         return false;
     }
     if(status === "siswa"){
-        if(menuName === "latihan") return submenuName.includes("mulai");
+        if(menuName === "latihan") return true;
         if(menuName === "materi") return submenuName.includes("mulai belajar");
         if(menuName === "tabungan") return submenuName.includes("lihat tabungan");
         if(menuName === "absensi") return (submenuName.includes("rekap siswa") || submenuName.includes("rekap absensi siswa"));
@@ -240,5 +185,3 @@ function canShowSubmenu(menuName, submenuName, status){
     }
     return false;
 }
-
-
