@@ -63,50 +63,56 @@ loadJadwalSekarang();
 
 }
 /* ================= LOAD JADWAL SEKARANG & SUARA ================= */
+/* ================= LOAD JADWAL SEKARANG & SUARA (PERBAIKAN) ================= */
 async function loadJadwalSekarang() {
+    const container = document.getElementById("jadwalSekarang");
+    if (!container) return;
+
     try {
+        // Berikan indikasi bahwa data sedang dimuat
+        container.innerHTML = "<em>Memeriksa jadwal terbaru...</em>";
+
+        // Ambil data dari backend JADWAL_API
         const response = await fetch(JADWAL_API + "?action=jadwalSekarang");
         const result = await response.json();
         
-        const container = document.getElementById("jadwalSekarang");
-        if (!container) return;
-
-        if (result.status && result.data.length > 0) {
-            let html = "<ul>";
-            let teksSuara = "Jadwal saat ini adalah ";
+        // Validasi struktur data agar tidak crash jika result.data kosong/undefined
+        if (result.status && result.data && Array.isArray(result.data) && result.data.length > 0) {
+            let html = "<ul style='padding-left: 20px; text-align: left; margin: 10px 0;'>";
+            let teksSuara = "Perhatian. Jadwal pelajaran saat ini adalah: ";
 
             result.data.forEach(j => {
-                html += `<li><b>Kelas ${j.kelas}</b>: ${j.mapel} oleh ${j.guru} (${j.jamMulai} - ${j.jamSelesai})</li>`;
-                // Rakit teks yang akan dibacakan oleh robot suara
-                teksSuara += `Mata pelajaran ${j.mapel} di kelas ${j.kelas} bersama ${j.guru}. `;
+                html += `<li style='margin-bottom: 8px;'>
+                            <b>Kelas ${j.kelas}</b>: ${j.mapel} oleh <i>${j.guru}</i> (${j.jamMulai} - ${j.jamSelesai})
+                         </li>`;
+                
+                // Merakit teks pengumuman suara yang natural
+                teksSuara += `Kelas ${j.kelas}, mata pelajaran ${j.mapel} bersama ${j.guru}. `;
             });
 
             html += "</ul>";
             container.innerHTML = html;
 
-            // --- JALANKAN PESAN SUARA DI SINI KARENA ADA NILAINYA ---
+            // Jalankan suara dengan aman
             putarPesanSuara(teksSuara);
 
         } else {
-            container.innerHTML = "<p>Tidak ada jadwal saat ini.</p>";
-            // Opsional: bunyikan jika kosong
-            // putarPesanSuara("Tidak ada jadwal pelajaran saat ini.");
+            container.innerHTML = "<p style='color: #888;'>Tidak ada jadwal pelajaran di jam sekarang.</p>";
         }
     } catch (err) {
         console.error("Gagal memuat jadwal:", err);
+        container.innerHTML = "<p style='color: red;'>Gagal memuat data jadwal dari server.</p>";
     }
 }
 
-// Panggil fungsi ini di dalam DOMContentLoaded atau interval waktu berkala
+/* ================= INITIALIZATION ================= */
 document.addEventListener("DOMContentLoaded", () => {
-    // Kode Anda yang lain...
-    
-    // Panggil jika element jadwalSekarang ada di page aktif
-    if(document.getElementById("jadwalSekarang")){
-        loadJadwalSekarang();
+    // Jalankan pengecekan hanya jika element-nya memang ada di halaman aktif
+    if (document.getElementById("jadwalSekarang")) {
+        // Berikan sedikit delay 500ms agar rendering halaman selesai sempurna sebelum fetch
+        setTimeout(loadJadwalSekarang, 500);
     }
 });
-
 async function loadJadwalHariIni(){
     try{
         const kelas = document.getElementById("pilihKelas").value;
