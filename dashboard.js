@@ -1,3 +1,5 @@
+let mapelTerakhir = "";
+
 async function loadDashboard(user){
 
 currentUser = user;
@@ -91,7 +93,7 @@ async function loadJadwalSekarang(){
             mapelTerakhir = jadwalAktif.mapel; 
 
             // Buat teks pengumuman suara
-            const teksPengumuman = `Saat ini adalah waktunya pelajaran ${jadwalAktif.mapel} untuk kelas ${jadwalAktif.kelas}, yang diajar oleh ${jadwalAktif.guru}. Jam pelajaran dimulai dari jam ${jadwalAktif.jamMulai.replace('.', ':')} sampai jam ${jadwalAktif.jamSelesai.replace('.', ':')}.`;
+            const teksPengumuman = `Saat ini adalah waktunya pelajaran ${jadwalAktif.mapel} untuk kelas ${jadwalAktif.kelas}, yang diampu oleh ${jadwalAktif.guru}. Jam pelajaran dimulai dari jam ${jadwalAktif.jamMulai.replace('.', ':')} sampai jam ${jadwalAktif.jamSelesai.replace('.', ':')}.`;
             
             // Panggil fungsi suara
             panggilPesanSuara(teksPengumuman);
