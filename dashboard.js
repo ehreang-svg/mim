@@ -62,17 +62,50 @@ data.menus
 loadJadwalSekarang();
 
 }
-async function loadJadwalSekarang(){
-    try{
-        const res = await fetch(JADWAL_API + "?action=jadwalSekarang");
-        const data = await res.json();
-        if(!data.status){ jadwalSekarang.innerHTML = "Tidak ada jadwal"; return; }
-        let html = `<table><tr><th>Kelas</th><th>Mapel</th><th>Guru</th><th>Jam</th></tr>`;
-        data.data.forEach(r=>{ html += `<tr><td>${r.kelas}</td><td>${r.mapel}</td><td>${r.guru}</td><td>${r.jamMulai} - ${r.jamSelesai}</td></tr>`; });
-        html += `</table>`;
-        jadwalSekarang.innerHTML = html;
-    }catch(err){ console.log(err); }
+/* ================= LOAD JADWAL SEKARANG & SUARA ================= */
+async function loadJadwalSekarang() {
+    try {
+        const response = await fetch(ABSEN_API + "?action=jadwalSekarang");
+        const result = await response.json();
+        
+        const container = document.getElementById("jadwalSekarang");
+        if (!container) return;
+
+        if (result.status && result.data.length > 0) {
+            let html = "<ul>";
+            let teksSuara = "Jadwal saat ini adalah ";
+
+            result.data.forEach(j => {
+                html += `<li><b>Kelas ${j.kelas}</b>: ${j.mapel} oleh ${j.guru} (${j.jamMulai} - ${j.jamSelesai})</li>`;
+                // Rakit teks yang akan dibacakan oleh robot suara
+                teksSuara += `Mata pelajaran ${j.mapel} di kelas ${j.kelas} bersama ${j.guru}. `;
+            });
+
+            html += "</ul>";
+            container.innerHTML = html;
+
+            // --- JALANKAN PESAN SUARA DI SINI KARENA ADA NILAINYA ---
+            putarPesanSuara(teksSuara);
+
+        } else {
+            container.innerHTML = "<p>Tidak ada jadwal saat ini.</p>";
+            // Opsional: bunyikan jika kosong
+            // putarPesanSuara("Tidak ada jadwal pelajaran saat ini.");
+        }
+    } catch (err) {
+        console.error("Gagal memuat jadwal:", err);
+    }
 }
+
+// Panggil fungsi ini di dalam DOMContentLoaded atau interval waktu berkala
+document.addEventListener("DOMContentLoaded", () => {
+    // Kode Anda yang lain...
+    
+    // Panggil jika element jadwalSekarang ada di page aktif
+    if(document.getElementById("jadwalSekarang")){
+        loadJadwalSekarang();
+    }
+});
 
 async function loadJadwalHariIni(){
     try{
@@ -86,6 +119,22 @@ async function loadJadwalHariIni(){
         html += "</table>";
         jadwalHariIni.innerHTML = html;
     }catch(err){ console.log(err); }
+}
+/* ================= TEXT TO SPEECH (SUARA) ================= */
+function putarPesanSuara(teks) {
+    if ('speechSynthesis' in window) {
+        // Batalkan suara yang sedang berjalan agar tidak bertumpuk
+        window.speechSynthesis.cancel(); 
+        
+        const utterance = new SpeechSynthesisUtterance(teks);
+        utterance.lang = 'id-ID'; // Menggunakan pengaturan suara Bahasa Indonesia
+        utterance.rate = 1.0;     // Kecepatan bicara (normal)
+        utterance.pitch = 1.0;    // Nada suara
+        
+        window.speechSynthesis.speak(utterance);
+    } else {
+        console.warn("Browser ini tidak mendukung pesan suara (Web Speech API).");
+    }
 }
 
 /* ================= MENU CONTROL ================= */
