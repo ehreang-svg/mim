@@ -118,8 +118,8 @@ function panggilPesanSuara(teks) {
 
         const ucapan = new SpeechSynthesisUtterance(teks);
         ucapan.lang = 'id-ID'; 
-        ucapan.rate = 0.72; // Sedikit diperlambat dari sebelumnya (0.9 -> 0.85) agar artikulasinya jelas
-        ucapan.pitch = 1.05;  // Nada suara normal (tidak terlalu cempreng/ngebas)
+        ucapan.rate = 0.71; // Sedikit diperlambat dari sebelumnya (0.9 -> 0.85) agar artikulasinya jelas
+        ucapan.pitch = 1.02;  // Nada suara normal (tidak terlalu cempreng/ngebas)
 
         // Fungsi internal untuk mengunci suara Bahasa Indonesia terbaik di perangkat
         const setSuaraIndonesia = () => {
