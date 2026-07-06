@@ -65,7 +65,7 @@ loadJadwalSekarang();
 /* ================= LOAD JADWAL SEKARANG & SUARA ================= */
 async function loadJadwalSekarang() {
     try {
-        const response = await fetch(ABSEN_API + "?action=jadwalSekarang");
+        const response = await fetch(JADWAL_API + "?action=jadwalSekarang");
         const result = await response.json();
         
         const container = document.getElementById("jadwalSekarang");
