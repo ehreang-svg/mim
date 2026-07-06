@@ -72,7 +72,7 @@ async function loadJadwalSekarang(){
         
         if(!data.status || data.data.length === 0){ 
             jadwalSekarang.innerHTML = "Tidak ada jadwal"; 
-            mapelTerakhir = ""; // Reset memori jika kosong
+            mapelTerakhir = ""; 
             return; 
         }
         
@@ -83,19 +83,26 @@ async function loadJadwalSekarang(){
         html += `</table>`;
         jadwalSekarang.innerHTML = html;
 
-        // --- FITUR PESAN SUARA DENGAN PENGECEKAN BERKALA ---
         const jadwalAktif = data.data[0]; 
         
-        // Hanya bunyikan suara jika mata pelajaran BERBEDA dari menit sebelumnya
         if (jadwalAktif.mapel !== mapelTerakhir) {
-            
-            // Perbarui memori pelajaran terakhir
             mapelTerakhir = jadwalAktif.mapel; 
 
-            // Buat teks pengumuman suara
-            const teksPengumuman = `Saat ini adalah waktunya pelajaran ${jadwalAktif.mapel} untuk kelas ${jadwalAktif.kelas}, yang diampu oleh ${jadwalAktif.guru}. Jam pelajaran dimulai dari jam ${jadwalAktif.jamMulai.replace('.', ':')} sampai jam ${jadwalAktif.jamSelesai.replace('.', ':')}.`;
+            // --- OPTIMASI TEKS AGAR SUARA LEBIH NATURAL ---
+            // Mengubah format jam dari "09.07" atau "09:07" menjadi "09 lewat 07" agar dibaca rapi oleh robot suara
+            const formatJamSuara = (jamStr) => {
+                const p = jamStr.replace('.', ':').split(':');
+                const jam = parseInt(p[0], 10);
+                const menit = parseInt(p[1], 10);
+                return `${jam} ${menit > 0 ? 'lewat ' + menit : ''}`;
+            };
+
+            const jamMulaiSuara = formatJamSuara(jadwalAktif.jamMulai);
+            const jamSelesaiSuara = formatJamSuara(jadwalAktif.jamSelesai);
+
+            // Menyusun kalimat dengan tanda koma (,) dan titik (.) yang pas untuk memberikan jeda napas pada robot
+            const teksPengumuman = `Saat ini, adalah waktunya pelajaran ${jadwalAktif.mapel}, untuk kelas ${jadwalAktif.kelas}. yang di ampu oleh ${jadwalAktif.guru}, sampai jam ${jamSelesaiSuara}.`;
             
-            // Panggil fungsi suara
             panggilPesanSuara(teksPengumuman);
         }
 
@@ -104,23 +111,36 @@ async function loadJadwalSekarang(){
     }
 }
 
-// Fungsi Helper untuk menjalankan Text-to-Speech Bahasa Indonesia
+// --- FUNGSI SUARA YANG DISESUAIKAN (LEBIH JERNIH) ---
 function panggilPesanSuara(teks) {
     if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel(); // Batalkan suara lain yang sedang berjalan
+        window.speechSynthesis.cancel(); // Hentikan suara yang tumpang tindih
 
         const ucapan = new SpeechSynthesisUtterance(teks);
         ucapan.lang = 'id-ID'; 
-        ucapan.rate = 0.9; // Kecepatan normal cenderung sedikit melambat agar jelas
-        ucapan.pitch = 1.0; 
+        ucapan.rate = 0.85; // Sedikit diperlambat dari sebelumnya (0.9 -> 0.85) agar artikulasinya jelas
+        ucapan.pitch = 1.0;  // Nada suara normal (tidak terlalu cempreng/ngebas)
 
-        const daftarSuara = window.speechSynthesis.getVoices();
-        const suaraIndo = daftarSuara.find(voice => voice.lang.includes('id'));
-        if (suaraIndo) {
-            ucapan.voice = suaraIndo;
+        // Fungsi internal untuk mengunci suara Bahasa Indonesia terbaik di perangkat
+        const setSuaraIndonesia = () => {
+            const daftarSuara = window.speechSynthesis.getVoices();
+            // Prioritaskan suara Google Indonesia atau Microsoft Ardi/Gadis jika menggunakan Windows/Android
+            const suaraIndo = daftarSuara.find(voice => voice.lang.includes('id-ID') || voice.lang.includes('id_ID')) 
+                              || daftarSuara.find(voice => voice.lang.toLowerCase().includes('id'));
+            
+            if (suaraIndo) {
+                ucapan.voice = suaraIndo;
+            }
+            window.speechSynthesis.speak(ucapan);
+        };
+
+        // Atasi bug browser Chrome/Edge yang sering lambat memuat daftar suara di awal
+        if (window.speechSynthesis.getVoices().length === 0) {
+            window.speechSynthesis.onvoiceschanged = setSuaraIndonesia;
+        } else {
+            setSuaraIndonesia();
         }
 
-        window.speechSynthesis.speak(ucapan);
     } else {
         console.log("Browser Anda tidak mendukung fitur pesan suara.");
     }
