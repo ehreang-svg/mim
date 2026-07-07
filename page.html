@@ -1656,41 +1656,90 @@
     </div> 
 </div>
 
-<div id="formArea" style="display: none;">
-  <div class="mb-3">
-    <label for="kelasSelect" class="form-label fw-semibold text-kecil">Kelas :</label>
-    <select id="kelasSelect" class="form-select form-select-sm" onchange="cekKombinasi()" style="font-size: 13px; border-radius: 6px;">
-      <option value="">-- Pilih Kelas --</option>
-      <option value="1">Kelas 1</option>
-      <option value="2">Kelas 2</option>
-      <option value="3">Kelas 3</option>
-      <option value="4">Kelas 4</option>
-      <option value="5A">Kelas 5A</option>
-      <option value="5B">Kelas 5B</option>
-      <option value="6">Kelas 6</option>
-    </select>
-  </div>
-
-  <div class="mb-3">
-    <label for="guruSelect" class="form-label fw-semibold text-kecil">Nama Guru :</label>
-    <select id="guruSelect" class="form-select form-select-sm" onchange="cekKombinasi()" style="font-size: 13px; border-radius: 6px;">
-      <option value="">-- Pilih Nama Guru --</option>
-    </select>
-  </div>
-
-  <div class="mb-3">
-    <label for="mapelSelect" class="form-label fw-semibold text-kecil">Mata Pelajaran :</label>
-    <select id="mapelSelect" class="form-select form-select-sm" onchange="cekKombinasi()" style="font-size: 13px; border-radius: 6px;">
-      <option value="">-- Pilih Pelajaran --</option>
-    </select>
-  </div>
-
-  <div id="hasilBox" class="box-hasil">
-    <div class="small text-uppercase text-muted fw-bold" style="font-size:10px; letter-spacing: 1px;">Kode Kombinasi:</div>
-    <div id="kodeDisplay" class="kode-output">-</div>
-    <div class="small text-secondary mb-2" id="infoDetail" style="font-size: 11px;"></div>
-    <button id="btnSimpan" class="btn btn-success btn-sm w-100 fw-semibold" onclick="simpanKeSpreadsheet()" style="border-radius: 6px; font-size: 12px; padding: 6px 0;">
-      Simpan ke Spreadsheet
+<div class="page" id="buatJadwalPage"> <div style="padding: 20px 10px; min-height: 100vh; width: 100%;">
+    
+    <button class="back bg-slate-600 hover:bg-slate-700 text-white py-2 px-4 rounded text-xs mb-4 d-inline-flex align-items-center" onclick="goBack()" style="border: none; cursor: pointer;">
+      <span style="margin-right:8px;">←</span> Kembali
     </button>
+
+    <div class="container-fluid px-0" style="max-width: 480px; margin: 0 auto;">
+        
+      <div class="kartu-utama" style="border-left: 4px solid #ffc107 !important; background: #fff; padding: 15px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <h6 class="fw-bold text-dark mb-2 text-uppercase" style="font-size: 13px; letter-spacing: 0.5px;">Mesin Jadwal Otomatis</h6>
+        <p class="text-kecil mb-3" style="font-size: 12px; color: #666;">Sistem cerdas menyusun jadwal Kelas 1-6 tanpa bentrok guru sesuai parameter JP & istirahat.</p>
+        <button id="btnGenerate" class="btn btn-warning fw-bold text-dark w-100 py-2 shadow-sm" onclick="prosesGenerateJadwal()" style="font-size: 13px; cursor: pointer; border: none; border-radius: 6px; background-color: #ffc107;">
+          ⚡ GENERATE JADWAL PELAJARAN
+        </button>
+      </div>
+
+      <div class="kartu-utama" style="background: #fff; padding: 15px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <h5 class="text-center mb-3 text-success fw-bold" style="font-size: 16px;">Pencarian Kode Guru Mapel</h5>
+        
+        <div id="loader" class="loading-overlay" style="text-align: center; padding: 20px 0;">
+          <div class="spinner-border text-success mb-2" role="status" style="width: 2rem; height: 2rem;"></div>
+          <div style="font-size: 12px; color: #666;">Sinkronisasi database spreadsheet...</div>
+        </div>
+
+        <div id="formArea" style="display: none;">
+          
+          <div class="mb-3" style="margin-bottom: 1rem;">
+            <label for="kelasSelect" class="form-label fw-semibold text-kecil" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 5px;">Kelas :</label>
+            <select id="kelasSelect" class="form-select form-select-sm" onchange="cekKombinasi()" style="font-size: 13px; border-radius: 6px; width: 100%; padding: 6px 10px; border: 1px solid #ced4da;">
+              <option value="">-- Pilih Kelas --</option>
+              <option value="1">Kelas 1</option>
+              <option value="2">Kelas 2</option>
+              <option value="3">Kelas 3</option>
+              <option value="4">Kelas 4</option>
+              <option value="5A">Kelas 5A</option>
+              <option value="5B">Kelas 5B</option>
+              <option value="6">Kelas 6</option>
+            </select>
+          </div>
+
+          <div class="mb-3" style="margin-bottom: 1rem;">
+            <label for="guruSelect" class="form-label fw-semibold text-kecil" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 5px;">Nama Guru :</label>
+            <select id="guruSelect" class="form-select form-select-sm" onchange="cekKombinasi()" style="font-size: 13px; border-radius: 6px; width: 100%; padding: 6px 10px; border: 1px solid #ced4da;">
+              <option value="">-- Pilih Nama Guru --</option>
+            </select>
+          </div>
+
+          <div class="mb-3" style="margin-bottom: 1rem;">
+            <label for="mapelSelect" class="form-label fw-semibold text-kecil" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 5px;">Mata Pelajaran :</label>
+            <select id="mapelSelect" class="form-select form-select-sm" onchange="cekKombinasi()" style="font-size: 13px; border-radius: 6px; width: 100%; padding: 6px 10px; border: 1px solid #ced4da;">
+              <option value="">-- Pilih Pelajaran --</option>
+            </select>
+          </div>
+
+          <div id="hasilBox" class="box-hasil" style="display: none; background: #f8f9fa; padding: 12px; border-radius: 6px; border: 1px dashed #ced4da; margin-top: 15px;">
+            <div class="small text-uppercase text-muted fw-bold" style="font-size:10px; letter-spacing: 1px;">Kode Kombinasi:</div>
+            <div id="kodeDisplay" class="kode-output" style="font-size: 24px; font-weight: bold; color: #198754; margin: 5px 0;">-</div>
+            <div class="small text-secondary mb-2" id="infoDetail" style="font-size: 11px;"></div>
+            <button id="btnSimpan" class="btn btn-success btn-sm w-100 fw-semibold" onclick="simpanKeSpreadsheet()" style="border-radius: 6px; font-size: 12px; padding: 8px 0; width: 100%; cursor: pointer; background-color: #198754; color: #fff; border: none;">
+              Simpan ke Spreadsheet
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="tabel-area" style="background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <h6 class="fw-bold text-secondary mb-2 text-uppercase border-bottom pb-2" style="font-size:11px; letter-spacing: 0.5px; color: #6c757d; border-bottom: 1px solid #dee2e6;">Riwayat Log Pencarian</h6>
+        <div class="table-responsive" style="max-height: 250px; overflow-y: auto; border-radius: 8px;">
+          <table class="table table-sm table-hover align-middle mb-0" style="font-size: 12px; width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="background-color: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+                <th style="padding: 8px 10px; text-align: left;">Detail Informasi</th>
+                <th class="text-center" style="padding: 8px 10px; width: 80px; text-align: center;">Kode</th>
+              </tr>
+            </thead>
+            <tbody id="logTableBody">
+              <tr>
+                <td colspan="2" class="text-center text-muted py-3" style="text-align: center; padding: 15px 0; color: #6c757d;">Memuat riwayat...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
   </div>
 </div>
