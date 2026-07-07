@@ -940,3 +940,69 @@ body:has(#chatPage:not(.hidden)) .copyright {
     background-color: #fee2e2 !important;
     border-color: var(--danger) !important;
 }
+/* ====================================================
+   CSS SPESIFIK UNTUK HALAMAN JADWAL (#buatJadwalPage)
+   Sengaja di-scope agar tidak merusak halaman lain
+   ==================================================== */
+
+/* Mengatur background khusus saat halaman jadwal aktif */
+#buatJadwalPage {
+    background-color: #f1f3f5;
+    padding: 20px 10px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Kartu utama di dalam halaman jadwal */
+#buatJadwalPage .kartu-utama { 
+    background: white; 
+    padding: 20px; 
+    border-radius: 16px; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+    margin-bottom: 20px; 
+}
+
+/* Box hasil kode kombinasi */
+#buatJadwalPage .box-hasil { 
+    display: none; 
+    text-align: center; 
+    background-color: #e8f5e9; 
+    border: 2px dashed #2e7d32; 
+    border-radius: 8px; 
+    padding: 15px; 
+    margin-top: 15px; 
+}
+
+/* Teks besar output kode */
+#buatJadwalPage .kode-output { 
+    font-size: 38px; 
+    font-weight: bold; 
+    color: #1b5e20; 
+    letter-spacing: 2px; 
+}
+
+/* Overlay loading database */
+#buatJadwalPage .loading-overlay { 
+    text-align: center; 
+    color: #6c757d; 
+    padding: 20px 0; 
+}
+
+/* Area pembungkus tabel log */
+#buatJadwalPage .tabel-area { 
+    background: white; 
+    padding: 15px; 
+    border-radius: 16px; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+}
+
+/* Mengunci warna header tabel log jadwal saja */
+#buatJadwalPage .table th { 
+    background-color: #e8f5e9 !important; 
+    color: #1b5e20; 
+}
+
+/* Utility text kecil penanda waktu/keterangan */
+#buatJadwalPage .text-kecil { 
+    font-size: 11px; 
+    color: #6c757d; 
+}
