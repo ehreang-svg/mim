@@ -1711,12 +1711,16 @@
           </div>
 
           <div class="mb-3" style="margin-bottom: 1rem;">
-            <label for="mapelSelect" class="form-label fw-semibold text-kecil" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 5px;">Mata Pelajaran :</label>
-            <select id="mapelSelect" class="form-select form-select-sm" onchange="cekKombinasi()" style="font-size: 13px; border-radius: 6px; width: 100%; padding: 6px 10px; border: 1px solid #ced4da;">
-              <option value="">-- Pilih Pelajaran --</option>
-            </select>
-          </div>
+  <label for="mapelSelect" class="form-label fw-semibold text-kecil" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 5px;">Mata Pelajaran :</label>
+  <select id="mapelSelect" class="form-select form-select-sm" onchange="cekKombinasi()" style="font-size: 13px; border-radius: 6px; width: 100%; padding: 6px 10px; border: 1px solid #ced4da;">
+    <option value="">-- Pilih Pelajaran --</option>
+  </select>
+</div>
 
+<div class="mb-3" style="margin-bottom: 1rem;">
+  <label for="jpInput" class="form-label fw-semibold text-kecil" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 5px;">Jumlah JP Seminggu :</label>
+  <input type="number" id="jpInput" class="form-control form-control-sm" min="1" max="10" value="2" oninput="cekKombinasi()" style="font-size: 13px; border-radius: 6px; width: 100%; padding: 6px 10px; border: 1px solid #ced4da; box-sizing: border-box;">
+</div>
           <div id="hasilBox" class="box-hasil" style="display: none; background: #f8f9fa; padding: 12px; border-radius: 6px; border: 1px dashed #ced4da; margin-top: 15px;">
             <div class="small text-uppercase text-muted fw-bold" style="font-size:10px; letter-spacing: 1px;">Kode Kombinasi:</div>
             <div id="kodeDisplay" class="kode-output" style="font-size: 24px; font-weight: bold; color: #198754; margin: 5px 0;">-</div>
