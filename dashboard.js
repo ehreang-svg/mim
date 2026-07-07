@@ -1,106 +1,94 @@
 let mapelTerakhir = "";
+let currentUser = null; // Menyimpan data user yang sedang aktif secara global
 
 async function loadDashboard(user){
+    // 1. Amankan data user ke variabel global di urutan pertama
+    currentUser = user;
 
-currentUser = user;
+    nav("dashboard");
 
-nav("dashboard");
+    if(window.nama)
+        nama.innerText = user.nama;
 
-if(window.nama)
-    nama.innerText = user.nama;
+    if(window.kelas)
+        kelas.innerText = user.kelas || "";
 
-if(window.kelas)
-    kelas.innerText = user.kelas || "";
+    const statusEl = document.getElementById("status");
+    if(statusEl)
+        statusEl.textContent = user.status || "-";
 
-const statusEl =
-    document.getElementById("status");
+    const targetFoto = document.getElementById("foto");
+    if(targetFoto){
+        targetFoto.src = user.foto || "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+        targetFoto.onerror = function(){
+            this.src = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+        };
+    }
 
-if(statusEl)
-    statusEl.textContent =
-        user.status || "-";
+    // 2. Muat menu box dari database
+    try {
+        let res = await fetch(API_URL + "?action=getMenus");
+        let data = await res.json();
 
-const targetFoto =
-    document.getElementById("foto");
+        menuBox.innerHTML = "";
+        data.menus
+            .filter(m => canShowMenu(m.name, (user.status || "")))
+            .forEach(m => {
+                menuBox.innerHTML += `
+                <div class="menu-card" onclick="openMenu('${m.id}','${m.name}')">
+                    <img src="${m.icon}">
+                    <div>${m.name}</div>
+                </div>`;
+            });
+    } catch(err) {
+        console.log("Gagal memuat menu:", err);
+    }
 
-if(targetFoto){
-
-    targetFoto.src =
-        user.foto ||
-        "https://cdn-icons-png.flaticon.com/512/149/149071.png";
-
-    targetFoto.onerror = function(){
-
-        this.src =
-            "https://cdn-icons-png.flaticon.com/512/149/149071.png";
-
-    };
-}
-
-let res =
-    await fetch(API_URL + "?action=getMenus");
-
-let data =
-    await res.json();
-
-menuBox.innerHTML = "";
-
-data.menus
-    .filter(m =>
-        canShowMenu(
-            m.name,
-            (user.status || "")
-        )
-    )
-    .forEach(m => {
-
-        menuBox.innerHTML += `
-        <div class="menu-card"
-             onclick="openMenu('${m.id}','${m.name}')">
-            <img src="${m.icon}">
-            <div>${m.name}</div>
-        </div>`;
-    });
-
-loadJadwalSekarang();
-
+    // 3. Jalankan fungsi jadwal setelah data currentUser dipastikan siap
+    await loadJadwalSekarang();
 }
 
 async function loadJadwalSekarang(){
     try{
+        const containerJadwal = document.getElementById("jadwalSekarang");
+        if(!containerJadwal) return;
+
         const res = await fetch(JADWAL_API + "?action=jadwalSekarang");
         const data = await res.json();
         
-        if(!data.status || data.data.length === 0){ 
-            jadwalSekarang.innerHTML = "Tidak ada jadwal"; 
+        if(!data.status || !data.data || data.data.length === 0){ 
+            containerJadwal.innerHTML = "Tidak ada jadwal sekolah saat ini"; 
             mapelTerakhir = ""; 
             return; 
         }
         
         // --- FILTER JADWAL SESUAI KELAS USER YANG LOGIN ---
-        // Mengambil kelas user saat ini (di-trim dan disamakan formatnya)
         const kelasUser = (currentUser && currentUser.kelas) ? String(currentUser.kelas).trim().toUpperCase() : "";
         
-        // Filter data agar hanya menampilkan jadwal yang kelasnya cocok
-        const dataSesuaiKelas = data.data.filter(r => String(r.kelas).trim().toUpperCase() === kelasUser);
+        // Jika user tidak memiliki kelas (misal: Admin atau Kepala Sekolah), tampilkan semua jadwal saat ini tanpa filter
+        let dataTampil = data.data;
+        if (kelasUser) {
+            dataTampil = data.data.filter(r => String(r.kelas).trim().toUpperCase() === kelasUser);
+        }
 
-        if(dataSesuaiKelas.length === 0){
-            jadwalSekarang.innerHTML = `Tidak ada jadwal untuk kelas ${kelasUser || '-'}`;
+        if(dataTampil.length === 0){
+            containerJadwal.innerHTML = `Tidak ada jadwal untuk kelas ${kelasUser || '-'}`;
             mapelTerakhir = "";
             return;
         }
         
-        // Tampilkan tabel jadwal yang sudah difilter
+        // Tampilkan tabel jadwal hasil filter atau keseluruhan
         let html = `<table><tr><th>Kelas</th><th>Mapel</th><th>Guru</th><th>Jam</th></tr>`;
-        dataSesuaiKelas.forEach(r => { 
+        dataTampil.forEach(r => { 
             html += `<tr><td>${r.kelas}</td><td>${r.mapel}</td><td>${r.guru}</td><td>${r.jamMulai} - ${r.jamSelesai}</td></tr>`; 
         });
         html += `</table>`;
-        jadwalSekarang.innerHTML = html;
+        containerJadwal.innerHTML = html;
 
-        // Ambil jadwal aktif pertama hasil filter untuk pengumuman suara
-        const jadwalAktif = dataSesuaiKelas[0]; 
+        // Ambil jadwal aktif pertama untuk keperluan pengumuman suara
+        const jadwalAktif = dataTampil[0]; 
         
-        if (jadwalAktif.mapel !== mapelTerakhir) {
+        if (jadwalAktif.mapel !== mapelTerakhir && jadwalAktif.mapel.toUpperCase() !== "ISTIRAHAT") {
             mapelTerakhir = jadwalAktif.mapel; 
 
             // --- OPTIMASI TEKS AGAR SUARA LEBIH NATURAL ---
@@ -121,24 +109,24 @@ async function loadJadwalSekarang(){
         }
 
     }catch(err){ 
-        console.log(err); 
+        console.log("Error loadJadwalSekarang:", err);
+        const containerJadwal = document.getElementById("jadwalSekarang");
+        if(containerJadwal) containerJadwal.innerHTML = "Gagal memuat jadwal.";
     }
 }
 
-// --- FUNGSI SUARA YANG DISESUAIKAN (LEBIH JERNIH) ---
+// --- FUNGSI SUARA ---
 function panggilPesanSuara(teks) {
     if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel(); // Hentikan suara yang tumpang tindih
+        window.speechSynthesis.cancel(); 
 
         const ucapan = new SpeechSynthesisUtterance(teks);
         ucapan.lang = 'id-ID'; 
-        ucapan.rate = 0.71; // Sedikit diperlambat dari sebelumnya (0.9 -> 0.85) agar artikulasinya jelas
-        ucapan.pitch = 1.02;  // Nada suara normal (tidak terlalu cempreng/ngebas)
+        ucapan.rate = 0.71; 
+        ucapan.pitch = 1.02;  
 
-        // Fungsi internal untuk mengunci suara Bahasa Indonesia terbaik di perangkat
         const setSuaraIndonesia = () => {
             const daftarSuara = window.speechSynthesis.getVoices();
-            // Prioritaskan suara Google Indonesia atau Microsoft Ardi/Gadis jika menggunakan Windows/Android
             const suaraIndo = daftarSuara.find(voice => voice.lang.includes('id-ID') || voice.lang.includes('id_ID')) 
                               || daftarSuara.find(voice => voice.lang.toLowerCase().includes('id'));
             
@@ -148,7 +136,6 @@ function panggilPesanSuara(teks) {
             window.speechSynthesis.speak(ucapan);
         };
 
-        // Atasi bug browser Chrome/Edge yang sering lambat memuat daftar suara di awal
         if (window.speechSynthesis.getVoices().length === 0) {
             window.speechSynthesis.onvoiceschanged = setSuaraIndonesia;
         } else {
@@ -177,11 +164,8 @@ async function loadJadwalHariIni(){
 /* ================= MENU CONTROL ================= */
 async function openMenu(id,name){
     if(name.toUpperCase() === "DATA SISWA"){
-
         nav("dataSiswaPage");
-
         loadDataSiswaPage();
-
         return;
     }
     currentMenuName = name;
@@ -244,7 +228,6 @@ async function handleSubmenu(type, value, title) {
         return;
     }
 }
-
 
 function canShowMenu(menuName, status){
     menuName = menuName.toLowerCase(); status = status.toLowerCase();
