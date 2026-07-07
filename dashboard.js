@@ -120,44 +120,59 @@ async function loadJadwalSekarang(){
 
 // --- FUNGSI SUARA ---
 // --- FUNGSI SUARA KHUSUS PEREMPUAN ---
+// --- FUNGSI SUARA WAJIB PEREMPUAN (ANTI-LAKI-LAKI) ---
 function panggilPesanSuara(teks) {
     if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel(); // Hentikan suara yang tumpang tindih
 
         const ucapan = new SpeechSynthesisUtterance(teks);
         ucapan.lang = 'id-ID'; 
-        ucapan.rate = 0.71; // Kecepatan artikulasi biar jelas
-        ucapan.pitch = 1.15; // Sedikit dinaikkan (default 1.0) agar karakter suara perempuan lebih natural dan jernih
+        ucapan.rate = 0.71; 
+        ucapan.pitch = 1.18; // Pitch dinaikkan ke 1.18 agar suara lebih feminin/cempreng khas perempuan
 
-        const setSuaraIndonesiaPerempuan = () => {
+        const setSuaraWajibPerempuan = () => {
             const daftarSuara = window.speechSynthesis.getVoices();
             
-            // Cari suara perempuan Indonesia berdasarkan nama bawaan sistem (Google atau Microsoft Gadis)
-            const suaraPerempuan = daftarSuara.find(voice => 
-                (voice.lang.includes('id-ID') || voice.lang.includes('id_ID')) && 
-                (voice.name.toLowerCase().includes('google') || voice.name.toLowerCase().includes('gadis') || voice.name.toLowerCase().includes('female'))
-            ) 
-            // Jika pencarian spesifik di atas tidak ketemu, pakai cadangan suara Indonesia apa saja yang tersedia
-            || daftarSuara.find(voice => voice.lang.includes('id-ID') || voice.lang.includes('id_ID'));
-            
-            if (suaraPerempuan) {
-                ucapan.voice = suaraPerempuan;
+            // 1. Saring semua suara bahasa Indonesia, tapi BUANG yang bernama laki-laki (david, ardi, male)
+            const semuaSuaraIndoPerempuan = daftarSuara.filter(voice => {
+                const namaSuara = voice.name.toLowerCase();
+                const kodeLang = voice.lang.toLowerCase();
+                
+                const isIndo = kodeLang.includes('id-id') || kodeLang.includes('id_id') || kodeLang === 'id';
+                const isLakiLaki = namaSuara.includes('male') || namaSuara.includes('david') || namaSuara.includes('ardi');
+                
+                return isIndo && !isLakiLaki;
+            });
+
+            // 2. Cari yang paling spesifik perempuan dari hasil saringan di atas
+            let suaraTerpilih = semuaSuaraIndoPerempuan.find(voice => {
+                const nama = voice.name.toLowerCase();
+                return nama.includes('gadis') || nama.includes('google') || nama.includes('female') || nama.includes('zira');
+            });
+
+            // 3. Jika tidak ada yang spesifik, gunakan suara Indonesia non-laki-laki apa saja yang tersisa
+            if (!suaraTerpilih && semuaSuaraIndoPerempuan.length > 0) {
+                suaraTerpilih = semuaSuaraIndoPerempuan[0];
             }
+
+            // Eksekusi suara jika ketemu
+            if (suaraTerpilih) {
+                ucapan.voice = suaraTerpilih;
+            }
+            
             window.speechSynthesis.speak(ucapan);
         };
 
-        // Mengatasi bug browser Chrome/Edge yang sering lambat memuat daftar suara di awal
         if (window.speechSynthesis.getVoices().length === 0) {
-            window.speechSynthesis.onvoiceschanged = setSuaraIndonesiaPerempuan;
+            window.speechSynthesis.onvoiceschanged = setSuaraWajibPerempuan;
         } else {
-            setSuaraIndonesiaPerempuan();
+            setSuaraWajibPerempuan();
         }
 
     } else {
         console.log("Browser Anda tidak mendukung fitur pesan suara.");
     }
 }
-
 async function loadJadwalHariIni(){
     try{
         const kelas = document.getElementById("pilihKelas").value;
