@@ -1655,3 +1655,69 @@
 
     </div> 
 </div>
+
+<div class="page hidden" id="buatJadwalPage">
+<div class="container-fluid" style="max-width: 480px;">
+    
+    <div class="kartu-utama border-start border-warning border-4">
+      <h6 class="fw-bold text-dark mb-2 text-uppercase">Mesin Jadwal Otomatis</h6>
+      <p class="text-kecil mb-3">Sistem cerdas menyusun jadwal Kelas 1-6 tanpa bentrok guru sesuai parameter JP & istirahat.</p>
+      <button id="btnGenerate" class="btn btn-warning fw-bold text-dark w-100 py-2 shadow-sm" onclick="prosesGenerateJadwal()">
+        ⚡ GENERATE JADWAL PELAJARAN
+      </button>
+    </div>
+
+    <div class="kartu-utama">
+      <h5 class="text-center mb-3 text-success fw-bold">Pencarian Kode Guru Mapel</h5>
+      
+      <div id="loader" class="loading-overlay">
+        <div class="spinner-border text-success mb-2" role="status"></div>
+        <div>Sinkronisasi database spreadsheet...</div>
+      </div>
+
+      <div id="formArea" style="display: none;">
+        <div class="mb-3">
+          <label for="guruSelect" class="form-label fw-semibold text-kecil">Nama Guru :</label>
+          <select id="guruSelect" class="form-select form-select-sm" onchange="cekKombinasi()">
+            <option value="">-- Pilih Nama Guru --</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="mapelSelect" class="form-label fw-semibold text-kecil">Mata Pelajaran :</label>
+          <select id="mapelSelect" class="form-select form-select-sm" onchange="cekKombinasi()">
+            <option value="">-- Pilih Pelajaran --</option>
+          </select>
+        </div>
+
+        <div id="hasilBox" class="box-hasil">
+          <div class="small text-uppercase text-muted fw-bold" style="font-size:10px;">Kode Kombinasi:</div>
+          <div id="kodeDisplay" class="kode-output">-</div>
+          <div class="small text-secondary mb-2" id="infoDetail"></div>
+          <button id="btnSimpan" class="btn btn-success btn-sm w-100" onclick="simpanKeSpreadsheet()">
+            Simpan ke Spreadsheet
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tabel-area">
+      <h6 class="fw-bold text-secondary mb-2 text-uppercase border-bottom pb-2" style="font-size:12px;">Riwayat Log Pencarian</h6>
+      <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
+        <table class="table table-sm table-hover align-middle" style="font-size: 12px;">
+          <thead>
+            <tr>
+              <th>Detail Informasi</th>
+              <th class="text-center">Kode</th>
+            </tr>
+          </thead>
+          <tbody id="logTableBody">
+            <tr>
+              <td colspan="2" class="text-center text-muted py-2">Memuat riwayat...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
