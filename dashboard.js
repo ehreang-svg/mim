@@ -119,27 +119,42 @@ async function loadJadwalSekarang(){
 }
 
 // --- FUNGSI SUARA ---
+// --- FUNGSI SUARA KHUSUS PEREMPUAN ---
 function panggilPesanSuara(teks) {
     if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel(); 
+        window.speechSynthesis.cancel(); // Hentikan suara yang tumpang tindih
+
         const ucapan = new SpeechSynthesisUtterance(teks);
         ucapan.lang = 'id-ID'; 
-        ucapan.rate = 0.71; 
-        ucapan.pitch = 1.02;  
+        ucapan.rate = 0.71; // Kecepatan artikulasi biar jelas
+        ucapan.pitch = 1.15; // Sedikit dinaikkan (default 1.0) agar karakter suara perempuan lebih natural dan jernih
 
-        const setSuaraIndonesia = () => {
+        const setSuaraIndonesiaPerempuan = () => {
             const daftarSuara = window.speechSynthesis.getVoices();
-            const suaraIndo = daftarSuara.find(voice => voice.lang.includes('id_ID')) 
-                              || daftarSuara.find(voice => voice.lang.toLowerCase().includes('id'));
-            if (suaraIndo) ucapan.voice = suaraIndo;
+            
+            // Cari suara perempuan Indonesia berdasarkan nama bawaan sistem (Google atau Microsoft Gadis)
+            const suaraPerempuan = daftarSuara.find(voice => 
+                (voice.lang.includes('id-ID') || voice.lang.includes('id_ID')) && 
+                (voice.name.toLowerCase().includes('google') || voice.name.toLowerCase().includes('gadis') || voice.name.toLowerCase().includes('female'))
+            ) 
+            // Jika pencarian spesifik di atas tidak ketemu, pakai cadangan suara Indonesia apa saja yang tersedia
+            || daftarSuara.find(voice => voice.lang.includes('id-ID') || voice.lang.includes('id_ID'));
+            
+            if (suaraPerempuan) {
+                ucapan.voice = suaraPerempuan;
+            }
             window.speechSynthesis.speak(ucapan);
         };
 
+        // Mengatasi bug browser Chrome/Edge yang sering lambat memuat daftar suara di awal
         if (window.speechSynthesis.getVoices().length === 0) {
-            window.speechSynthesis.onvoiceschanged = setSuaraIndonesia;
+            window.speechSynthesis.onvoiceschanged = setSuaraIndonesiaPerempuan;
         } else {
-            setSuaraIndonesia();
+            setSuaraIndonesiaPerempuan();
         }
+
+    } else {
+        console.log("Browser Anda tidak mendukung fitur pesan suara.");
     }
 }
 
