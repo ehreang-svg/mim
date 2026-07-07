@@ -76,20 +76,34 @@ async function loadJadwalSekarang(){
             return; 
         }
         
+        // --- FILTER JADWAL SESUAI KELAS USER YANG LOGIN ---
+        // Mengambil kelas user saat ini (di-trim dan disamakan formatnya)
+        const kelasUser = (currentUser && currentUser.kelas) ? String(currentUser.kelas).trim().toUpperCase() : "";
+        
+        // Filter data agar hanya menampilkan jadwal yang kelasnya cocok
+        const dataSesuaiKelas = data.data.filter(r => String(r.kelas).trim().toUpperCase() === kelasUser);
+
+        if(dataSesuaiKelas.length === 0){
+            jadwalSekarang.innerHTML = `Tidak ada jadwal untuk kelas ${kelasUser || '-'}`;
+            mapelTerakhir = "";
+            return;
+        }
+        
+        // Tampilkan tabel jadwal yang sudah difilter
         let html = `<table><tr><th>Kelas</th><th>Mapel</th><th>Guru</th><th>Jam</th></tr>`;
-        data.data.forEach(r => { 
+        dataSesuaiKelas.forEach(r => { 
             html += `<tr><td>${r.kelas}</td><td>${r.mapel}</td><td>${r.guru}</td><td>${r.jamMulai} - ${r.jamSelesai}</td></tr>`; 
         });
         html += `</table>`;
         jadwalSekarang.innerHTML = html;
 
-        const jadwalAktif = data.data[0]; 
+        // Ambil jadwal aktif pertama hasil filter untuk pengumuman suara
+        const jadwalAktif = dataSesuaiKelas[0]; 
         
         if (jadwalAktif.mapel !== mapelTerakhir) {
             mapelTerakhir = jadwalAktif.mapel; 
 
             // --- OPTIMASI TEKS AGAR SUARA LEBIH NATURAL ---
-            // Mengubah format jam dari "09.07" atau "09:07" menjadi "09 lewat 07" agar dibaca rapi oleh robot suara
             const formatJamSuara = (jamStr) => {
                 const p = jamStr.replace('.', ':').split(':');
                 const jam = parseInt(p[0], 10);
@@ -100,7 +114,7 @@ async function loadJadwalSekarang(){
             const jamMulaiSuara = formatJamSuara(jadwalAktif.jamMulai);
             const jamSelesaiSuara = formatJamSuara(jadwalAktif.jamSelesai);
 
-            // Menyusun kalimat dengan tanda koma (,) dan titik (.) yang pas untuk memberikan jeda napas pada robot
+            // Menyusun kalimat pengumuman suara
             const teksPengumuman = `saatnya masuk pelajaran ${jadwalAktif.mapel}, untuk kelas ${jadwalAktif.kelas}. yang di ampu oleh ${jadwalAktif.guru}, sampai jam ${jamSelesaiSuara}.`;
             
             panggilPesanSuara(teksPengumuman);
