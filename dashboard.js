@@ -1,5 +1,4 @@
-
-let currentUser = null; // Menyimpan data user yang sedang aktif secara global
+let mapelTerakhir = "";
 
 async function loadDashboard(user){
     // 1. Amankan data user ke variabel global di urutan pertama
@@ -127,7 +126,7 @@ function panggilPesanSuara(teks) {
 
         const setSuaraIndonesia = () => {
             const daftarSuara = window.speechSynthesis.getVoices();
-            const suaraIndo = daftarSuara.find(voice => voice.lang.includes('id-ID') || voice.lang.includes('id_ID')) 
+            const suaraIndo = daftarSuara.find(voice =>voice.lang.includes('id_ID')) 
                               || daftarSuara.find(voice => voice.lang.toLowerCase().includes('id'));
             
             if (suaraIndo) {
