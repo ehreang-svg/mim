@@ -73,85 +73,71 @@ function nav(id) {
 
     currentPage = id;
     show(id);
-   // Tambahkan pengait siklus hidup halaman siswa di navigation.js
+
+    /* =======================================================
+       LIFECYCLE HOOKS (Hanya dijalankan jika halaman aktif)
+    ======================================================= */
+    
+    // Pemicu halaman Buat Jadwal Otomatis
+    if (id === "buatJadwalPage" && typeof initBuatJadwalPage === "function") {
+        console.log("Membuka pengaturan Mesin Jadwal...");
+        initBuatJadwalPage();
+    }
+
     if (id === "siswaMateriPage" && typeof siswaAplikasi !== "undefined") {
         console.log("Siswa masuk ke Ruang Belajar Mandiri...");
         siswaAplikasi.init();
     }
    
-   if (id === "materiPage" && typeof aplikasi !== "undefined" && typeof aplikasi.init === "function") {
+    if (id === "materiPage" && typeof aplikasi !== "undefined" && typeof aplikasi.init === "function") {
         aplikasi.init();
     }
-    // lifecycle hooks
-    if (
-    id === "kognitifPage" &&
-    typeof loadKognitifSiswa === "function"
-) {
-    loadKognitifSiswa();
-}
 
-if (
-    id === "raportPage" &&
-    typeof loadKelasRaport === "function"
-) {
-    loadKelasRaport();
-}
-   if (
-    id === "raportMDPage" &&
-    typeof loadKelasMD === "function"
-) {
-    loadKelasMD();
-}
+    if (id === "kognitifPage" && typeof loadKognitifSiswa === "function") {
+        loadKognitifSiswa();
+    }
 
-if (
-    id === "loginQuiz" &&
-    typeof mulai === "function"
-) {
-    mulai();
-}
+    if (id === "raportPage" && typeof loadKelasRaport === "function") {
+        loadKelasRaport();
+    }
 
-if (
-    id === "cabutanPage" &&
-    typeof loadKelasCabutan === "function"
-) {
-    loadKelasCabutan();
-}
+    if (id === "raportMDPage" && typeof loadKelasMD === "function") {
+        loadKelasMD();
+    }
 
-if (
-    id === "tabunganPage" &&
-    typeof loadKelasTabungan === "function"
-) {
-    loadKelasTabungan();
-}
+    if (id === "loginQuiz" && typeof mulai === "function") {
+        mulai();
+    }
 
-   if (
-    id === "identitasPage" &&
-    typeof openIdentitasPage === "function"
-) {
-    openIdentitasPage();
-}
-   if (
-    id === "ijazahPage" &&
-    typeof loadKelasIjazah === "function"
-) {
-    loadKelasIjazah();
-}
-if (
-    id === "ijazahMDPage" &&
-    typeof loadKelasIjazahMD === "function"
-) {
-    loadKelasIjazahMD();
-}
-if (
-    id === "editIdentitasPage" &&
-    typeof loadKelasEditIdentitas === "function"
-) {
-    loadKelasEditIdentitas();
-}
-   if (id === "dataSiswaPage" && typeof loadDataSiswaPage === "function") {
+    if (id === "cabutanPage" && typeof loadKelasCabutan === "function") {
+        loadKelasCabutan();
+    }
+
+    if (id === "tabunganPage" && typeof loadKelasTabungan === "function") {
+        loadKelasTabungan();
+    }
+
+    if (id === "identitasPage" && typeof openIdentitasPage === "function") {
+        openIdentitasPage();
+    }
+
+    if (id === "ijazahPage" && typeof loadKelasIjazah === "function") {
+        loadKelasIjazah();
+    }
+
+    if (id === "ijazahMDPage" && typeof loadKelasIjazahMD === "function") {
+        loadKelasIjazahMD();
+    }
+
+    if (id === "editIdentitasPage" && typeof loadKelasEditIdentitas === "function") {
+        loadKelasEditIdentitas();
+    }
+
+    if (id === "dataSiswaPage" && typeof loadDataSiswaPage === "function") {
         loadDataSiswaPage();
     }
 }
+
 /* ===========================
    BACK BUTTON
 =========================== */
