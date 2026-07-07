@@ -31,6 +31,7 @@ const pages = [
    "siswaMateriPage",
    "tambahMateriPage",
    "inputSoalPage",
+   "buatJadwalPage,
    "chatPage",
      "raportMDPage"
 ];
