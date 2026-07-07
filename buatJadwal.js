@@ -85,22 +85,24 @@ function inisialisasiDropdown(maps) {
  * Mengecek kombinasi kode guru dan mapel secara real-time
  */
 function cekKombinasi() {
-  const kelasSelect = document.getElementById("kelasSelect"); // Mengambil dropdown kelas
+  const kelasSelect = document.getElementById("kelasSelect");
   const guruSelect = document.getElementById("guruSelect");
   const mapelSelect = document.getElementById("mapelSelect");
+  const jpInput = document.getElementById("jpInput"); // Ambil input JP
   const hasilBox = document.getElementById("hasilBox");
   const kodeDisplay = document.getElementById("kodeDisplay");
   const infoDetail = document.getElementById("infoDetail");
   const btnSimpan = document.getElementById("btnSimpan");
 
-  if (!guruSelect || !mapelSelect || !hasilBox || !kodeDisplay || !infoDetail || !btnSimpan) return;
+  if (!guruSelect || !mapelSelect || !hasilBox || !kodeDisplay || !infoDetail || !btnSimpan || !jpInput) return;
 
   const kelasVal = kelasSelect ? kelasSelect.value : "Aktif";
   const guruVal = guruSelect.value;
   const mapelVal = mapelSelect.value;
+  const jpVal = jpInput.value;
 
-  // Tombol simpan hanya akan aktif jika Kelas, Guru, dan Mapel sudah dipilih semua
-  if (!kelasVal || !guruVal || !mapelVal) { 
+  // Validasi jika Kelas, Guru, Mapel, atau JP kosong
+  if (!kelasVal || !guruVal || !mapelVal || !jpVal) { 
     hasilBox.style.display = "none"; 
     return; 
   }
@@ -111,7 +113,8 @@ function cekKombinasi() {
   if (kodeGuru && kodeMapel) {
     hasilBox.style.display = "block";
     kodeDisplay.textContent = kodeGuru + kodeMapel;
-    infoDetail.textContent = `Kelas: ${kelasVal} | Guru: ${kodeGuru} | Mapel: ${kodeMapel}`;
+    // Tampilkan informasi JP di detail teks
+    infoDetail.textContent = `Kelas: ${kelasVal} | Guru: ${kodeGuru} | Mapel: ${kodeMapel} | Beban: ${jpVal} JP`;
     btnSimpan.disabled = false; 
     btnSimpan.textContent = "Simpan ke Spreadsheet";
   } else {
@@ -122,35 +125,40 @@ function cekKombinasi() {
   }
 }
 
-/**
- * Menyimpan data log pencarian ke spreadsheet (POST)
- */
 function simpanKeSpreadsheet() {
   const kelasSelect = document.getElementById("kelasSelect");
   const guruSelect = document.getElementById("guruSelect");
   const mapelSelect = document.getElementById("mapelSelect");
+  const jpInput = document.getElementById("jpInput");
   const btnSimpan = document.getElementById("btnSimpan");
   const kodeDisplay = document.getElementById("kodeDisplay");
   
-  if (!kelasSelect || !guruSelect || !mapelSelect || !btnSimpan || !kodeDisplay) return;
+  if (!kelasSelect || !guruSelect || !mapelSelect || !jpInput || !btnSimpan || !kodeDisplay) return;
 
   const namaKelas = kelasSelect.value;
   const namaGuru = guruSelect.options[guruSelect.selectedIndex].text;
   const namaMapel = mapelSelect.options[mapelSelect.selectedIndex].text;
+  const jumlahJP = jpInput.value;
   const kodeGabungan = kodeDisplay.textContent;
 
-  if (!namaKelas) {
-    alert("Silakan pilih kelas terlebih dahulu!");
+  if (!namaKelas || !jumlahJP) {
+    alert("Silakan isi kelas dan jumlah JP terlebih dahulu!");
     return;
   }
 
   btnSimpan.disabled = true; 
   btnSimpan.textContent = "Menyimpan...";
 
-  // Mengirim payload lengkap terintegrasi dengan variabel data kelas
+  // Payload menyertakan variabel jp
   fetch(JADWAL_API, {
     method: "POST",
-    body: JSON.stringify({ kelas: namaKelas, guru: namaGuru, mapel: namaMapel, kode: kodeGabungan })
+    body: JSON.stringify({ 
+      kelas: namaKelas, 
+      guru: namaGuru, 
+      mapel: namaMapel, 
+      jp: jumlahJP, 
+      kode: kodeGabungan 
+    })
   })
   .then(response => response.json())
   .then(res => {
@@ -169,7 +177,6 @@ function simpanKeSpreadsheet() {
     btnSimpan.textContent = "Simpan ke Spreadsheet";
   });
 }
-
 /**
  * Memuat riwayat data log dari spreadsheet ke tabel (GET)
  */
