@@ -1,4 +1,4 @@
-let mapelTerakhir = "";
+
 let currentUser = null; // Menyimpan data user yang sedang aktif secara global
 
 async function loadDashboard(user){
