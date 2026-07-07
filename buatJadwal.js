@@ -12,13 +12,19 @@ function initBuatJadwalPage() {
   const tableBody = document.getElementById("logTableBody");
   const formAreaEl = document.getElementById("formArea");
   const hasilBoxEl = document.getElementById("hasilBox");
+  const kelasSelect = document.getElementById("kelasSelect"); // Ambil elemen kelas
   
   // Reset tampilan form ke kondisi awal
   if (loaderEl) loaderEl.style.display = "block";
   if (formAreaEl) formAreaEl.style.display = "none";
   if (hasilBoxEl) hasilBoxEl.style.display = "none";
+  
+  // Reset dropdown kelas ke opsi default jika elemen ditemukan
+  if (kelasSelect) kelasSelect.value = "";
+
   if (tableBody) {
-    tableBody.innerHTML = `<tr><td colspan="2" class="text-center text-muted py-2">Memuat riwayat...</td></tr>`;
+    // Diubah menjadi colspan="3" karena sekarang ada kolom Kelas di tabel log
+    tableBody.innerHTML = `<tr><td colspan="3" class="text-center text-muted py-2">Memuat riwayat...</td></tr>`;
   }
 
   // Ambil data Guru & Mapel dari Apps Script
@@ -79,6 +85,7 @@ function inisialisasiDropdown(maps) {
  * Mengecek kombinasi kode guru dan mapel secara real-time
  */
 function cekKombinasi() {
+  const kelasSelect = document.getElementById("kelasSelect"); // Mengambil dropdown kelas
   const guruSelect = document.getElementById("guruSelect");
   const mapelSelect = document.getElementById("mapelSelect");
   const hasilBox = document.getElementById("hasilBox");
@@ -88,10 +95,12 @@ function cekKombinasi() {
 
   if (!guruSelect || !mapelSelect || !hasilBox || !kodeDisplay || !infoDetail || !btnSimpan) return;
 
+  const kelasVal = kelasSelect ? kelasSelect.value : "Aktif";
   const guruVal = guruSelect.value;
   const mapelVal = mapelSelect.value;
 
-  if (!guruVal || !mapelVal) { 
+  // Tombol simpan hanya akan aktif jika Kelas, Guru, dan Mapel sudah dipilih semua
+  if (!kelasVal || !guruVal || !mapelVal) { 
     hasilBox.style.display = "none"; 
     return; 
   }
@@ -102,7 +111,7 @@ function cekKombinasi() {
   if (kodeGuru && kodeMapel) {
     hasilBox.style.display = "block";
     kodeDisplay.textContent = kodeGuru + kodeMapel;
-    infoDetail.textContent = `Guru: ${kodeGuru} | Mapel: ${kodeMapel}`;
+    infoDetail.textContent = `Kelas: ${kelasVal} | Guru: ${kodeGuru} | Mapel: ${kodeMapel}`;
     btnSimpan.disabled = false; 
     btnSimpan.textContent = "Simpan ke Spreadsheet";
   } else {
@@ -117,23 +126,31 @@ function cekKombinasi() {
  * Menyimpan data log pencarian ke spreadsheet (POST)
  */
 function simpanKeSpreadsheet() {
+  const kelasSelect = document.getElementById("kelasSelect");
   const guruSelect = document.getElementById("guruSelect");
   const mapelSelect = document.getElementById("mapelSelect");
   const btnSimpan = document.getElementById("btnSimpan");
   const kodeDisplay = document.getElementById("kodeDisplay");
   
-  if (!guruSelect || !mapelSelect || !btnSimpan || !kodeDisplay) return;
+  if (!kelasSelect || !guruSelect || !mapelSelect || !btnSimpan || !kodeDisplay) return;
 
+  const namaKelas = kelasSelect.value;
   const namaGuru = guruSelect.options[guruSelect.selectedIndex].text;
   const namaMapel = mapelSelect.options[mapelSelect.selectedIndex].text;
   const kodeGabungan = kodeDisplay.textContent;
 
+  if (!namaKelas) {
+    alert("Silakan pilih kelas terlebih dahulu!");
+    return;
+  }
+
   btnSimpan.disabled = true; 
   btnSimpan.textContent = "Menyimpan...";
 
+  // Mengirim payload lengkap terintegrasi dengan variabel data kelas
   fetch(JADWAL_API, {
     method: "POST",
-    body: JSON.stringify({ guru: namaGuru, mapel: namaMapel, kode: kodeGabungan })
+    body: JSON.stringify({ kelas: namaKelas, guru: namaGuru, mapel: namaMapel, kode: kodeGabungan })
   })
   .then(response => response.json())
   .then(res => {
@@ -167,21 +184,23 @@ function muatDataLog() {
         tableBody.innerHTML = "";
         res.data.forEach(item => {
           let row = document.createElement("tr");
+          // Ditambahkan info badge Kelas (${item.kelas}) di baris informasi log
           row.innerHTML = `
             <td>
+              <span class="badge bg-secondary mb-1" style="font-size:10px;">Kelas ${item.kelas}</span>
               <div class="fw-semibold">${item.guru}</div>
-              <div class="text-kecil">${item.mapel}</div>
+              <div class="text-kecil text-muted">${item.mapel}</div>
             </td>
-            <td class="text-center fw-bold text-success bg-light">${item.kode}</td>
+            <td class="text-center fw-bold text-success bg-light" style="vertical-align: middle;">${item.kode}</td>
           `;
           tableBody.appendChild(row);
         });
       } else {
-        tableBody.innerHTML = `<tr><td colspan="2" class="text-center text-muted py-2">Belum ada riwayat.</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="3" class="text-center text-muted py-2">Belum ada riwayat.</td></tr>`;
       }
     })
     .catch(() => {
-      tableBody.innerHTML = `<tr><td colspan="2" class="text-center text-danger py-2">Gagal memuat log data.</td></tr>`;
+      tableBody.innerHTML = `<tr><td colspan="3" class="text-center text-danger py-2">Gagal memuat log data.</td></tr>`;
     });
 }
 
