@@ -32,16 +32,25 @@
 </div>
 </div>
 
-    
 <div class="jadwal-container">
     <div class="card jadwal-card">
         <h3>Jadwal Saat Ini</h3>
+        <select id="pilihKelasSekarang" onchange="loadJadwalSekarang()">
+            <option value="">Semua Kelas</option>
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+            <option>5A</option>
+            <option>5B</option>
+            <option>6</option>
+        </select>
         <div id="jadwalSekarang"></div>
     </div>
     
     <div class="card jadwal-card">
-    <h3>Jadwal Hari Ini</h3>
-    <select id="pilihKelas" onchange="loadJadwalHariIni()">
+        <h3>Jadwal Hari Ini</h3>
+        <select id="pilihKelas" onchange="loadJadwalHariIni()">
             <option value="">Pilih Kelas</option>
             <option>1</option>
             <option>2</option>
@@ -50,15 +59,13 @@
             <option>5A</option>
             <option>5B</option>
             <option>6</option>
-    </select>
-    <div id="jadwalHariIni"></div>
-</div>
+        </select>
+        <div id="jadwalHariIni"></div>
+    </div>
 </div>
 <br>
-    <button onclick="openChat()">
-💬 Chat
-</button>
-    <br>
+<button onclick="openChat()">💬 Chat</button>
+<br>
 <div class="grid" id="menuBox"></div>
 </div>
     
