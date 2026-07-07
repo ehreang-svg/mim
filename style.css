@@ -428,10 +428,6 @@ tr:hover td, .rbm-table tr:hover { background-color: #f1f5f9; }
     .cardMD { padding: 20px; }
 }
 
-/* ==========================
-   CHAT PAGE
-========================== */
-
 /* ==========================================================================
    EXCLUSIVE SCOPED WHATSAPP CHAT STYLE (Tema Putih - Hijau Bersih)
    ========================================================================== */
@@ -443,7 +439,7 @@ tr:hover td, .rbm-table tr:hover { background-color: #f1f5f9; }
     max-width: 100% !important; 
     margin: 0 !important;
     padding: 0 !important;
-    background: #f4f7f6; /* Latar belakang abu kemerahan/kehijauan lembut */
+    background: #f4f7f6;
     font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
     overflow: hidden;
     position: fixed;
@@ -455,7 +451,6 @@ body:has(#chatPage:not(.hidden)) .copyright {
     display: none !important;
 }
 
-/* Custom Topbar inside Chat Room */
 #chatPage .topbar {
     display: flex;
     justify-content: flex-start;
@@ -531,7 +526,6 @@ body:has(#chatPage:not(.hidden)) .copyright {
     width: auto;
 }
 
-/* Layout Architecture */
 .chatMainLayout {
     display: flex;
     flex: 1;
@@ -540,7 +534,6 @@ body:has(#chatPage:not(.hidden)) .copyright {
     position: relative;
 }
 
-/* Chat Room Area (Left/Main) */
 .chatRoomArea {
     flex: 3;
     display: flex;
@@ -549,7 +542,6 @@ body:has(#chatPage:not(.hidden)) .copyright {
     height: 100%;
 }
 
-/* Bubble Chat Feed */
 #chatPage #chatList {
     flex: 1;
     overflow-y: auto;
@@ -557,7 +549,7 @@ body:has(#chatPage:not(.hidden)) .copyright {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    background-color: #f3f7f5; /* Sentuhan hijau pudar tipis untuk area chat feed */
+    background-color: #f3f7f5;
 }
 
 .chatLoading {
@@ -567,7 +559,6 @@ body:has(#chatPage:not(.hidden)) .copyright {
     margin-top: 20px;
 }
 
-/* Refined Chat Bubbles */
 .chatItem {
     display: flex;
     gap: 10px;
@@ -593,7 +584,6 @@ body:has(#chatPage:not(.hidden)) .copyright {
     border: 1px solid var(--border-color);
 }
 
-/* Gelembung Pengirim Lain (Putih Bersih) */
 .chatBubble {
     background: #ffffff;
     padding: 10px 14px;
@@ -602,21 +592,18 @@ body:has(#chatPage:not(.hidden)) .copyright {
     position: relative;
     border: 1px solid rgba(226, 232, 240, 0.6);
 }
-/* Gelembung Saya sendiri (Hijau Mint Lembut Bersih) */
 .chatItem.me .chatBubble {
     background: #e6f4f1;
     border-radius: 16px 0px 16px 16px;
     border-color: #cceae4;
 }
 
-/* Nama Pengirim Lain */
 .chatNama {
     font-size: 12px;
     font-weight: 700;
     color: var(--accent-color);
     margin-bottom: 3px;
 }
-/* Nama Saya Sendiri */
 .chatItem.me .chatNama {
     color: #115e59;
 }
@@ -638,7 +625,6 @@ body:has(#chatPage:not(.hidden)) .copyright {
     margin-top: 4px;
 }
 
-/* Input Bar Styling */
 #chatPage .chatInput {
     background: #ffffff;
     padding: 16px 20px;
@@ -682,11 +668,10 @@ body:has(#chatPage:not(.hidden)) .copyright {
     padding: 0 24px;
     height: 44px;
     border-radius: 24px;
-    background: var(--primary-gradient); /* Tombol kirim otomatis bergradasi Hijau Teal bawaan */
+    background: var(--primary-gradient);
     font-weight: 700;
 }
 
-/* Sidebar All Users (Right Side) */
 .chatUserSidebar {
     flex: 1;
     min-width: 280px;
@@ -739,7 +724,7 @@ body:has(#chatPage:not(.hidden)) .copyright {
 .statusDot {
     width: 10px;
     height: 10px;
-    background-color: #cbd5e1; /* Default Offline */
+    background-color: #cbd5e1;
     border: 2px solid white;
     border-radius: 50%;
     position: absolute;
@@ -766,7 +751,6 @@ body:has(#chatPage:not(.hidden)) .copyright {
     margin-top: 1px;
 }
 
-/* Mobile responsive overlay */
 .sidebar-overlay {
     display: none;
     position: absolute;
@@ -792,6 +776,7 @@ body:has(#chatPage:not(.hidden)) .copyright {
     .chatUserSidebar.mobile-open ~ .sidebar-overlay { display: block; opacity: 1; }
     #chatPage .chatItem { max-width: 88%; }
 }
+
 /* ==========================================================================
    QUIZ & EXAM CUSTOM IMPROVEMENTS
    ========================================================================== */
@@ -810,7 +795,6 @@ body:has(#chatPage:not(.hidden)) .copyright {
     margin-bottom: 12px;
 }
 
-/* Card Profile Siswa Saat Mengerjakan Soal */
 .cardQuizSiswa {
     background: var(--primary-gradient);
     color: white;
@@ -830,10 +814,9 @@ body:has(#chatPage:not(.hidden)) .copyright {
     object-fit: cover;
     background: #fff;
 }
-.cardQuizSiswa h3 { color: #fff; font-size: 18px; margin-0; }
+.cardQuizSiswa h3 { color: #fff; font-size: 18px; margin: 0; }
 .cardQuizSiswa p { font-size: 13px; opacity: 0.9; margin: 2px 0 0 0; }
 
-/* Card Soal */
 .cardSoal {
     background: var(--card-bg);
     padding: 24px;
@@ -854,7 +837,6 @@ body:has(#chatPage:not(.hidden)) .copyright {
     display: block;
 }
 
-/* Kustomisasi Radio Button Pilihan Ganda */
 .opsi-label {
     display: flex;
     align-items: center;
@@ -881,14 +863,12 @@ body:has(#chatPage:not(.hidden)) .copyright {
     box-shadow: none;
 }
 
-/* Indikator terpilih lewat CSS (Opsional namun membantu kenyamanan user) */
 .opsi-label:has(input[type="radio"]:checked) {
     background-color: #e6f4f1;
     border-color: var(--accent-color);
     font-weight: 600;
 }
 
-/* Hasil Nilai */
 .cardHasil {
     background: #ffffff;
     border: 2px solid var(--border-color);
@@ -919,7 +899,7 @@ body:has(#chatPage:not(.hidden)) .copyright {
 }
 .badge-status.lulus { background: var(--success); }
 .badge-status.gagal { background: var(--danger); }
-/* Kotak Penjelasan Jawaban */
+
 .pembahasan-box {
     margin-top: 14px;
     padding: 14px 16px;
@@ -930,7 +910,6 @@ body:has(#chatPage:not(.hidden)) .copyright {
     color: #334155;
 }
 
-/* Penanda Jawaban Benar/Salah secara Visual */
 .opsi-label.benar-pilihan {
     background-color: #d1fae5 !important;
     border-color: var(--success) !important;
@@ -940,19 +919,17 @@ body:has(#chatPage:not(.hidden)) .copyright {
     background-color: #fee2e2 !important;
     border-color: var(--danger) !important;
 }
-/* ====================================================
+
+/* ==========================================================================
    CSS SPESIFIK UNTUK HALAMAN JADWAL (#buatJadwalPage)
    Sengaja di-scope agar tidak merusak halaman lain
-   ==================================================== */
-
-/* Mengatur background khusus saat halaman jadwal aktif */
+   ========================================================================== */
 #buatJadwalPage {
     background-color: #f1f3f5;
     padding: 20px 10px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Kartu utama di dalam halaman jadwal */
 #buatJadwalPage .kartu-utama { 
     background: white; 
     padding: 20px; 
@@ -961,7 +938,6 @@ body:has(#chatPage:not(.hidden)) .copyright {
     margin-bottom: 20px; 
 }
 
-/* Box hasil kode kombinasi */
 #buatJadwalPage .box-hasil { 
     display: none; 
     text-align: center; 
@@ -972,7 +948,6 @@ body:has(#chatPage:not(.hidden)) .copyright {
     margin-top: 15px; 
 }
 
-/* Teks besar output kode */
 #buatJadwalPage .kode-output { 
     font-size: 38px; 
     font-weight: bold; 
@@ -980,14 +955,12 @@ body:has(#chatPage:not(.hidden)) .copyright {
     letter-spacing: 2px; 
 }
 
-/* Overlay loading database */
 #buatJadwalPage .loading-overlay { 
     text-align: center; 
     color: #6c757d; 
     padding: 20px 0; 
 }
 
-/* Area pembungkus tabel log */
 #buatJadwalPage .tabel-area { 
     background: white; 
     padding: 15px; 
@@ -995,13 +968,11 @@ body:has(#chatPage:not(.hidden)) .copyright {
     box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
 }
 
-/* Mengunci warna header tabel log jadwal saja */
 #buatJadwalPage .table th { 
     background-color: #e8f5e9 !important; 
     color: #1b5e20; 
 }
 
-/* Utility text kecil penanda waktu/keterangan */
 #buatJadwalPage .text-kecil { 
     font-size: 11px; 
     color: #6c757d; 
