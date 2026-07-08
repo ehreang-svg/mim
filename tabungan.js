@@ -995,20 +995,16 @@ function cetakNomorIndukKelas() {
     return;
   }
   
-  // 2. Ambil base URL Web App secara otomatis dari script yang sudah berjalan
-  // Jika aplikasi Anda menggunakan variabel global seperti 'apiUrl' atau 'url', sesuaikan di sini.
-  // Jika tidak tahu, Anda bisa langsung mengganti teks di bawah dengan URL Web App Anda (akhiran /exec)
-  const baseUrl = typeof apiUrl !== 'undefined' ? apiUrl : "https://script.google.com/macros/s/AKfycbyCWL9Xrt-Dq4Cc4eah9OSYqYCGxY9tChXYYPSwOKwysNkZo4pgDbBVe6-YYDPmjVY/exec";
-  
-  if (baseUrl === "https://script.google.com/macros/s/AKfycbyCWL9Xrt-Dq4Cc4eah9OSYqYCGxY9tChXYYPSwOKwysNkZo4pgDbBVe6-YYDPmjVY/exec") {
-    alert("Koneksi gagal: Silakan isi variabel baseUrl dengan URL Web App Apps Script Anda!");
+  // 2. Gunakan variabel TABUNGAN_API yang sudah ada di sistem Anda
+  if (typeof TABUNGAN_API === 'undefined' || !TABUNGAN_API) {
+    alert("Koneksi gagal: Variabel 'TABUNGAN_API' tidak ditemukan di tabungan.js!");
     return;
   }
 
   alert("Sedang memproses cetak PDF untuk kelas " + kelasDipilih + ". Mohon tunggu beberapa saat...");
 
   // 3. Request ke Google Apps Script menggunakan fetch (Metode GET)
-  const urlFinal = `${baseUrl}?action=cetakNomorIndukKelas&kelas=${encodeURIComponent(kelasDipilih)}`;
+  const urlFinal = `${TABUNGAN_API}?action=cetakNomorIndukKelas&kelas=${encodeURIComponent(kelasDipilih)}`;
 
   fetch(urlFinal)
     .then(response => {
@@ -1019,7 +1015,7 @@ function cetakNomorIndukKelas() {
     })
     .then(res => {
       if (res.status) {
-        // Konversi string base64 kembali menjadi file PDF siap unduh
+        // Konversi string base64 kembali menjadi file PDF siap unduh otomatis
         const linkSource = `data:application/pdf;base64,${res.pdfBase64}`;
         const downloadLink = document.createElement("a");
         
@@ -1029,7 +1025,7 @@ function cetakNomorIndukKelas() {
         downloadLink.click();
         document.body.removeChild(downloadLink);
         
-        alert("Cetak sukses! File telah diunduh.");
+        alert("Cetak sukses! File " + res.fileName + " telah diunduh.");
       } else {
         alert("Gagal memproses data: " + res.message);
       }
@@ -1038,4 +1034,4 @@ function cetakNomorIndukKelas() {
       console.error(err);
       alert("Terjadi kesalahan sistem: " + err.toString());
     });
-}
+}}
