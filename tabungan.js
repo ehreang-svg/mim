@@ -987,7 +987,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 }); // <-- SEKARANG SUDAH DITUTUP SECARA SEMPURNA DI AKHIR FILE
 
 function cetakNomorIndukKelas() {
-  // 1. Ambil nilai kelas yang sedang dipilih dari dropdown filter
+  // 1. Ambil nilai kelas dari dropdown filter
   const kelasDipilih = document.getElementById("filterKelasData").value;
   
   if (!kelasDipilih) {
@@ -995,31 +995,47 @@ function cetakNomorIndukKelas() {
     return;
   }
   
-  // Tampilkan loading/notifikasi (opsional, sesuaikan dengan UI Anda)
-  console.log("Sedang memproses cetak untuk kelas: " + kelasDipilih);
-  alert("Sedang memproses cetak PDF untuk kelas " + kelasDipilih + ". Mohon tunggu...");
+  // 2. Ambil base URL Web App secara otomatis dari script yang sudah berjalan
+  // Jika aplikasi Anda menggunakan variabel global seperti 'apiUrl' atau 'url', sesuaikan di sini.
+  // Jika tidak tahu, Anda bisa langsung mengganti teks di bawah dengan URL Web App Anda (akhiran /exec)
+  const baseUrl = typeof apiUrl !== 'undefined' ? apiUrl : "https://script.google.com/macros/s/AKfycbyCWL9Xrt-Dq4Cc4eah9OSYqYCGxY9tChXYYPSwOKwysNkZo4pgDbBVe6-YYDPmjVY/exec";
+  
+  if (baseUrl === "https://script.google.com/macros/s/AKfycbyCWL9Xrt-Dq4Cc4eah9OSYqYCGxY9tChXYYPSwOKwysNkZo4pgDbBVe6-YYDPmjVY/exec") {
+    alert("Koneksi gagal: Silakan isi variabel baseUrl dengan URL Web App Apps Script Anda!");
+    return;
+  }
 
-  // 2. Panggil fungsi backend Google Apps Script menggunakan google.script.run
-  google.script.run
-    .withSuccessHandler(function(response) {
-      if (response.status) {
-        // Jika sukses, ubah base64 menjadi file PDF dan download otomatis
-        const linkSource = `data:application/pdf;base64,${response.pdfBase64}`;
+  alert("Sedang memproses cetak PDF untuk kelas " + kelasDipilih + ". Mohon tunggu beberapa saat...");
+
+  // 3. Request ke Google Apps Script menggunakan fetch (Metode GET)
+  const urlFinal = `${baseUrl}?action=cetakNomorIndukKelas&kelas=${encodeURIComponent(kelasDipilih)}`;
+
+  fetch(urlFinal)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error("Respon jaringan terganggu");
+      }
+      return response.json();
+    })
+    .then(res => {
+      if (res.status) {
+        // Konversi string base64 kembali menjadi file PDF siap unduh
+        const linkSource = `data:application/pdf;base64,${res.pdfBase64}`;
         const downloadLink = document.createElement("a");
         
         downloadLink.href = linkSource;
-        downloadLink.download = response.fileName;
+        downloadLink.download = res.fileName || `Nomor_Induk_Kelas_${kelasDipilih}.pdf`;
+        document.body.appendChild(downloadLink);
         downloadLink.click();
+        document.body.removeChild(downloadLink);
         
-        alert("Cetak berhasil! File PDF " + response.fileName + " telah diunduh.");
+        alert("Cetak sukses! File telah diunduh.");
       } else {
-        // Jika backend mengirimkan status false
-        alert("Gagal: " + response.message);
+        alert("Gagal memproses data: " + res.message);
       }
     })
-    .withFailureHandler(function(error) {
-      // Jika terjadi error koneksi/sistem di Apps Script
-      alert("Terjadi kesalahan sistem: " + error.toString());
-    })
-    .cetakNomorIndukKelas(kelasDipilih); // Memanggil fungsi di .gs dengan parameter kelas
+    .catch(err => {
+      console.error(err);
+      alert("Terjadi kesalahan sistem: " + err.toString());
+    });
 }
