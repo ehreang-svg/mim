@@ -985,3 +985,41 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 }); // <-- SEKARANG SUDAH DITUTUP SECARA SEMPURNA DI AKHIR FILE
+
+function cetakNomorIndukKelas() {
+  // 1. Ambil nilai kelas yang sedang dipilih dari dropdown filter
+  const kelasDipilih = document.getElementById("filterKelasData").value;
+  
+  if (!kelasDipilih) {
+    alert("Silakan pilih kelas terlebih dahulu lewat dropdown 📚 Semua Kelas!");
+    return;
+  }
+  
+  // Tampilkan loading/notifikasi (opsional, sesuaikan dengan UI Anda)
+  console.log("Sedang memproses cetak untuk kelas: " + kelasDipilih);
+  alert("Sedang memproses cetak PDF untuk kelas " + kelasDipilih + ". Mohon tunggu...");
+
+  // 2. Panggil fungsi backend Google Apps Script menggunakan google.script.run
+  google.script.run
+    .withSuccessHandler(function(response) {
+      if (response.status) {
+        // Jika sukses, ubah base64 menjadi file PDF dan download otomatis
+        const linkSource = `data:application/pdf;base64,${response.pdfBase64}`;
+        const downloadLink = document.createElement("a");
+        
+        downloadLink.href = linkSource;
+        downloadLink.download = response.fileName;
+        downloadLink.click();
+        
+        alert("Cetak berhasil! File PDF " + response.fileName + " telah diunduh.");
+      } else {
+        // Jika backend mengirimkan status false
+        alert("Gagal: " + response.message);
+      }
+    })
+    .withFailureHandler(function(error) {
+      // Jika terjadi error koneksi/sistem di Apps Script
+      alert("Terjadi kesalahan sistem: " + error.toString());
+    })
+    .cetakNomorIndukKelas(kelasDipilih); // Memanggil fungsi di .gs dengan parameter kelas
+}
