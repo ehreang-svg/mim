@@ -376,6 +376,9 @@ function prosesDanCetak(data) {
     return;
   }
   
+  const tanggalHariIni = new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'});
+  const thKelasHTML = listKelas.map(k => `<th style="width: 11%;">KLS ${k}</th>`).join('');
+
   jendelaCetak.document.write(`
     <html>
     <head>
@@ -431,11 +434,11 @@ function prosesDanCetak(data) {
                 <th>HARI</th>
                 <th style="width: 4%;">JP</th>
                 <th style="width: 12%;">WAKTU</th>
-                \${listKelas.map(k => `<th style="width: 11%;">KLS \${k}</th>`).join('')}
+                ${thKelasHTML}
               </tr>
             </thead>
             <tbody>
-              \${htmlBarisJadwal}
+              ${htmlBarisJadwal}
             </tbody>
           </table>
         </div>
@@ -450,7 +453,7 @@ function prosesDanCetak(data) {
               </tr>
             </thead>
             <tbody>
-              \${htmlLegendaGuru}
+              ${htmlLegendaGuru}
             </tbody>
           </table>
           
@@ -463,14 +466,14 @@ function prosesDanCetak(data) {
               </tr>
             </thead>
             <tbody>
-              \${htmlLegendaMapel}
+              ${htmlLegendaMapel}
             </tbody>
           </table>
         </div>
       </div>
 
       <div class="cetak-footer">
-        <div>Jakarta, \${new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}</div>
+        <div>Jakarta, ${tanggalHariIni}</div>
         <div class="jabatan">Kepala Sekolah,</div>
         <div>( Mudasir, S.Pd )</div>
       </div>
