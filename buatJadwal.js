@@ -284,6 +284,7 @@ function prosesDanCetak(data) {
     let dataHariIni = data.filter(d => d.hari && d.hari.toLowerCase() === hari.toLowerCase());
     if (dataHariIni.length === 0) return;
 
+    // Ambil list jam unik berdasarkan format "mulai-selesai"
     let listJam = [...new Set(dataHariIni.map(d => `${d.mulai}-${d.selesai}`))];
     listJam.sort((a, b) => {
       let jamA = parseInt(a.split("-")[0].replace(":", ""), 10);
@@ -296,7 +297,9 @@ function prosesDanCetak(data) {
 
     listJam.forEach((jamStr, index) => {
       let [mulai, selesai] = jamStr.split("-");
+      // Cari sampel data berdasarkan jam mulai dan selesai yang cocok
       let sampelData = dataHariIni.find(d => d.mulai === mulai && d.selesai === selesai);
+      
       let isIstirahat = sampelData && sampelData.mapel.toUpperCase() === "ISTIRAHAT";
       let isKegiatanAwal = sampelData && (sampelData.mapel.toUpperCase() === "UPACARA" || sampelData.mapel.toUpperCase() === "PEMBIASAAN");
 
@@ -310,7 +313,7 @@ function prosesDanCetak(data) {
       if (isIstirahat) {
         htmlBarisJadwal += `
           <td class="text-tengah abu-bg">-</td>
-          <td class="text-tengah abu-bg" style="font-size: 8px;">${mulai}</td>
+          <td class="text-tengah abu-bg fw-bold" style="font-size: 9px; white-space: nowrap;">${jamStr}</td>
           <td colspan="${listKelas.length}" class="text-tengah istirahat-cell">☕ ISTIRAHAT</td>
         `;
       } else {
@@ -323,7 +326,7 @@ function prosesDanCetak(data) {
 
         htmlBarisJadwal += `
           <td class="text-tengah fw-bold">${nomorTampil}</td>
-          <td class="text-tengah text-muted" style="font-size: 8px;">${mulai}</td>
+          <td class="text-tengah text-muted fw-bold" style="font-size: 9px; color: #000; white-space: nowrap;">${jamStr}</td>
         `;
         
         listKelas.forEach(kelas => {
@@ -427,12 +430,12 @@ function prosesDanCetak(data) {
               <tr>
                 <th>HARI</th>
                 <th style="width: 4%;">JP</th>
-                <th style="width: 8%;">WAKTU</th>
-                ${listKelas.map(k => `<th style="width: 12%;">KLS ${k}</th>`).join('')}
+                <th style="width: 12%;">WAKTU</th>
+                \${listKelas.map(k => `<th style="width: 11%;">KLS \${k}</th>`).join('')}
               </tr>
             </thead>
             <tbody>
-              ${htmlBarisJadwal}
+              \${htmlBarisJadwal}
             </tbody>
           </table>
         </div>
@@ -447,7 +450,7 @@ function prosesDanCetak(data) {
               </tr>
             </thead>
             <tbody>
-              ${htmlLegendaGuru}
+              \${htmlLegendaGuru}
             </tbody>
           </table>
           
@@ -460,14 +463,14 @@ function prosesDanCetak(data) {
               </tr>
             </thead>
             <tbody>
-              ${htmlLegendaMapel}
+              \${htmlLegendaMapel}
             </tbody>
           </table>
         </div>
       </div>
 
       <div class="cetak-footer">
-        <div>Jakarta, ${new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}</div>
+        <div>Jakarta, \${new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}</div>
         <div class="jabatan">Kepala Sekolah,</div>
         <div>( Mudasir, S.Pd )</div>
       </div>
@@ -477,7 +480,7 @@ function prosesDanCetak(data) {
           window.print();
           setTimeout(function() { window.close(); }, 500);
         };
-      ` + `</` + `script>
+      <\/script>
     </body>
     </html>
   `);
