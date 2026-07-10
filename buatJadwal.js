@@ -284,7 +284,6 @@ function prosesDanCetak(data) {
     let dataHariIni = data.filter(d => d.hari && d.hari.toLowerCase() === hari.toLowerCase());
     if (dataHariIni.length === 0) return;
 
-    // Ambil list jam unik berdasarkan format "mulai-selesai"
     let listJam = [...new Set(dataHariIni.map(d => `${d.mulai}-${d.selesai}`))];
     listJam.sort((a, b) => {
       let jamA = parseInt(a.split("-")[0].replace(":", ""), 10);
@@ -293,11 +292,10 @@ function prosesDanCetak(data) {
     });
 
     let totalJamHariIni = listJam.length;
-    let counterJP = 1; // Penghitung urutan JP murni dinamis
+    let counterJP = 1;
 
     listJam.forEach((jamStr, index) => {
       let [mulai, selesai] = jamStr.split("-");
-      // Cari sampel data berdasarkan jam mulai dan selesai yang cocok
       let sampelData = dataHariIni.find(d => d.mulai === mulai && d.selesai === selesai);
       
       let isIstirahat = sampelData && sampelData.mapel.toUpperCase() === "ISTIRAHAT";
@@ -305,7 +303,6 @@ function prosesDanCetak(data) {
 
       htmlBarisJadwal += `<tr>`;
       
-      // KOLOM HARI: Muncul di baris pertama tiap hari
       if (index === 0) {
         htmlBarisJadwal += `<td rowspan="${totalJamHariIni}" class="text-tengah fw-bold nama-hari-kolom">${hari.toUpperCase()}</td>`;
       }
@@ -317,7 +314,6 @@ function prosesDanCetak(data) {
           <td colspan="${listKelas.length}" class="text-tengah istirahat-cell">☕ ISTIRAHAT</td>
         `;
       } else {
-        // Logika penomoran JP murni (Upacara/Pembiasaan dicatat sebagai '-')
         let nomorTampil = "-";
         if (!isKegiatanAwal) {
           nomorTampil = counterJP;
@@ -346,7 +342,6 @@ function prosesDanCetak(data) {
               htmlBarisJadwal += `<td class="text-tengah fw-bold cell-kode">${kodeTampil}</td>`;
             }
           } else {
-            // Otomatis abu-abu jika Kelas 1 & 2 sudah pulang setelah JP ke-7
             htmlBarisJadwal += `<td class="text-tengah abu-bg"></td>`;
           }
         });
@@ -369,7 +364,7 @@ function prosesDanCetak(data) {
     htmlLegendaMapel += `<tr><td class="text-tengah fw-bold">${kode}</td><td>${mapelKey.toUpperCase()}</td></tr>`;
   });
 
-  // ================= 3. RENDER KE JENDELA CETAK BARU =================
+  // ================= 3. RENDER KE JENDELA PRATINJAU BARU =================
   const jendelaCetak = window.open("", "_blank", "width=1200,height=750");
   if (!jendelaCetak) {
     alert("Pop-up diblokir browser! Harap izinkan pop-up.");
@@ -382,11 +377,17 @@ function prosesDanCetak(data) {
   jendelaCetak.document.write(`
     <html>
     <head>
-      <title>Cetak Jadwal Kolektif F4</title>
+      <title>Pratinjau Jadwal Kolektif F4</title>
       <style>
         @page { size: 21.59cm 33.02cm; margin: 0.6cm 0.4cm 0.4cm 0.4cm; }
-        body { font-family: Arial, sans-serif; color: #000; padding: 0; margin: 0; background: #fff; line-height: 1.1; }
+        body { font-family: Arial, sans-serif; color: #000; padding: 10px; margin: 0; background: #fff; line-height: 1.1; }
         
+        /* Gaya tambahan khusus tombol cetak manual di atas halaman pratinjau */
+        .bar-tombol { background: #f1f5f9; padding: 10px; margin-bottom: 15px; border-radius: 6px; display: flex; gap: 10px; border: 1px solid #cbd5e1; }
+        .btn-aksi { padding: 6px 14px; font-size: 11px; font-weight: bold; cursor: pointer; border-radius: 4px; border: 1px solid #94a3b8; }
+        .btn-cetak { background-color: #059669; color: white; border: none; }
+        .btn-tutup { background-color: #ef4444; color: white; border: none; }
+
         .cetak-header { text-align: center; margin-bottom: 8px; }
         .cetak-header h2 { margin: 0; font-size: 13px; font-weight: bold; text-transform: uppercase; }
         .cetak-header h3 { margin: 1px 0 0 0; font-size: 10px; color: #444; }
@@ -415,12 +416,18 @@ function prosesDanCetak(data) {
         .cetak-footer .jabatan { margin-bottom: 35px; }
         
         @media print {
+          .bar-tombol { display: none !important; } /* Sembunyikan tombol saat dicetak ke kertas/pdf */
           body { margin: 0; padding: 0; }
           * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
       </style>
     </head>
     <body>
+      <div class="bar-tombol">
+        <button class="btn-aksi btn-cetak" onclick="window.print()">🖨️ Cetak ke Kertas / PDF</button>
+        <button class="btn-aksi btn-tutup" onclick="window.close()">❌ Tutup Halaman</button>
+      </div>
+
       <div class="cetak-header">
         <h2>JADWAL PELAJARAN MIS MIFTAHUL MUBTADIIN</h2>
         <h3>SEMESTER GANJIL TAHUN AJARAN 2026/2027</h3>
@@ -477,13 +484,6 @@ function prosesDanCetak(data) {
         <div class="jabatan">Kepala Sekolah,</div>
         <div>( Mudasir, M.Pd )</div>
       </div>
-      
-      <script>
-        window.onload = function() {
-          window.print();
-          setTimeout(function() { window.close(); }, 500);
-        };
-      </script>
     </body>
     </html>
   `);
