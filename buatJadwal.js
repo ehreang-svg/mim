@@ -277,6 +277,8 @@ function prosesDanCetak(data) {
   const listKelas = ["1", "2", "3", "4", "5A", "5B", "6"];
   let htmlStruktur = "";
 
+  const maps = databaseMaps || { mapGuru: {}, mapMapel: {} };
+
   listHari.forEach(hari => {
     let dataHariIni = data.filter(d => d.hari && d.hari.toLowerCase() === hari.toLowerCase());
     if (dataHariIni.length === 0) return;
@@ -289,16 +291,13 @@ function prosesDanCetak(data) {
     });
 
     htmlStruktur += `
-      <div class="halaman-hari">
-        <div class="nama-hari-judul">HARI: ${hari.toUpperCase()}</div>
+      <div class="blok-hari">
+        <div class="nama-hari-judul">${hari.toUpperCase()}</div>
         <table class="tabel-cetak-kolektif">
           <thead>
             <tr>
-              <th rowspan="2" style="width: 5%;">JP</th>
-              <th rowspan="2" style="width: 15%;">WAKTU</th>
-              <th colspan="${listKelas.length}">KELAS</th>
-            </tr>
-            <tr>
+              <th style="width: 5%;">JP</th>
+              <th style="width: 13%;">WAKTU</th>
               ${listKelas.map(k => `<th style="width: 11%;">${k}</th>`).join('')}
             </tr>
           </thead>
@@ -315,32 +314,30 @@ function prosesDanCetak(data) {
       if (isIstirahat) {
         htmlStruktur += `
           <td class="text-tengah abu-bg">-</td>
-          <td class="text-tengah abu-bg"><strong>${mulai} - ${selesai}</strong></td>
-          <td colspan="${listKelas.length}" class="text-tengah istirahat-cell">☕ I S T I R A H A T</td>
+          <td class="text-tengah abu-bg"><strong>${mulai}</strong></td>
+          <td colspan="${listKelas.length}" class="text-tengah istirahat-cell">☕ ISTIRAHAT</td>
         `;
       } else {
         htmlStruktur += `
           <td class="text-tengah fw-bold">${nomorJP++}</td>
-          <td class="text-tengah">${mulai} - ${selesai}</td>
+          <td class="text-tengah text-muted">${mulai}</td>
         `;
         
         listKelas.forEach(kelas => {
           let cocok = dataHariIni.find(d => d.mulai === mulai && d.selesai === selesai && String(d.kelas) === String(kelas));
           if (cocok) {
             let mapel = cocok.mapel.toUpperCase();
-            let guru = cocok.guru !== "-" ? cocok.guru : "";
             
             if (mapel === "KOSONG") {
               htmlStruktur += `<td class="text-tengah teks-kosong">-</td>`;
             } else if (mapel === "UPACARA" || mapel === "PEMBIASAAN") {
-              htmlStruktur += `<td class="text-tengah kegiatan-wajib"><strong>${mapel}</strong></td>`;
+              htmlStruktur += `<td class="text-tengah kegiatan-wajib">${mapel.substring(0, 3)}</td>`;
             } else {
-              htmlStruktur += `
-                <td class="text-tengah cell-isi">
-                  <div class="mapel-text">${mapel}</div>
-                  <div class="guru-text">${guru}</div>
-                </td>
-              `;
+              const kGuru = maps.mapGuru[cocok.guru.toLowerCase()] || "";
+              const kMapel = maps.mapMapel[cocok.mapel.toLowerCase()] || "";
+              const kodeTampil = kGuru && kMapel ? (kGuru + kMapel) : "-";
+
+              htmlStruktur += `<td class="text-tengah fw-bold cell-kode">${kodeTampil}</td>`;
             }
           } else {
             htmlStruktur += `<td class="text-tengah abu-bg"></td>`;
@@ -357,59 +354,58 @@ function prosesDanCetak(data) {
     `;
   });
 
-  const jendelaCetak = window.open("", "_blank", "width=1100,height=700");
+  const jendelaCetak = window.open("", "_blank", "width=1000,height=700");
   if (!jendelaCetak) {
-    alert("Pop-up diblokir oleh browser! Harap izinkan pop-up untuk melihat halaman cetak.");
+    alert("Pop-up diblokir browser! Harap izinkan pop-up.");
     return;
   }
   
   jendelaCetak.document.write(`
     <html>
     <head>
-      <title>Cetak Jadwal Pelajaran Kolektif</title>
+      <title>Cetak Jadwal 1 Halaman</title>
       <style>
-        .cetak-jadwal-container { font-family: 'Arial', sans-serif; color: #333; padding: 10px; background: #fff; }
-        .cetak-header { text-align: center; margin-bottom: 20px; border-bottom: 3px double #000; padding-bottom: 5px; }
-        .cetak-header h2 { margin: 0; font-size: 20px; letter-spacing: 1px; }
-        .cetak-header h3 { margin: 5px 0 0 0; font-size: 14px; font-weight: normal; }
-        .nama-hari-judul { font-size: 14px; font-weight: bold; margin-bottom: 5px; background: #333; color: #fff; padding: 4px 10px; display: inline-block; border-radius: 3px; }
-        .tabel-cetak-kolektif { width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 11px; }
-        .tabel-cetak-kolektif th, .tabel-cetak-kolektif td { border: 1px solid #000; padding: 5px 3px; vertical-align: middle; }
-        .tabel-cetak-kolektif th { background-color: #f2f2f2 !important; font-weight: bold; text-align: center; text-transform: uppercase; }
+        @page { size: A4; margin: 0.8cm 0.5cm 0.5cm 0.5cm; }
+        body { font-family: Arial, sans-serif; color: #000; padding: 0; margin: 0; background: #fff; line-height: 1.1; }
+        
+        .cetak-header { text-align: center; margin-bottom: 8px; }
+        .cetak-header h2 { margin: 0; font-size: 13px; font-weight: bold; letter-spacing: 0.5px; }
+        .cetak-header h3 { margin: 1px 0 0 0; font-size: 10px; color: #444; }
+        
+        .nama-hari-judul { font-size: 9px; font-weight: bold; margin-top: 4px; margin-bottom: 2px; background: #333; color: #fff; padding: 1px 5px; display: inline-block; border-radius: 2px; }
+        
+        .tabel-cetak-kolektif { width: 100%; border-collapse: collapse; margin-bottom: 2px; font-size: 9px; }
+        .tabel-cetak-kolektif th, .tabel-cetak-kolektif td { border: 1px solid #000; padding: 2px 1px; vertical-align: middle; }
+        .tabel-cetak-kolektif th { background-color: #eaeaea !important; font-weight: bold; text-align: center; font-size: 9px; }
+        
         .text-tengah { text-align: center; }
         .fw-bold { font-weight: bold; }
-        .abu-bg { background-color: #f9f9f9; }
-        .teks-kosong { color: #ccc; }
-        .istirahat-cell { background-color: #e9ecef !important; font-weight: bold; letter-spacing: 3px; font-size: 11px; }
-        .kegiatan-wajib { background-color: #fff3cd !important; font-size: 10px; }
-        .cell-isi { line-height: 1.2; }
-        .mapel-text { font-weight: bold; color: #000; }
-        .guru-text { font-size: 9.5px; color: #444; margin-top: 2px; font-style: italic;}
-        .cetak-footer { margin-top: 30px; float: right; text-align: center; width: 250px; font-size: 12px; }
-        .cetak-footer .jabatan { margin-bottom: 60px; }
-        .cetak-footer .nama-pejabat { font-weight: bold; text-decoration: underline; }
+        .abu-bg { background-color: #fafafa; }
+        .teks-kosong { color: #bbb; }
+        .cell-kode { font-size: 10px; color: #000; }
+        .istirahat-cell { background-color: #f0f0f0 !important; font-size: 8px; font-weight: bold; letter-spacing: 1px; color: #555; }
+        .kegiatan-wajib { background-color: #fff3cd !important; font-size: 8px; font-weight: bold; }
+        
+        .cetak-footer { margin-top: 5px; float: right; text-align: center; width: 180px; font-size: 9px; }
+        .cetak-footer .jabatan { margin-bottom: 30px; }
         
         @media print {
-          body { margin: 0; padding: 0; background: #fff; }
-          .cetak-jadwal-container { padding: 0; }
-          .halaman-hari { page-break-after: always; }
-          .halaman-hari:last-child { page-break-after: avoid; }
+          body { margin: 0; padding: 0; }
+          .blok-hari { page-break-inside: avoid; }
           * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
       </style>
     </head>
     <body>
-      <div class="cetak-jadwal-container">
-        <div class="cetak-header">
-          <h2>JADWAL PELAJARAN KOLEKTIF KELAS 1 - 6</h2>
-          <h3>TAHUN AJARAN 2026/2027</h3>
-        </div>
-        <div id="areaTabelPerHari">${htmlStruktur}</div>
-        <div class="cetak-footer">
-          <div>Jakarta, ${new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}</div>
-          <div class="jabatan">Kepala Sekolah,</div>
-          <div class="nama-pejabat">( ___________________________ )</div>
-        </div>
+      <div class="cetak-header">
+        <h2>JADWAL PELAJARAN KOLEKTIF KELAS 1 - 6</h2>
+        <h3>TAHUN AJARAN 2026/2027</h3>
+      </div>
+      <div id="areaTabelPerHari">${htmlStruktur}</div>
+      <div class="cetak-footer">
+        <div>Jakarta, ${new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}</div>
+        <div class="jabatan">Kepala Madrasah,</div>
+        <div>( ___________________________ )</div>
       </div>
       <script>
         window.onload = function() {
