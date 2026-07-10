@@ -480,7 +480,7 @@ function prosesDanCetak(data) {
           window.print();
           setTimeout(function() { window.close(); }, 500);
         };
-      <\/script>
+      </script>
     </body>
     </html>
   `);
