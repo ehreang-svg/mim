@@ -292,14 +292,17 @@ function prosesDanCetak(data) {
     });
 
     let totalJamHariIni = listJam.length;
+    let counterJP = 1; // Penghitung urutan JP murni dinamis
 
     listJam.forEach((jamStr, index) => {
       let [mulai, selesai] = jamStr.split("-");
       let sampelData = dataHariIni.find(d => d.mulai === mulai && d.selesai === selesai);
       let isIstirahat = sampelData && sampelData.mapel.toUpperCase() === "ISTIRAHAT";
+      let isKegiatanAwal = sampelData && (sampelData.mapel.toUpperCase() === "UPACARA" || sampelData.mapel.toUpperCase() === "PEMBIASAAN");
 
       htmlBarisJadwal += `<tr>`;
       
+      // KOLOM HARI: Muncul di baris pertama tiap hari
       if (index === 0) {
         htmlBarisJadwal += `<td rowspan="${totalJamHariIni}" class="text-tengah fw-bold nama-hari-kolom">${hari.toUpperCase()}</td>`;
       }
@@ -311,12 +314,16 @@ function prosesDanCetak(data) {
           <td colspan="${listKelas.length}" class="text-tengah istirahat-cell">☕ ISTIRAHAT</td>
         `;
       } else {
-        let isKegiatanAwal = sampelData && (sampelData.mapel.toUpperCase() === "UPACARA" || sampelData.mapel.toUpperCase() === "PEMBIASAAN");
-        let nomorJP = isKegiatanAwal ? "-" : (index > 4 ? index : index + 1); 
+        // Logika penomoran JP murni (Upacara/Pembiasaan dicatat sebagai '-')
+        let nomorTampil = "-";
+        if (!isKegiatanAwal) {
+          nomorTampil = counterJP;
+          counterJP++;
+        }
 
         htmlBarisJadwal += `
-          <td class="text-tengah fw-bold">${nomorJP}</td>
-          <td class="text-tengah text-muted" style="font-size: 8.5px;">${mulai}</td>
+          <td class="text-tengah fw-bold">${nomorTampil}</td>
+          <td class="text-tengah text-muted" style="font-size: 8px;">${mulai}</td>
         `;
         
         listKelas.forEach(kelas => {
@@ -336,6 +343,7 @@ function prosesDanCetak(data) {
               htmlBarisJadwal += `<td class="text-tengah fw-bold cell-kode">${kodeTampil}</td>`;
             }
           } else {
+            // Otomatis abu-abu jika Kelas 1 & 2 sudah pulang setelah JP ke-7
             htmlBarisJadwal += `<td class="text-tengah abu-bg"></td>`;
           }
         });
@@ -358,7 +366,6 @@ function prosesDanCetak(data) {
     htmlLegendaMapel += `<tr><td class="text-tengah fw-bold">${kode}</td><td>${mapelKey.toUpperCase()}</td></tr>`;
   });
 
-
   // ================= 3. RENDER KE JENDELA CETAK BARU =================
   const jendelaCetak = window.open("", "_blank", "width=1200,height=750");
   if (!jendelaCetak) {
@@ -369,41 +376,37 @@ function prosesDanCetak(data) {
   jendelaCetak.document.write(`
     <html>
     <head>
-      <title>Cetak Jadwal Kolektif + Legenda</title>
+      <title>Cetak Jadwal Kolektif F4</title>
       <style>
-        @page { size: 21.59cm 33.02cm; margin: 0.8cm 0.5cm 0.5cm 0.5cm; }
+        @page { size: 21.59cm 33.02cm; margin: 0.6cm 0.4cm 0.4cm 0.4cm; }
         body { font-family: Arial, sans-serif; color: #000; padding: 0; margin: 0; background: #fff; line-height: 1.1; }
         
-        .cetak-header { text-align: center; margin-bottom: 10px; }
-        .cetak-header h2 { margin: 0; font-size: 14px; font-weight: bold; letter-spacing: 0.5px; }
-        .cetak-header h3 { margin: 2px 0 0 0; font-size: 11px; color: #444; }
+        .cetak-header { text-align: center; margin-bottom: 8px; }
+        .cetak-header h2 { margin: 0; font-size: 13px; font-weight: bold; text-transform: uppercase; }
+        .cetak-header h3 { margin: 1px 0 0 0; font-size: 10px; color: #444; }
         
-        /* Layout Grid Samping-Sampingan */
-        .kontainer-utama { display: flex; gap: 10px; align-items: flex-start; }
-        .area-jadwal { width: 78%; }
-        .area-legenda { width: 22%; font-size: 8px; }
+        .kontainer-utama { display: flex; gap: 8px; align-items: flex-start; }
+        .area-jadwal { width: 80%; }
+        .area-legenda { width: 20%; font-size: 7.5px; }
         
-        /* Gaya Tabel Umum */
-        table { border-collapse: collapse; width: 100%; font-size: 9px; }
-        th, td { border: 1px solid #000; padding: 3px 2px; vertical-align: middle; }
-        th { background-color: #dfdfdf !important; font-weight: bold; text-align: center; }
+        table { border-collapse: collapse; width: 100%; font-size: 8.5px; }
+        th, td { border: 1px solid #000; padding: 2px 1px; vertical-align: middle; }
+        th { background-color: #e5e5e5 !important; font-weight: bold; text-align: center; }
         
-        /* Tabel Jadwal Khusus */
-        .nama-hari-kolom { background-color: #f5f5f5 !important; font-size: 10px; width: 7%; }
+        .nama-hari-kolom { background-color: #f5f5f5 !important; font-size: 9px; width: 6%; text-transform: uppercase; }
         .text-tengah { text-align: center; }
         .fw-bold { font-weight: bold; }
-        .abu-bg { background-color: #fafafa; }
-        .teks-kosong { color: #bbb; }
-        .cell-kode { font-size: 10.5px; color: #000; }
-        .istirahat-cell { background-color: #eeeeee !important; font-size: 8px; font-weight: bold; letter-spacing: 1px; color: #444; }
-        .kegiatan-wajib { background-color: #fff3cd !important; font-size: 8px; font-weight: bold; }
+        .abu-bg { background-color: #eeeeee; }
+        .teks-kosong { color: #ccc; }
+        .cell-kode { font-size: 9.5px; color: #000; }
+        .istirahat-cell { background-color: #dddddd !important; font-size: 7.5px; font-weight: bold; letter-spacing: 1px; color: #333; }
+        .kegiatan-wajib { background-color: #fff3cd !important; font-size: 7.5px; font-weight: bold; }
         
-        /* Tabel Legenda Khusus */
-        .judul-legenda { font-weight: bold; background: #333; color: #fff; text-align: center; padding: 2px 0; margin-top: 5px; margin-bottom: 2px; font-size: 8.5px; }
-        .tabel-legenda td { padding: 2px; font-size: 8px; }
+        .judul-legenda { font-weight: bold; background: #333; color: #fff; text-align: center; padding: 2px 0; margin-top: 4px; margin-bottom: 1px; font-size: 8px; }
+        .tabel-legenda td { padding: 1.5px 2px; font-size: 7.5px; }
         
-        .cetak-footer { margin-top: 15px; float: right; text-align: center; width: 180px; font-size: 10px; }
-        .cetak-footer .jabatan { margin-bottom: 45px; }
+        .cetak-footer { margin-top: 10px; float: right; text-align: center; width: 180px; font-size: 9px; }
+        .cetak-footer .jabatan { margin-bottom: 35px; }
         
         @media print {
           body { margin: 0; padding: 0; }
@@ -424,8 +427,8 @@ function prosesDanCetak(data) {
               <tr>
                 <th>HARI</th>
                 <th style="width: 4%;">JP</th>
-                <th style="width: 10%;">WAKTU</th>
-                ${listKelas.map(k => `<th style="width: 11%;">KLS ${k}</th>`).join('')}
+                <th style="width: 8%;">WAKTU</th>
+                ${listKelas.map(k => `<th style="width: 12%;">KLS ${k}</th>`).join('')}
               </tr>
             </thead>
             <tbody>
@@ -453,7 +456,7 @@ function prosesDanCetak(data) {
             <thead>
               <tr>
                 <th style="width: 25%;">KODE</th>
-                <th>MATA PELAJARAN</th>
+                <th>PELAJARAN</th>
               </tr>
             </thead>
             <tbody>
@@ -465,8 +468,8 @@ function prosesDanCetak(data) {
 
       <div class="cetak-footer">
         <div>Jakarta, ${new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}</div>
-        <div class="jabatan">Kepala Madrasah,</div>
-        <div>( Mudasir, M.Pd )</div>
+        <div class="jabatan">Kepala Sekolah,</div>
+        <div>( Mudasir, S.Pd )</div>
       </div>
       
       <script>
