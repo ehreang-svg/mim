@@ -275,7 +275,7 @@ function bukaJendelaCetak() {
 function prosesDanCetak(data) {
   const listHari = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
   const listKelas = ["1", "2", "3", "4", "5A", "5B", "6"];
-  let htmlStruktur = "";
+  let htmlBaris = "";
 
   const maps = databaseMaps || { mapGuru: {}, mapMapel: {} };
 
@@ -283,6 +283,7 @@ function prosesDanCetak(data) {
     let dataHariIni = data.filter(d => d.hari && d.hari.toLowerCase() === hari.toLowerCase());
     if (dataHariIni.length === 0) return;
 
+    // Dapatkan list jam unik pada hari tersebut
     let listJam = [...new Set(dataHariIni.map(d => `${d.mulai}-${d.selesai}`))];
     listJam.sort((a, b) => {
       let jamA = parseInt(a.split("-")[0].replace(":", ""), 10);
@@ -290,37 +291,34 @@ function prosesDanCetak(data) {
       return jamA - jamB;
     });
 
-    htmlStruktur += `
-      <div class="blok-hari">
-        <div class="nama-hari-judul">${hari.toUpperCase()}</div>
-        <table class="tabel-cetak-kolektif">
-          <thead>
-            <tr>
-              <th style="width: 5%;">JP</th>
-              <th style="width: 13%;">WAKTU</th>
-              ${listKelas.map(k => `<th style="width: 11%;">${k}</th>`).join('')}
-            </tr>
-          </thead>
-          <tbody>
-    `;
+    let totalJamHariIni = listJam.length;
 
-    let nomorJP = 1;
-    listJam.forEach(jamStr => {
+    listJam.forEach((jamStr, index) => {
       let [mulai, selesai] = jamStr.split("-");
       let sampelData = dataHariIni.find(d => d.mulai === mulai && d.selesai === selesai);
       let isIstirahat = sampelData && sampelData.mapel.toUpperCase() === "ISTIRAHAT";
 
-      htmlStruktur += `<tr>`;
+      htmlBaris += `<tr>`;
+      
+      // KOLOM HARI: Hanya muncul di baris pertama setiap hari menggunakan rowspan
+      if (index === 0) {
+        htmlBaris += `<td rowspan="${totalJamHariIni}" class="text-tengah fw-bold nama-hari-kolom">${hari.toUpperCase()}</td>`;
+      }
+
       if (isIstirahat) {
-        htmlStruktur += `
+        htmlBaris += `
           <td class="text-tengah abu-bg">-</td>
-          <td class="text-tengah abu-bg"><strong>${mulai}</strong></td>
+          <td class="text-tengah abu-bg" style="font-size: 8px;">${mulai}</td>
           <td colspan="${listKelas.length}" class="text-tengah istirahat-cell">☕ ISTIRAHAT</td>
         `;
       } else {
-        htmlStruktur += `
-          <td class="text-tengah fw-bold">${nomorJP++}</td>
-          <td class="text-tengah text-muted">${mulai}</td>
+        // Tentukan nomor JP (Bypass angka jika jam ke-1 adalah upacara/pembiasaan atau setelah istirahat)
+        let isKegiatanAwal = sampelData && (sampelData.mapel.toUpperCase() === "UPACARA" || sampelData.mapel.toUpperCase() === "PEMBIASAAN");
+        let nomorJP = isKegiatanAwal ? "-" : (index > 4 ? index : index + 1); 
+
+        htmlBaris += `
+          <td class="text-tengah fw-bold">${nomorJP}</td>
+          <td class="text-tengah text-muted" style="font-size: 8.5px;">${mulai}</td>
         `;
         
         listKelas.forEach(kelas => {
@@ -329,32 +327,26 @@ function prosesDanCetak(data) {
             let mapel = cocok.mapel.toUpperCase();
             
             if (mapel === "KOSONG") {
-              htmlStruktur += `<td class="text-tengah teks-kosong">-</td>`;
+              htmlBaris += `<td class="text-tengah teks-kosong">-</td>`;
             } else if (mapel === "UPACARA" || mapel === "PEMBIASAAN") {
-              htmlStruktur += `<td class="text-tengah kegiatan-wajib">${mapel.substring(0, 3)}</td>`;
+              htmlBaris += `<td class="text-tengah kegiatan-wajib">${mapel.substring(0, 3)}</td>`;
             } else {
               const kGuru = maps.mapGuru[cocok.guru.toLowerCase()] || "";
               const kMapel = maps.mapMapel[cocok.mapel.toLowerCase()] || "";
               const kodeTampil = kGuru && kMapel ? (kGuru + kMapel) : "-";
 
-              htmlStruktur += `<td class="text-tengah fw-bold cell-kode">${kodeTampil}</td>`;
+              htmlBaris += `<td class="text-tengah fw-bold cell-kode">${kodeTampil}</td>`;
             }
           } else {
-            htmlStruktur += `<td class="text-tengah abu-bg"></td>`;
+            htmlBaris += `<td class="text-tengah abu-bg"></td>`;
           }
         });
       }
-      htmlStruktur += `</tr>`;
+      htmlBaris += `</tr>`;
     });
-
-    htmlStruktur += `
-          </tbody>
-        </table>
-      </div>
-    `;
   });
 
-  const jendelaCetak = window.open("", "_blank", "width=1000,height=700");
+  const jendelaCetak = window.open("", "_blank", "width=1100,height=750");
   if (!jendelaCetak) {
     alert("Pop-up diblokir browser! Harap izinkan pop-up.");
     return;
@@ -363,35 +355,34 @@ function prosesDanCetak(data) {
   jendelaCetak.document.write(`
     <html>
     <head>
-      <title>Cetak Jadwal 1 Halaman</title>
+      <title>Cetak Jadwal 1 Halaman F4</title>
       <style>
-        @page { size: A4; margin: 0.8cm 0.5cm 0.5cm 0.5cm; }
+        /* UKURAN STANDAR KERTAS F4 / FOLIO (21.59cm x 33.02cm) */
+        @page { size: 21.59cm 33.02cm; margin: 1cm 0.6cm 0.6cm 0.6cm; }
         body { font-family: Arial, sans-serif; color: #000; padding: 0; margin: 0; background: #fff; line-height: 1.1; }
         
-        .cetak-header { text-align: center; margin-bottom: 8px; }
-        .cetak-header h2 { margin: 0; font-size: 13px; font-weight: bold; letter-spacing: 0.5px; }
-        .cetak-header h3 { margin: 1px 0 0 0; font-size: 10px; color: #444; }
+        .cetak-header { text-align: center; margin-bottom: 12px; }
+        .cetak-header h2 { margin: 0; font-size: 14px; font-weight: bold; letter-spacing: 0.5px; }
+        .cetak-header h3 { margin: 2px 0 0 0; font-size: 11px; color: #444; }
         
-        .nama-hari-judul { font-size: 9px; font-weight: bold; margin-top: 4px; margin-bottom: 2px; background: #333; color: #fff; padding: 1px 5px; display: inline-block; border-radius: 2px; }
+        .tabel-cetak-kolektif { width: 100%; border-collapse: collapse; font-size: 9px; }
+        .tabel-cetak-kolektif th, .tabel-cetak-kolektif td { border: 1px solid #000; padding: 3px 2px; vertical-align: middle; }
+        .tabel-cetak-kolektif th { background-color: #dfdfdf !important; font-weight: bold; text-align: center; font-size: 9px; }
         
-        .tabel-cetak-kolektif { width: 100%; border-collapse: collapse; margin-bottom: 2px; font-size: 9px; }
-        .tabel-cetak-kolektif th, .tabel-cetak-kolektif td { border: 1px solid #000; padding: 2px 1px; vertical-align: middle; }
-        .tabel-cetak-kolektif th { background-color: #eaeaea !important; font-weight: bold; text-align: center; font-size: 9px; }
-        
+        .nama-hari-kolom { background-color: #f5f5f5 !important; font-size: 10px; letter-spacing: 0.5px; width: 7%; }
         .text-tengah { text-align: center; }
         .fw-bold { font-weight: bold; }
         .abu-bg { background-color: #fafafa; }
         .teks-kosong { color: #bbb; }
-        .cell-kode { font-size: 10px; color: #000; }
-        .istirahat-cell { background-color: #f0f0f0 !important; font-size: 8px; font-weight: bold; letter-spacing: 1px; color: #555; }
+        .cell-kode { font-size: 10.5px; color: #000; }
+        .istirahat-cell { background-color: #eeeeee !important; font-size: 8px; font-weight: bold; letter-spacing: 2px; color: #444; }
         .kegiatan-wajib { background-color: #fff3cd !important; font-size: 8px; font-weight: bold; }
         
-        .cetak-footer { margin-top: 5px; float: right; text-align: center; width: 180px; font-size: 9px; }
-        .cetak-footer .jabatan { margin-bottom: 30px; }
+        .cetak-footer { margin-top: 15px; float: right; text-align: center; width: 180px; font-size: 10px; }
+        .cetak-footer .jabatan { margin-bottom: 40px; }
         
         @media print {
           body { margin: 0; padding: 0; }
-          .blok-hari { page-break-inside: avoid; }
           * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
       </style>
@@ -401,10 +392,24 @@ function prosesDanCetak(data) {
         <h2>JADWAL PELAJARAN KOLEKTIF KELAS 1 - 6</h2>
         <h3>TAHUN AJARAN 2026/2027</h3>
       </div>
-      <div id="areaTabelPerHari">${htmlStruktur}</div>
+      
+      <table class="tabel-cetak-kolektif">
+        <thead>
+          <tr>
+            <th>HARI</th>
+            <th style="width: 4%;">JP</th>
+            <th style="width: 9%;">WAKTU</th>
+            ${listKelas.map(k => `<th style="width: 11%;">KLS ${k}</th>`).join('')}
+          </tr>
+        </thead>
+        <tbody>
+          ${htmlBaris}
+        </tbody>
+      </table>
+
       <div class="cetak-footer">
         <div>Jakarta, ${new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}</div>
-        <div class="jabatan">Kepala Madrasah,</div>
+        <div class="jabatan">Kepala Sekolah,</div>
         <div>( ___________________________ )</div>
       </div>
       <script>
