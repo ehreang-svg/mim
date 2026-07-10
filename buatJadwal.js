@@ -240,3 +240,242 @@ function prosesGenerateJadwal() {
       btn.textContent = "⚡ GENERATE JADWAL PELAJARAN";
     });
 }
+function bukaJendelaCetak() {
+  const btn = document.getElementById("btnCetak");
+  btn.disabled = true;
+  btn.textContent = "⏳ MENYIAPKAN DOKUMEN CORAK...";
+
+  fetch(`${JADWAL_API}?action=getJadwalKolektif`)
+    .then(response => response.json())
+    .then(res => {
+      btn.disabled = false;
+      btn.textContent = "🖨️ CETAK JADWAL KOLEKTIF (KLS 1-6)";
+      
+      if (!res.status || res.data.length === 0) {
+        alert("Gagal memuat data jadwal atau data masih kosong.");
+        return;
+      }
+      
+      prosesDanCetak(res.data);
+    })
+    .catch(err => {
+      alert("Koneksi gagal saat mengambil data cetak.");
+      btn.disabled = false;
+      btn.textContent = "🖨️ CETAK JADWAL KOLEKTIF (KLS 1-6)";
+    });
+}
+
+function prosesDanCetak(data) {
+  const listHari = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+  const listKelas = ["1", "2", "3", "4", "5A", "5B", "6"];
+  let htmlStruktur = "";
+
+  // 1. Kelompokkan data berdasarkan Hari -> Jam Mulai -> Kelas
+  listHari.forEach(hari => {
+    // Filter data khusus hari ini
+    let dataHariIni = data.filter(d => d.hari.toLowerCase() === hari.toLowerCase());
+    if (dataHariIni.length === 0) return;
+
+    // Dapatkan list jam unik pada hari tersebut, urutkan berdasarkan waktu murni
+    let listJam = [...new Set(dataHariIni.map(d => `${d.mulai}-${d.selesai}`))];
+    listJam.sort((a, b) => {
+      let jamA = parseInt(a.split("-")[0].replace(":", ""));
+      let jamB = parseInt(b.split("-")[0].replace(":", ""));
+      return jamA - jamB;
+    });
+
+    // Buat Tabel per Hari
+    htmlStruktur += `
+      <div class="halaman-hari">
+        <div class="nama-hari-judul">HARI: ${hari.toUpperCase()}</div>
+        <table class="tabel-cetak-kolektif">
+          <thead>
+            <tr>
+              <th rowspan="2" style="width: 5%;">JP</th>
+              <th rowspan="2" style="width: 15%;">WAKTU</th>
+              <th colspan="${listKelas.length}">KELAS</th>
+            </tr>
+            <tr>
+              ${listKelas.map(k => `<th style="width: 11%;">${k}</th>`).join('')}
+            </tr>
+          </thead>
+          <tbody>
+    `;
+
+    let nomorJP = 1;
+    listJam.forEach(jamStr => {
+      let [mulai, selesai] = jamStr.split("-");
+      
+      // Deteksi apakah ini jam istirahat berdasarkan data baris pertama kelas 1
+      let sampelData = dataHariIni.find(d => d.mulai === mulai && d.selesai === selesai);
+      let isIstirahat = sampelData && sampelData.mapel.toUpperCase() === "ISTIRAHAT";
+
+      htmlStruktur += `<tr>`;
+      if (isIstirahat) {
+        htmlStruktur += `
+          <td class="text-tengah abu-bg">-</td>
+          <td class="text-tengah abu-bg"><strong>${mulai} - ${selesai}</strong></td>
+          <td colspan="${listKelas.length}" class="text-tengah istirahat-cell">☕ I S T I R A H A T</td>
+        `;
+      } else {
+        htmlStruktur += `
+          <td class="text-tengah fw-bold">${nomorJP++}</td>
+          <td class="text-tengah">${mulai} - ${selesai}</td>
+        `;
+        
+        // Isi mapel per kelas
+        listKelas.forEach(kelas => {
+          let cocok = dataHariIni.find(d => d.mulai === mulai && d.selesai === selesai && d.kelas === kelas);
+          if (cocok) {
+            let mapel = cocok.mapel.toUpperCase();
+            let guru = cocok.guru !== "-" ? cocok.guru : "";
+            
+            if (mapel === "KOSONG") {
+              htmlStruktur += `<td class="text-tengah teks-kosong">-</td>`;
+            } else if (mapel === "UPACARA" || mapel === "PEMBIASAAN") {
+              htmlStruktur += `<td class="text-tengah kegiatan-wajib"><strong>${mapel}</strong></td>`;
+            } else {
+              htmlStruktur += `
+                <td class="text-tengah cell-isi">
+                  <div class="mapel-text">${mapel}</div>
+                  <div class="guru-text">${guru}</div>
+                </td>
+              `;
+            }
+          } else {
+            htmlStruktur += `<td class="text-tengah abu-bg"></td>`; // Jika kelas 1/2 sudah pulang duluan
+          }
+        });
+      }
+      htmlStruktur += `</tr>`;
+    });
+
+    htmlStruktur += `
+          </tbody>
+        </table>
+      </div>
+    `;
+  });
+
+  // 2. Kirim HTML terstruktur dan CSS Terisolasi ke Jendela Cetak Baru Browser
+  const infoTemplate = document.getElementById("templateCetakSistem").innerHTML;
+  const jendelaCetak = window.open("", "_blank", "width=1100,height=700");
+  
+  jendelaCetak.document.write(`
+    <html>
+    <head>
+      <title>Cetak Jadwal Pelajaran Kolektif</title>
+      <style>
+        /* CSS Terisolasi Menggunakan Namespace Khusus */
+        .cetak-jadwal-container {
+          font-family: 'Arial', sans-serif;
+          color: #333;
+          padding: 10px;
+          background: #fff;
+        }
+        .cetak-header {
+          text-align: center;
+          margin-bottom: 20px;
+          border-bottom: 3px double #000;
+          padding-bottom: 5px;
+        }
+        .cetak-header h2 { margin: 0; font-size: 20px; letter-spacing: 1px; }
+        .cetak-header h3 { margin: 5px 0 0 0; font-size: 14px; font-weight: normal; }
+        
+        .nama-hari-judul {
+          font-size: 14px;
+          font-weight: bold;
+          margin-bottom: 5px;
+          background: #333;
+          color: #fff;
+          padding: 4px 10px;
+          display: inline-block;
+          border-radius: 3px;
+        }
+        
+        .tabel-cetak-kolektif {
+          width: 100%;
+          border-collapse: collapse;
+          margin-bottom: 30px;
+          font-size: 11px;
+        }
+        .tabel-cetak-kolektif th, .tabel-cetak-kolektif td {
+          border: 1px solid #000;
+          padding: 5px 3px;
+          vertical-align: middle;
+        }
+        .tabel-cetak-kolektif th {
+          background-color: #f2f2f2 !important;
+          font-weight: bold;
+          text-align: center;
+          text-transform: uppercase;
+        }
+        .text-tengah { text-align: center; }
+        .fw-bold { font-weight: bold; }
+        .abu-bg { background-color: #f9f9f9; }
+        .teks-kosong { color: #ccc; }
+        
+        .istirahat-cell {
+          background-color: #e9ecef !important;
+          font-weight: bold;
+          letter-spacing: 3px;
+          font-size: 11px;
+        }
+        .kegiatan-wajib {
+          background-color: #fff3cd !important;
+          font-size: 10px;
+        }
+        .cell-isi { line-height: 1.2; }
+        .mapel-text { font-weight: bold; color: #000; }
+        .guru-text { font-size: 9.5px; color: #444; margin-top: 2px; font-style: italic;}
+        
+        .cetak-footer {
+          margin-top: 30px;
+          float: right;
+          text-align: center;
+          width: 250px;
+          font-size: 12px;
+        }
+        .cetak-footer .jabatan { margin-bottom: 60px; }
+        .cetak-footer .nama-pejabat { font-weight: bold; text-decoration: underline; }
+        
+        /* ATURAN KHUSUS ENGINE PRINTER BROWSER */
+        @media print {
+          body { margin: 0; padding: 0; background: #fff; }
+          .cetak-jadwal-container { padding: 0; }
+          .halaman-hari {
+            page-break-after: always; /* 1 Hari dipaksa pas masuk 1 lembar A4 */
+          }
+          .halaman-hari:last-child { page-break-after: avoid; }
+          /* Memastikan printer menarik background warna css */
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="cetak-jadwal-container">
+        <div class="cetak-header">
+          <h2>JADWAL PELAJARAN KOLEKTIF KELAS 1 - 6</h2>
+          <h3>TAHUN AJARAN 2026/2027</h3>
+        </div>
+        
+        <div id="areaTabelPerHari">${htmlStruktur}</div>
+        
+        <div class="cetak-footer">
+          <div>Jakarta, ${new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}</div>
+          <div class="jabatan">Kepala Sekolah,</div>
+          <div class="nama-pejabat">( ___________________________ )</div>
+        </div>
+      </div>
+      <script>
+        // Jalankan eksekusi print otomatis saat jendela terbuka penuh
+        window.onload = function() {
+          window.print();
+          setTimeout(function() { window.close(); }, 500);
+        };
+      <\/script>
+    </body>
+    </html>
+  `);
+  jendelaCetak.document.close();
+}
