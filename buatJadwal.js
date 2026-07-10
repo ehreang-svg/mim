@@ -473,9 +473,9 @@ function prosesDanCetak(data) {
       </div>
 
       <div class="cetak-footer">
-        <div>Jakarta, ${tanggalHariIni}</div>
+        <div>Cirebon, ${tanggalHariIni}</div>
         <div class="jabatan">Kepala Sekolah,</div>
-        <div>( Mudasir, S.Pd )</div>
+        <div>( Mudasir, M.Pd )</div>
       </div>
       
       <script>
