@@ -275,15 +275,15 @@ function bukaJendelaCetak() {
 function prosesDanCetak(data) {
   const listHari = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
   const listKelas = ["1", "2", "3", "4", "5A", "5B", "6"];
-  let htmlBaris = "";
+  let htmlBarisJadwal = "";
 
   const maps = databaseMaps || { mapGuru: {}, mapMapel: {} };
 
+  // ================= 1. GENERATE BARIS JADWAL (KIRI) =================
   listHari.forEach(hari => {
     let dataHariIni = data.filter(d => d.hari && d.hari.toLowerCase() === hari.toLowerCase());
     if (dataHariIni.length === 0) return;
 
-    // Dapatkan list jam unik pada hari tersebut
     let listJam = [...new Set(dataHariIni.map(d => `${d.mulai}-${d.selesai}`))];
     listJam.sort((a, b) => {
       let jamA = parseInt(a.split("-")[0].replace(":", ""), 10);
@@ -298,25 +298,23 @@ function prosesDanCetak(data) {
       let sampelData = dataHariIni.find(d => d.mulai === mulai && d.selesai === selesai);
       let isIstirahat = sampelData && sampelData.mapel.toUpperCase() === "ISTIRAHAT";
 
-      htmlBaris += `<tr>`;
+      htmlBarisJadwal += `<tr>`;
       
-      // KOLOM HARI: Hanya muncul di baris pertama setiap hari menggunakan rowspan
       if (index === 0) {
-        htmlBaris += `<td rowspan="${totalJamHariIni}" class="text-tengah fw-bold nama-hari-kolom">${hari.toUpperCase()}</td>`;
+        htmlBarisJadwal += `<td rowspan="${totalJamHariIni}" class="text-tengah fw-bold nama-hari-kolom">${hari.toUpperCase()}</td>`;
       }
 
       if (isIstirahat) {
-        htmlBaris += `
+        htmlBarisJadwal += `
           <td class="text-tengah abu-bg">-</td>
           <td class="text-tengah abu-bg" style="font-size: 8px;">${mulai}</td>
           <td colspan="${listKelas.length}" class="text-tengah istirahat-cell">☕ ISTIRAHAT</td>
         `;
       } else {
-        // Tentukan nomor JP (Bypass angka jika jam ke-1 adalah upacara/pembiasaan atau setelah istirahat)
         let isKegiatanAwal = sampelData && (sampelData.mapel.toUpperCase() === "UPACARA" || sampelData.mapel.toUpperCase() === "PEMBIASAAN");
         let nomorJP = isKegiatanAwal ? "-" : (index > 4 ? index : index + 1); 
 
-        htmlBaris += `
+        htmlBarisJadwal += `
           <td class="text-tengah fw-bold">${nomorJP}</td>
           <td class="text-tengah text-muted" style="font-size: 8.5px;">${mulai}</td>
         `;
@@ -327,26 +325,42 @@ function prosesDanCetak(data) {
             let mapel = cocok.mapel.toUpperCase();
             
             if (mapel === "KOSONG") {
-              htmlBaris += `<td class="text-tengah teks-kosong">-</td>`;
+              htmlBarisJadwal += `<td class="text-tengah teks-kosong">-</td>`;
             } else if (mapel === "UPACARA" || mapel === "PEMBIASAAN") {
-              htmlBaris += `<td class="text-tengah kegiatan-wajib">${mapel.substring(0, 3)}</td>`;
+              htmlBarisJadwal += `<td class="text-tengah kegiatan-wajib">${mapel.substring(0, 3)}</td>`;
             } else {
               const kGuru = maps.mapGuru[cocok.guru.toLowerCase()] || "";
               const kMapel = maps.mapMapel[cocok.mapel.toLowerCase()] || "";
               const kodeTampil = kGuru && kMapel ? (kGuru + kMapel) : "-";
 
-              htmlBaris += `<td class="text-tengah fw-bold cell-kode">${kodeTampil}</td>`;
+              htmlBarisJadwal += `<td class="text-tengah fw-bold cell-kode">${kodeTampil}</td>`;
             }
           } else {
-            htmlBaris += `<td class="text-tengah abu-bg"></td>`;
+            htmlBarisJadwal += `<td class="text-tengah abu-bg"></td>`;
           }
         });
       }
-      htmlBaris += `</tr>`;
+      htmlBarisJadwal += `</tr>`;
     });
   });
 
-  const jendelaCetak = window.open("", "_blank", "width=1100,height=750");
+  // ================= 2. GENERATE LEGENDA KODE (KANAN) =================
+  let htmlLegendaGuru = "";
+  Object.keys(maps.mapGuru).forEach(namaKey => {
+    const kode = maps.mapGuru[namaKey];
+    const namaFormat = namaKey.replace(/\b\w/g, c => c.toUpperCase());
+    htmlLegendaGuru += `<tr><td class="text-tengah fw-bold">${kode}</td><td>${namaFormat}</td></tr>`;
+  });
+
+  let htmlLegendaMapel = "";
+  Object.keys(maps.mapMapel).forEach(mapelKey => {
+    const kode = maps.mapMapel[mapelKey];
+    htmlLegendaMapel += `<tr><td class="text-tengah fw-bold">${kode}</td><td>${mapelKey.toUpperCase()}</td></tr>`;
+  });
+
+
+  // ================= 3. RENDER KE JENDELA CETAK BARU =================
+  const jendelaCetak = window.open("", "_blank", "width=1200,height=750");
   if (!jendelaCetak) {
     alert("Pop-up diblokir browser! Harap izinkan pop-up.");
     return;
@@ -355,31 +369,41 @@ function prosesDanCetak(data) {
   jendelaCetak.document.write(`
     <html>
     <head>
-      <title>Cetak Jadwal 1 Halaman F4</title>
+      <title>Cetak Jadwal Kolektif + Legenda</title>
       <style>
-        /* UKURAN STANDAR KERTAS F4 / FOLIO (21.59cm x 33.02cm) */
-        @page { size: 21.59cm 33.02cm; margin: 1cm 0.6cm 0.6cm 0.6cm; }
+        @page { size: 21.59cm 33.02cm; margin: 0.8cm 0.5cm 0.5cm 0.5cm; }
         body { font-family: Arial, sans-serif; color: #000; padding: 0; margin: 0; background: #fff; line-height: 1.1; }
         
-        .cetak-header { text-align: center; margin-bottom: 12px; }
+        .cetak-header { text-align: center; margin-bottom: 10px; }
         .cetak-header h2 { margin: 0; font-size: 14px; font-weight: bold; letter-spacing: 0.5px; }
         .cetak-header h3 { margin: 2px 0 0 0; font-size: 11px; color: #444; }
         
-        .tabel-cetak-kolektif { width: 100%; border-collapse: collapse; font-size: 9px; }
-        .tabel-cetak-kolektif th, .tabel-cetak-kolektif td { border: 1px solid #000; padding: 3px 2px; vertical-align: middle; }
-        .tabel-cetak-kolektif th { background-color: #dfdfdf !important; font-weight: bold; text-align: center; font-size: 9px; }
+        /* Layout Grid Samping-Sampingan */
+        .kontainer-utama { display: flex; gap: 10px; align-items: flex-start; }
+        .area-jadwal { width: 78%; }
+        .area-legenda { width: 22%; font-size: 8px; }
         
-        .nama-hari-kolom { background-color: #f5f5f5 !important; font-size: 10px; letter-spacing: 0.5px; width: 7%; }
+        /* Gaya Tabel Umum */
+        table { border-collapse: collapse; width: 100%; font-size: 9px; }
+        th, td { border: 1px solid #000; padding: 3px 2px; vertical-align: middle; }
+        th { background-color: #dfdfdf !important; font-weight: bold; text-align: center; }
+        
+        /* Tabel Jadwal Khusus */
+        .nama-hari-kolom { background-color: #f5f5f5 !important; font-size: 10px; width: 7%; }
         .text-tengah { text-align: center; }
         .fw-bold { font-weight: bold; }
         .abu-bg { background-color: #fafafa; }
         .teks-kosong { color: #bbb; }
         .cell-kode { font-size: 10.5px; color: #000; }
-        .istirahat-cell { background-color: #eeeeee !important; font-size: 8px; font-weight: bold; letter-spacing: 2px; color: #444; }
+        .istirahat-cell { background-color: #eeeeee !important; font-size: 8px; font-weight: bold; letter-spacing: 1px; color: #444; }
         .kegiatan-wajib { background-color: #fff3cd !important; font-size: 8px; font-weight: bold; }
         
+        /* Tabel Legenda Khusus */
+        .judul-legenda { font-weight: bold; background: #333; color: #fff; text-align: center; padding: 2px 0; margin-top: 5px; margin-bottom: 2px; font-size: 8.5px; }
+        .tabel-legenda td { padding: 2px; font-size: 8px; }
+        
         .cetak-footer { margin-top: 15px; float: right; text-align: center; width: 180px; font-size: 10px; }
-        .cetak-footer .jabatan { margin-bottom: 40px; }
+        .cetak-footer .jabatan { margin-bottom: 45px; }
         
         @media print {
           body { margin: 0; padding: 0; }
@@ -389,29 +413,62 @@ function prosesDanCetak(data) {
     </head>
     <body>
       <div class="cetak-header">
-        <h2>JADWAL PELAJARAN KOLEKTIF KELAS 1 - 6</h2>
-        <h3>TAHUN AJARAN 2026/2027</h3>
+        <h2>JADWAL PELAJARAN MIS MIFTAHUL MUBTADIIN</h2>
+        <h3>SEMESTER GANJIL TAHUN AJARAN 2026/2027</h3>
       </div>
       
-      <table class="tabel-cetak-kolektif">
-        <thead>
-          <tr>
-            <th>HARI</th>
-            <th style="width: 4%;">JP</th>
-            <th style="width: 9%;">WAKTU</th>
-            ${listKelas.map(k => `<th style="width: 11%;">KLS ${k}</th>`).join('')}
-          </tr>
-        </thead>
-        <tbody>
-          ${htmlBaris}
-        </tbody>
-      </table>
+      <div class="kontainer-utama">
+        <div class="area-jadwal">
+          <table>
+            <thead>
+              <tr>
+                <th>HARI</th>
+                <th style="width: 4%;">JP</th>
+                <th style="width: 10%;">WAKTU</th>
+                ${listKelas.map(k => `<th style="width: 11%;">KLS ${k}</th>`).join('')}
+              </tr>
+            </thead>
+            <tbody>
+              ${htmlBarisJadwal}
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="area-legenda">
+          <div class="judul-legenda">KODE GURU</div>
+          <table class="tabel-legenda">
+            <thead>
+              <tr>
+                <th style="width: 25%;">KODE</th>
+                <th>NAMA GURU</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${htmlLegendaGuru}
+            </tbody>
+          </table>
+          
+          <div class="judul-legenda">KODE MAPEL</div>
+          <table class="tabel-legenda">
+            <thead>
+              <tr>
+                <th style="width: 25%;">KODE</th>
+                <th>MATA PELAJARAN</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${htmlLegendaMapel}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       <div class="cetak-footer">
         <div>Jakarta, ${new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}</div>
-        <div class="jabatan">Kepala Sekolah,</div>
-        <div>( ___________________________ )</div>
+        <div class="jabatan">Kepala Madrasah,</div>
+        <div>( Mudasir, M.Pd )</div>
       </div>
+      
       <script>
         window.onload = function() {
           window.print();
