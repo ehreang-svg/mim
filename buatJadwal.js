@@ -489,3 +489,134 @@ function prosesDanCetak(data) {
   `);
   jendelaCetak.document.close();
 }
+async function cetakJpSeluruhGuru() {
+  try {
+    // Memanggil API Backend dengan action getRekapJpGuru
+    // Pastikan variabel JADWAL_API atau API_URL mengarah ke Web App URL Anda yang benar
+    const urlApi = (typeof JADWAL_API !== "undefined") ? JADWAL_API : API_URL;
+    
+    const res = await fetch(`${urlApi}?action=getRekapJpGuru`);
+    const result = await res.json();
+    
+    if (!result.status) {
+      alert("Gagal memuat data rekap JP: " + result.message);
+      return;
+    }
+    
+    const dataRekap = result.data;
+    if (dataRekap.length === 0) {
+      alert("Belum ada data Jam Pelajaran guru yang tercatat.");
+      return;
+    }
+    
+    let htmlBaris = "";
+    let totalSemuaJp = 0;
+    
+    // Susun baris tabel data guru
+    dataRekap.forEach((guru, index) => {
+      totalSemuaJp += guru.totalJp;
+      // Gabungkan detail mata pelajaran menjadi satu string dipisahkan koma
+      const rincianTugas = guru.detailMapel.join(", ");
+      
+      htmlBaris += `
+        <tr>
+          <td class="text-tengah">${index + 1}</td>
+          <td class="text-tengah fw-bold" style="font-size: 11px;">${guru.kode}</td>
+          <td>${guru.nama}</td>
+          <td>${rincianTugas}</td>
+          <td class="text-tengah fw-bold" style="font-size: 12px; background-color: #f8fafc;">${guru.totalJp} JP</td>
+        </tr>
+      `;
+    });
+    
+    // Buka jendela pratinjau baru
+    const jendelaCetak = window.open("", "_blank", "width=900,height=700");
+    if (!jendelaCetak) {
+      alert("Pop-up diblokir browser! Harap izinkan pop-up terlebih dahulu.");
+      return;
+    }
+    
+    const tanggalHariIni = new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'});
+    
+    jendelaCetak.document.write(`
+      <html>
+      <head>
+        <title>Rekapitulasi Jam Pelajaran Guru</title>
+        <style>
+          @page { size: A4 portrait; margin: 1.5cm 1cm 1cm 1cm; }
+          body { font-family: Arial, sans-serif; color: #000; padding: 15px; margin: 0; background: #fff; line-height: 1.3; }
+          
+          /* Navigasi Cetak Atas */
+          .bar-tombol { background: #f1f5f9; padding: 12px; margin-bottom: 20px; border-radius: 6px; display: flex; gap: 10px; border: 1px solid #cbd5e1; }
+          .btn-aksi { padding: 8px 16px; font-size: 12px; font-weight: bold; cursor: pointer; border-radius: 4px; border: 1px solid #94a3b8; }
+          .btn-cetak { background-color: #059669; color: white; border: none; }
+          .btn-tutup { background-color: #ef4444; color: white; border: none; }
+  
+          .header-laporan { text-align: center; margin-bottom: 25px; border-bottom: 2px solid #000; padding-bottom: 8px; }
+          .header-laporan h2 { margin: 0; font-size: 16px; font-weight: bold; text-transform: uppercase; }
+          .header-laporan h3 { margin: 4px 0 0 0; font-size: 12px; color: #333; font-weight: normal; }
+          
+          table { border-collapse: collapse; width: 100%; font-size: 11px; margin-top: 10px; }
+          th, td { border: 1px solid #000; padding: 6px 8px; vertical-align: middle; }
+          th { background-color: #e2e8f0 !important; font-weight: bold; text-align: center; font-size: 11px; }
+          
+          .text-tengah { text-align: center; }
+          .text-kanan { text-align: right; }
+          .fw-bold { font-weight: bold; }
+          
+          .footer-tanda-tangan { margin-top: 40px; float: right; text-align: center; width: 220px; font-size: 12px; }
+          .footer-tanda-tangan .jabatan { margin-bottom: 55px; }
+          
+          @media print {
+            .bar-tombol { display: none !important; }
+            body { margin: 0; padding: 0; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="bar-tombol">
+          <button class="btn-aksi btn-cetak" onclick="window.print()">🖨️ Cetak / Simpan ke PDF</button>
+          <button class="btn-aksi btn-tutup" onclick="window.close()">❌ Tutup Pratinjau</button>
+        </div>
+  
+        <div class="header-laporan">
+          <h2>REKAPITULASI BEBAN JAM PELAJARAN GURU</h2>
+          <h2>MIS MIFTAHUL MUBTADIIN</h2>
+          <h3>Semester Ganjil - Tahun Ajaran 2026/2027</h3>
+        </div>
+        
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 5%;">NO</th>
+              <th style="width: 12%;">KODE GURU</th>
+              <th style="width: 28%;">NAMA LENGKAP GURU</th>
+              <th style="width: 43%;">RINCIAN TUGAS MENGAJAR</th>
+              <th style="width: 12%;">TOTAL JP</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${htmlBaris}
+            <tr style="background-color: #f1f5f9; font-weight: bold;">
+              <td colspan="4" class="text-kanan">TOTAL KESELURUHAN JP MINGGUAN:</td>
+              <td class="text-tengah" style="font-size: 13px;">${totalSemuaJp} JP</td>
+            </tr>
+          </tbody>
+        </table>
+  
+        <div class="footer-tanda-tangan">
+          <div>Cirebon, ${tanggalHariIni}</div>
+          <div class="jabatan">Kepala Madrasah,</div>
+          <div class="fw-bold">( Mudasir, M.Pd )</div>
+        </div>
+      </body>
+      </html>
+    `);
+    jendelaCetak.document.close();
+    
+  } catch (error) {
+    console.error(error);
+    alert("Terjadi kesalahan sistem saat memproses cetak JP Guru.");
+  }
+}
