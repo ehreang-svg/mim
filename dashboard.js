@@ -239,7 +239,7 @@ async function handleSubmenu(type, value, title) {
 function canShowMenu(menuName, status){
     menuName = menuName.toLowerCase(); status = status.toLowerCase();
     if(status === "admin"||status==="kepala sekolah") return true;
-    if(status === "guru"|| status === "wali kelas") return ["absensi","materi","latihan"].includes(menuName);
+    if(status === "guru"|| status === "wali kelas") return ["absensi","modul","latihan"].includes(menuName);
     if(status === "siswa") return ["modul","latihan","absensi"].includes(menuName);
     return false;
 }
