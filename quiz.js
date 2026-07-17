@@ -1,21 +1,31 @@
 let mataPelajaranTerpilih = ""; // Menyimpan mapel secara global saat ujian berlangsung
+
+// Jalankan loadKelas saat halaman pertama dimuat jika element sudah ada di DOM
 document.addEventListener("DOMContentLoaded", function() {
     loadKelas();
 });
 
-// 1. Fungsi mengambil daftar kelas dari spreadsheet
+// Contoh fungsi navigasi perpindahan halaman di aplikasi Anda
+function bukaHalamanQuiz() {
+    // 1. Munculkan halaman quiz dengan menghapus class hidden
+    const halamanQuiz = document.getElementById("loginQuiz");
+    if(halamanQuiz) {
+        halamanQuiz.classList.remove("hidden");
+    }
+    
+    // 2. PANGGIL kembali untuk memastikan data kelas segar saat halaman dibuka
+    loadKelas(); 
+}
+
 // 1. Fungsi mengambil daftar kelas dari spreadsheet
 async function loadKelas() {
     try {
-        // Ambil element select
         const selectKelas = document.getElementById("selectKelas");
         if (!selectKelas) return; // Pengaman jika element belum siap di DOM
 
-        // Tambahkan opsi redirect agar fetch tidak mentok di sistem internal google
         const res = await fetch(Quiz_API + "?aksi=getKelas", { method: "GET", redirect: "follow" });
         const data = await res.json();
         
-        // Kosongkan dan isi opsi kelas
         selectKelas.innerHTML = '<option value="">-- Pilih Kelas --</option>';
         
         if (data.kelas && data.kelas.length > 0) {
@@ -30,28 +40,26 @@ async function loadKelas() {
         console.error("Gagal memuat data kelas:", err);
     }
 }
-// Contoh fungsi navigasi perpindahan halaman di aplikasi Anda
-function bukaHalamanQuiz() {
-    // 1. Munculkan halaman quiz dengan menghapus class hidden
-    const halamanQuiz = document.getElementById("loginQuiz");
-    halamanQuiz.classList.remove("hidden");
-    
-    // 2. PANGGIL fungsi memuat kelas DI SINI saat halaman aktif
-    loadKelas(); 
-}
+
+// ==========================================
+// FIX: Menambahkan tutup kurung kurawal yang hilang di sini
+// ==========================================
 function AksiPilihKelas() {
     loadSiswa();
     loadPelajaran();
-}
+} 
 
 // 2. Ambil daftar siswa berdasarkan kelas
 async function loadSiswa() {
     const kelas = document.getElementById("selectKelas").value;
     const selectSiswa = document.getElementById("selectSiswa");
-    if (!kelas) { selectSiswa.innerHTML = '<option value="">-- Pilih Nama --</option>'; selectSiswa.disabled = true; return; }
+    if (!kelas) { 
+        selectSiswa.innerHTML = '<option value="">-- Pilih Nama --</option>'; 
+        selectSiswa.disabled = true; 
+        return; 
+    }
     
     try {
-        // TAMBAHKAN BERIKUT: opsi redirect follow
         const res = await fetch(Quiz_API + "?aksi=getSiswaByKelas&kelas=" + encodeURIComponent(kelas), { method: "GET", redirect: "follow" });
         const data = await res.json();
         selectSiswa.innerHTML = '<option value="">-- Pilih Nama --</option>';
@@ -62,17 +70,22 @@ async function loadSiswa() {
             selectSiswa.appendChild(opt);
         });
         selectSiswa.disabled = false;
-    } catch (err) { console.error(err); }
+    } catch (err) { 
+        console.error("Gagal memuat siswa:", err); 
+    }
 }
 
 // 3. Ambil mata pelajaran yang tersedia
 async function loadPelajaran() {
     const kelas = document.getElementById("selectKelas").value;
     const selectPelajaran = document.getElementById("selectPelajaran");
-    if (!kelas) { selectPelajaran.innerHTML = '<option value="">-- Pilih Pelajaran --</option>'; selectPelajaran.disabled = true; return; }
+    if (!kelas) { 
+        selectPelajaran.innerHTML = '<option value="">-- Pilih Pelajaran --</option>'; 
+        selectPelajaran.disabled = true; 
+        return; 
+    }
 
     try {
-        // TAMBAHKAN BERIKUT: opsi redirect follow
         const res = await fetch(Quiz_API + "?aksi=getPelajaranByKelas&kelas=" + encodeURIComponent(kelas), { method: "GET", redirect: "follow" });
         const data = await res.json();
         selectPelajaran.innerHTML = '<option value="">-- Pilih Pelajaran --</option>';
@@ -83,9 +96,12 @@ async function loadPelajaran() {
             selectPelajaran.appendChild(opt);
         });
         selectPelajaran.disabled = false;
-    } catch (err) { console.error(err); }
+    } catch (err) { 
+        console.error("Gagal memuat pelajaran:", err); 
+    }
 }
-// 3. Proses Login Utama
+
+// 4. Proses Login Utama
 async function mulai() {
     const selectSiswa = document.getElementById("selectSiswa");
     const selectPelajaran = document.getElementById("selectPelajaran");
@@ -106,7 +122,7 @@ async function mulai() {
     document.getElementById("siswa").innerHTML = "<p>Memuat lembar soal kuis...</p>";
 
     try {
-        const res = await fetch(Quiz_API + `?aksi=loginQuiz&nisn=${passwordNisn}&pelajaran=${encodeURIComponent(mataPelajaranTerpilih)}`);
+        const res = await fetch(Quiz_API + `?aksi=loginQuiz&nisn=${passwordNisn}&pelajaran=${encodeURIComponent(mataPelajaranTerpilih)}`, { method: "GET", redirect: "follow" });
         const data = await res.json();
         
         if (data.error) { alert(data.error); return; }
@@ -116,7 +132,9 @@ async function mulai() {
         
         tampilSiswaQuiz();
         tampilSoal();
-    } catch (err) { alert("Gagal menyambung ke server."); }
+    } catch (err) { 
+        alert("Gagal menyambung ke server."); 
+    }
 }
 
 function tampilSiswaQuiz(){
@@ -203,7 +221,7 @@ async function koreksi(){
 }
 
 async function simpanSoalBaru(event) {
-    event.preventDefault(); // Mencegah reload halaman saat form disubmit
+    event.preventDefault();
     
     const btnSubmit = document.getElementById("btnSimpanSoal");
     const teksAsliTombol = btnSubmit.innerText;
@@ -211,9 +229,8 @@ async function simpanSoalBaru(event) {
     btnSubmit.disabled = true;
     btnSubmit.innerText = "⏳ Sedang Menyimpan...";
 
-    // Ambil semua value dari form input
     const payload = {
-        tipe: "tambahSoal", // Penanda instruksi untuk sisi backend Google Apps Script
+        tipe: "tambahSoal",
         kelas: document.getElementById("inputKelas").value,
         pelajaran: document.getElementById("inputPelajaran").value,
         soal: document.getElementById("inputIsiSoal").value.trim(),
@@ -226,7 +243,6 @@ async function simpanSoalBaru(event) {
     };
 
     try {
-        // Mengirim data ke Google Apps Script menggunakan POST
         const response = await fetch(Quiz_API, {
             method: "POST",
             body: JSON.stringify(payload)
@@ -236,7 +252,7 @@ async function simpanSoalBaru(event) {
 
         if (hasil === "OK_SOAL_TERSMPAN") {
             alert("🎉 Soal berhasil disimpan ke database!");
-            document.getElementById("formInputSoal").reset(); // Kosongkan form kembali
+            document.getElementById("formInputSoal").reset();
         } else {
             alert("⚠️ Gagal menyimpan soal: " + hasil);
         }
@@ -244,7 +260,6 @@ async function simpanSoalBaru(event) {
         console.error(err);
         alert("❌ Terjadi kesalahan jaringan / sistem gagal terhubung.");
     } finally {
-        // Kembalikan status tombol seperti semula
         btnSubmit.disabled = false;
         btnSubmit.innerText = teksAsliTombol;
     }
