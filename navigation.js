@@ -4,6 +4,7 @@
 
 const pages = [
     "splash",
+   "homePage",
     "loginPage",
     "dashboard",
     "editAkun",
