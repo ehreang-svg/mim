@@ -3,7 +3,18 @@ async function loadPages() {
     
     // 1. Ambil file HTML eksternal
     const res = await fetch("page.html");
-    app.innerHTML = await res.text();
+    app.innerHTML = await res.text(); // <-- HTML disuntikkan ke aplikasi di sini
+    
+    // ==========================================
+    // DI SINI TEMPAT MELETAKKAN KODE TOMBOL LOGIN:
+    // ==========================================
+    const loginBtn = document.getElementById("loginBtn");
+    if (loginBtn) {
+        loginBtn.addEventListener("click", () => {
+            nav("loginPage");
+        });
+    }
+    // ==========================================
     
     // 2. Tampilkan Splash Screen terlebih dahulu
     show("splash");
@@ -11,14 +22,12 @@ async function loadPages() {
     // 3. Ambil data user dari penyimpanan lokal
     const user = JSON.parse(localStorage.getItem("user"));
 
-    // 4. Berikan jeda waktu Splash Screen (misal: 2.5 detik agar terlihat smooth)
+    // 4. Berikan jeda waktu Splash Screen
     setTimeout(() => {
-    if (typeof cekLogin === "function") {
-        cekLogin();
-    } else {
-        nav("loginPage");
-    }
-}, 2500);
+        if (user && typeof cekLogin === "function") {
+            cekLogin();
+        } else {
+            nav("homePage"); // Diarahkan ke homePage setelah splash
+        }
+    }, 2500);
 }
-
-window.onload = loadPages;
