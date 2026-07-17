@@ -16,7 +16,7 @@ async function loadPages() {
 
         // 3. DAFTAR MODUL YANG AKAN DIMUAT SECARA AMAN
         const modules = [
-            "navigation.js", // File ini memuat fungsi show() dan nav()
+            "navigation.js", 
             "auth.js",
             "dashboard.js",
             "tabungan.js",
@@ -24,7 +24,7 @@ async function loadPages() {
             "quiz.js",
             "kbm.js",
             "chat.js",
-            "home.js",
+            "home.js", // Berisi fungsi initHomeSlider
             "buatJadwal.js"
         ];
 
@@ -33,7 +33,7 @@ async function loadPages() {
             await new Promise((resolve) => {
                 const script = document.createElement("script");
                 script.src = src;
-                script.async = false; // Menjaga urutan eksekusi tetap sekuensial
+                script.async = false;
                 script.onload = () => resolve();
                 script.onerror = () => {
                     console.warn(`Gagal memuat modul: ${src}. Melanjutkan alur...`);
@@ -44,8 +44,13 @@ async function loadPages() {
         }
         
         // ========================================================
-        // SEKARANG SELESAI DIMUAT, BARU FUNGSI show() & nav() BISA DIPANGGIL
+        // SEKARANG HTML DAN JS SUDAH SIAP, INISIALISASI SLIDER!
         // ========================================================
+        if (typeof initHomeSlider === "function") {
+            initHomeSlider();
+        } else {
+            console.warn("Fungsi initHomeSlider() belum terdefinisi.");
+        }
         
         // 4. Tampilkan Splash Screen
         if (typeof show === "function") {
