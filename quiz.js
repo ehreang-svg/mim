@@ -19,16 +19,27 @@ function bukaHalamanQuiz() {
 async function loadKelas() {
     try {
         const selectKelas = document.getElementById("selectKelas");
-        if (!selectKelas) return;
+        
+        // Cek 1: Apakah element select ketemu di HTML?
+        if (!selectKelas) {
+            alert("❌ ERROR HTML: Element dropdown dengan ID 'selectKelas' TIDAK DITEMUKAN di halaman ini. Periksa file HTML Anda!");
+            return;
+        }
 
         console.log("Memanggil API Kelas ke:", Quiz_API + "?aksi=getKelas");
         const res = await fetch(Quiz_API + "?aksi=getKelas", { method: "GET", redirect: "follow" });
-        const data = await res.json();
         
-        console.log("Data kelas yang diterima dari server:", data);
+        // Cek 2: Apakah server merespons dengan status 200 OK?
+        if (!res.ok) {
+            alert("❌ ERROR SERVER: API merespons dengan status " + res.status);
+            return;
+        }
+
+        const data = await res.json();
+        alert("🎉 BERHASIL CONNECT! Data dari server: " + JSON.stringify(data));
+        
         selectKelas.innerHTML = '<option value="">-- Pilih Kelas --</option>';
         
-        // Mengantisipasi jika data berupa { kelas: [...] } atau langsung berupa array [...]
         let listKelas = [];
         if (data && data.kelas && Array.isArray(data.kelas)) {
             listKelas = data.kelas;
@@ -43,15 +54,14 @@ async function loadKelas() {
                 opt.textContent = kelas;
                 selectKelas.appendChild(opt);
             });
-            console.log(`Berhasil memuat ${listKelas.length} kelas ke dropdown.`);
         } else {
-            console.warn("Data kelas ditemukan kosong atau format tidak sesuai.");
+            alert("⚠️ WARNING: Sukses terhubung ke Google Sheets, tapi data kelas kosong atau baris/kolom kelas tidak terbaca.");
         }
     } catch (err) {
+        alert("❌ ERROR JARINGAN / JAVASCRIPT: " + err.message);
         console.error("Gagal memuat data kelas:", err);
     }
 }
-
 // Trigger gabungan saat kelas diubah
 function AksiPilihKelas() {
     loadSiswa();
