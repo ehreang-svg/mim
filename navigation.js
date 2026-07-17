@@ -106,8 +106,10 @@ function nav(id) {
         loadKelasMD();
     }
 
-    if (id === "loginQuiz" && typeof mulai === "function") {
-        mulai();
+    // Pemicu halaman Latihan Siswa / Quiz (PERBAIKAN)
+    if (id === "loginQuiz" && typeof bukaHalamanQuiz === "function") {
+        console.log("Membuka lembar kuis dan memuat daftar kelas...");
+        bukaHalamanQuiz();
     }
 
     if (id === "cabutanPage" && typeof loadKelasCabutan === "function") {
