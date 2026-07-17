@@ -26,6 +26,10 @@ async function loadKelas() {
     }
 }
 
+function AksiPilihKelas() {
+    loadSiswa();
+    loadPelajaran();
+
 // 2. Ambil daftar siswa berdasarkan kelas
 async function loadSiswa() {
     const kelas = document.getElementById("selectKelas").value;
