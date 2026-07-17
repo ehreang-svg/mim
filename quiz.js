@@ -30,9 +30,19 @@ async function loadKelas() {
         console.error("Gagal memuat data kelas:", err);
     }
 }
+// Contoh fungsi navigasi perpindahan halaman di aplikasi Anda
+function bukaHalamanQuiz() {
+    // 1. Munculkan halaman quiz dengan menghapus class hidden
+    const halamanQuiz = document.getElementById("loginQuiz");
+    halamanQuiz.classList.remove("hidden");
+    
+    // 2. PANGGIL fungsi memuat kelas DI SINI saat halaman aktif
+    loadKelas(); 
+}
 function AksiPilihKelas() {
     loadSiswa();
     loadPelajaran();
+}
 
 // 2. Ambil daftar siswa berdasarkan kelas
 async function loadSiswa() {
