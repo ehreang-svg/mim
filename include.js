@@ -4,6 +4,12 @@ async function loadPages() {
     // 1. Ambil file HTML eksternal
     const res = await fetch("page.html");
     app.innerHTML = await res.text();
+    const loginBtn = document.getElementById("loginBtn");
+    if (loginBtn) {
+        loginBtn.addEventListener("click", () => {
+            nav("loginPage");
+        });
+    }
     
     // 2. Tampilkan Splash Screen terlebih dahulu
     show("splash");
@@ -16,7 +22,7 @@ async function loadPages() {
     if (typeof cekLogin === "function") {
         cekLogin();
     } else {
-        nav("loginPage");
+        nav("homePage");
     }
 }, 2500);
 }
