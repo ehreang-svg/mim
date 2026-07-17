@@ -13,13 +13,10 @@ async function loadPages() {
                 nav("loginPage");
             });
         }
-        
-        // 3. Tampilkan Splash Screen sesegera mungkin setelah HTML masuk
-        show("splash");
 
-        // 4. DAFTAR MODUL YANG AKAN DIMUAT SECARA AMAN
+        // 3. DAFTAR MODUL YANG AKAN DIMUAT SECARA AMAN
         const modules = [
-            "navigation.js",
+            "navigation.js", // File ini memuat fungsi show() dan nav()
             "auth.js",
             "dashboard.js",
             "tabungan.js",
@@ -30,7 +27,7 @@ async function loadPages() {
             "buatJadwal.js"
         ];
 
-        // Memuat skrip satu per satu agar urutan dependency tidak berantakan
+        // Memuat semua skrip terlebih dahulu secara berurutan
         for (const src of modules) {
             await new Promise((resolve) => {
                 const script = document.createElement("script");
@@ -44,6 +41,17 @@ async function loadPages() {
                 document.body.appendChild(script);
             });
         }
+        
+        // ========================================================
+        // SEKARANG SELESAI DIMUAT, BARU FUNGSI show() & nav() BISA DIPANGGIL
+        // ========================================================
+        
+        // 4. Tampilkan Splash Screen
+        if (typeof show === "function") {
+            show("splash");
+        } else {
+            console.error("Fungsi show() gagal dimuat dari navigation.js");
+        }
 
         // 5. Ambil data user dari penyimpanan lokal
         const user = JSON.parse(localStorage.getItem("user"));
@@ -52,8 +60,10 @@ async function loadPages() {
         setTimeout(() => {
             if (user && typeof cekLogin === "function") {
                 cekLogin();
-            } else {
+            } else if (typeof nav === "function") {
                 nav("homePage");
+            } else {
+                console.error("Fungsi nav() gagal dimuat.");
             }
         }, 2500);
 
