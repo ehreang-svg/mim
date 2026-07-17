@@ -24,6 +24,7 @@ async function loadPages() {
             "quiz.js",
             "kbm.js",
             "chat.js",
+            "home.js"
             "buatJadwal.js"
         ];
 
