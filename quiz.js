@@ -4,39 +4,37 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 // 1. Fungsi mengambil daftar kelas dari spreadsheet
+// 1. Fungsi mengambil daftar kelas dari spreadsheet
 async function loadKelas() {
     try {
-        const res = await fetch(Quiz_API + "?aksi=getKelas");
+        // TAMBAHKAN BERIKUT: opsi redirect follow
+        const res = await fetch(Quiz_API + "?aksi=getKelas", { method: "GET", redirect: "follow" });
         const data = await res.json();
         const selectKelas = document.getElementById("selectKelas");
         
-        // Kosongkan dan isi opsi kelas
         selectKelas.innerHTML = '<option value="">-- Pilih Kelas --</option>';
-        data.kelas.forEach(kelas => {
-            let opt = document.createElement("option");
-            opt.value = kelas;
-            opt.textContent = kelas;
-            selectKelas.appendChild(opt);
-        });
+        if (data.kelas && data.kelas.length > 0) {
+            data.kelas.forEach(kelas => {
+                let opt = document.createElement("option");
+                opt.value = kelas;
+                opt.textContent = kelas;
+                selectKelas.appendChild(opt);
+            });
+        }
     } catch (err) {
         console.error("Gagal memuat data kelas:", err);
     }
 }
 
-// Trigger gabungan saat kelas diubah
-function AksiPilihKelas() {
-    loadSiswa();
-    loadPelajaran();
-}
-
-// 1. Ambil daftar siswa berdasarkan kelas
+// 2. Ambil daftar siswa berdasarkan kelas
 async function loadSiswa() {
     const kelas = document.getElementById("selectKelas").value;
     const selectSiswa = document.getElementById("selectSiswa");
     if (!kelas) { selectSiswa.innerHTML = '<option value="">-- Pilih Nama --</option>'; selectSiswa.disabled = true; return; }
     
     try {
-        const res = await fetch(Quiz_API + "?aksi=getSiswaByKelas&kelas=" + encodeURIComponent(kelas));
+        // TAMBAHKAN BERIKUT: opsi redirect follow
+        const res = await fetch(Quiz_API + "?aksi=getSiswaByKelas&kelas=" + encodeURIComponent(kelas), { method: "GET", redirect: "follow" });
         const data = await res.json();
         selectSiswa.innerHTML = '<option value="">-- Pilih Nama --</option>';
         data.siswa.forEach(s => {
@@ -49,14 +47,15 @@ async function loadSiswa() {
     } catch (err) { console.error(err); }
 }
 
-// 2. Ambil mata pelajaran yang tersedia di kelas tersebut
+// 3. Ambil mata pelajaran yang tersedia
 async function loadPelajaran() {
     const kelas = document.getElementById("selectKelas").value;
     const selectPelajaran = document.getElementById("selectPelajaran");
     if (!kelas) { selectPelajaran.innerHTML = '<option value="">-- Pilih Pelajaran --</option>'; selectPelajaran.disabled = true; return; }
 
     try {
-        const res = await fetch(Quiz_API + "?aksi=getPelajaranByKelas&kelas=" + encodeURIComponent(kelas));
+        // TAMBAHKAN BERIKUT: opsi redirect follow
+        const res = await fetch(Quiz_API + "?aksi=getPelajaranByKelas&kelas=" + encodeURIComponent(kelas), { method: "GET", redirect: "follow" });
         const data = await res.json();
         selectPelajaran.innerHTML = '<option value="">-- Pilih Pelajaran --</option>';
         data.pelajaran.forEach(p => {
@@ -68,7 +67,6 @@ async function loadPelajaran() {
         selectPelajaran.disabled = false;
     } catch (err) { console.error(err); }
 }
-
 // 3. Proses Login Utama
 async function mulai() {
     const selectSiswa = document.getElementById("selectSiswa");
