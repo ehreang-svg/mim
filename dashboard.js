@@ -253,7 +253,7 @@ function canShowSubmenu(menuName, submenuName, status){
         return false;
     }
     if(status === "siswa"){
-        if(menuName === "latihan") return true;
+        if(menuName === "latihan") return submenuName.includes("mulai");
         if(menuName === "modul") return submenuName.includes("mulai belajar");
         if(menuName === "tabungan") return submenuName.includes("lihat tabungan");
         if(menuName === "absensi") return (submenuName.includes("rekap siswa") || submenuName.includes("rekap absensi siswa"));
