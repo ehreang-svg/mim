@@ -3,16 +3,36 @@ async function loadPages() {
     
     // 1. Ambil file HTML eksternal
     const res = await fetch("page.html");
-    app.innerHTML = await res.text(); // <-- HTML disuntikkan ke aplikasi di sini
+    app.innerHTML = await res.text(); // HTML berhasil disuntikkan
     
     // ==========================================
-    // DI SINI TEMPAT MELETAKKAN KODE TOMBOL LOGIN:
+    // TOMBOL LOGIN
     // ==========================================
     const loginBtn = document.getElementById("loginBtn");
     if (loginBtn) {
         loginBtn.addEventListener("click", () => {
             nav("loginPage");
         });
+    }
+    
+    // ==========================================
+    // SOLUSI: PICU ULANG FUNGSI YANG ERROR SETELAH HTML SIAP
+    // ==========================================
+    // Memanggil fungsi pencarian data identitas setelah HTML siap di DOM
+    if (typeof loadDataIdentitas === "function") {
+        try {
+            await loadDataIdentitas();
+        } catch (e) {
+            console.log("Menunda inisialisasi identitas...");
+        }
+    }
+
+    if (typeof loadKelas === "function") {
+        try {
+            loadKelas();
+        } catch (e) {
+            console.log("Menunda inisialisasi kelas...");
+        }
     }
     // ==========================================
     
@@ -27,7 +47,7 @@ async function loadPages() {
         if (user && typeof cekLogin === "function") {
             cekLogin();
         } else {
-            nav("homePage"); // Diarahkan ke homePage setelah splash
+            nav("homePage"); 
         }
     }, 2500);
 }
