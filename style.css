@@ -28,19 +28,10 @@
 
 body {
     font-family: 'Plus Jakarta Sans', 'Poppins', sans-serif;
+    background-color: var(--bg-light);
     color: var(--text-main);
     line-height: 1.6;
     min-height: 100vh;
-    
-    /* Kombinasi warna background light dengan watermark Tut Wuri Handayani di tengah */
-    background-color: var(--bg-light);
-    background-image: 
-        radial-gradient(rgba(248, 250, 252, 0.9) 30%, rgba(248, 250, 252, 0.95) 100%), 
-        url('https://iili.io/CAZVdsj.png');
-    background-repeat: no-repeat;
-    background-position: center 40%; /* Berada di tengah agak ke atas */
-    background-attachment: fixed; /* Tetap di tempat saat di-scroll */
-    background-size: 380px; /* Ukuran lambang */
 }
 
 .hidden, .rbm-hidden { 
@@ -70,7 +61,6 @@ input, select, textarea, .rbm-filter-group select, .rbm-siswa-select, .rbm-siswa
     transition: all 0.2s ease;
 }
 
-/* Penyesuaian spesifik rbm & siswa agar input/select bawaannya tetap proporsional */
 .rbm-filter-group select, .rbm-siswa-select, .rbm-siswa-input {
     padding: 10px 12px;
     border-radius: 8px;
@@ -191,6 +181,279 @@ button:active { transform: translateY(0); }
 .splash h1 { color: white; font-size: 28px; letter-spacing: 1px; margin-bottom: 8px; }
 .splash p { font-size: 14px; opacity: 0.85; }
 .auth-box h2 { margin-bottom: 28px; font-size: 22px; position: relative; }
+
+/* ==========================================================================
+   LANDING PAGE & HERO SECTIONS (Halaman Depan Utama)
+   ========================================================================== */
+.hero-section {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+.hero-left {
+    flex: 1;
+    min-width: 300px;
+    padding-right: 20px;
+}
+.hero-right {
+    flex: 1;
+    min-width: 300px;
+    text-align: right;
+}
+.hero-title {
+    font-size: 36px;
+    font-weight: 800;
+    color: #1a1a1a;
+    line-height: 1.2;
+    margin: 0 0 20px 0;
+}
+.hero-title span {
+    color: #0076b6;
+    display: block;
+}
+.hero-desc {
+    font-size: 15px;
+    color: #666666;
+    line-height: 1.6;
+    margin: 0;
+}
+.hero-image {
+    max-width: 100%;
+    height: auto;
+    max-height: 300px;
+}
+.dots-decor-hero {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 70px;
+    opacity: 0.5;
+}
+
+/* Slider Section Components */
+.slider-section {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+.slider-box {
+    background: linear-gradient(135deg, #0288d1, #29b6f6);
+    border-radius: 16px;
+    width: 100%;
+    padding: 40px;
+    position: relative;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    overflow: hidden;
+}
+.slider-content {
+    width: 65%;
+}
+.slider-graphic {
+    width: 30%;
+    text-align: right;
+}
+.slider-title {
+    font-size: 26px;
+    font-weight: 700;
+    margin: 0 0 15px 0;
+}
+.slider-desc {
+    font-size: 14px;
+    line-height: 1.6;
+    opacity: 0.9;
+    margin: 0;
+}
+.slider-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+    line-height: 36px;
+    font-weight: bold;
+    color: #333;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    z-index: 5;
+}
+.arrow-left { left: 15px; }
+.arrow-right { right: 15px; }
+.slider-dots {
+    text-align: center;
+    margin-top: 15px;
+}
+.s-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #cccccc;
+    margin: 0 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.s-dot.active {
+    background-color: #0288d1;
+    transform: scale(1.25);
+}
+
+/* Info Section Content (Sejahtera & Profesional) */
+.sejahtera-section, .profesional-section {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+.sejahtera-left, .profesional-left {
+    flex: 1;
+    min-width: 300px;
+}
+.sejahtera-right, .profesional-right {
+    flex: 1;
+    min-width: 300px;
+    position: relative;
+}
+.brand-title-box {
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
+}
+.brand-icon-orange {
+    width: 28px;
+    height: 28px;
+    background-color: #ffa726;
+    border-radius: 6px;
+    margin-right: 12px;
+}
+.brand-icon-blue {
+    width: 28px;
+    height: 28px;
+    background-color: #29b6f6;
+    border-radius: 6px;
+    margin-right: 12px;
+}
+.brand-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #111111;
+    margin: 0;
+}
+.checklist-item {
+    margin-bottom: 16px;
+    font-size: 15px;
+    color: #444444;
+    display: flex;
+    align-items: center;
+}
+.check-icon-green {
+    display: inline-block;
+    width: 10px;
+    height: 16px;
+    border: 3px solid #0fa47c;
+    border-left: 0;
+    border-top: 0;
+    transform: rotate(45deg);
+    margin-right: 15px;
+    margin-bottom: 4px;
+}
+
+/* Grid & Photo Collage Layouts */
+.collage-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+    margin-top: 20px;
+}
+.collage-photo {
+    position: absolute;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    background-color: #eee;
+}
+.collage-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.collage-1 { width: 120px; height: 220px; left: 0; top: 0; }
+.collage-2 { width: 140px; height: 160px; left: 135px; top: 20px; }
+.collage-3 { width: 140px; height: 180px; left: 290px; top: 50px; }
+
+.grid-photo-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+.photo-block {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    background-color: #ddd;
+}
+.photo-block img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.pb-1 { width: 100px; height: 80px; }
+.pb-2 { width: 140px; height: 110px; }
+.pb-3 { width: 120px; height: 90px; }
+.pb-4 { width: 110px; height: 130px; }
+.pb-5 { width: 120px; height: 110px; }
+.pb-6 { width: 140px; height: 120px; }
+
+/* Footers & Action Buttons Portal */
+.landing-footer {
+    background-color: #ffffff;
+    border-top: 1px solid #eeeeee;
+    padding: 40px 20px;
+    text-align: center;
+    margin-top: 40px;
+}
+.landing-footer img {
+    width: 48px;
+    height: auto;
+    margin-bottom: 15px;
+}
+.btn-portal-login {
+    background-color: #0fa47c;
+    color: #ffffff;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    display: block;
+    margin: 30px auto 10px auto;
+    box-shadow: 0 4px 12px rgba(15, 164, 124, 0.3);
+    transition: all 0.2s ease;
+}
+.btn-portal-login:hover {
+    background-color: #0c8564;
+    transform: translateY(-2px);
+}
 
 /* ==========================================================================
    TOPBAR & PROFILE
@@ -373,7 +636,7 @@ tr:hover td, .rbm-table tr:hover { background-color: #f1f5f9; }
 }
 
 /* ==========================================================================
-   Siswa Materi Page Module
+   SISWA MATERI PAGE MODULE
    ========================================================================== */
 #siswaMateriPage { font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: #f8fafc; min-height: 100vh; padding: 1.5rem 0 3rem 0; }
 .rbm-siswa-banner { background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%); border-radius: 1rem; padding: 1.75rem; color: #ffffff; box-shadow: var(--shadow-sm); }
@@ -400,7 +663,7 @@ tr:hover td, .rbm-table tr:hover { background-color: #f1f5f9; }
 .rbm-siswa-empty p { font-size: 0.75rem; color: #94a3b8; margin: 0; }
 
 /* ==========================================================================
-   STICKY BARS & MEDIA QUERIES
+   STICKY BARS & GLOBAL MEDIA QUERIES
    ========================================================================== */
 .copyright {
     position: fixed;
@@ -793,17 +1056,14 @@ body:has(#chatPage:not(.hidden)) .copyright {
     max-width: 800px;
     margin: 0 auto;
 }
-
 .quiz-auth-box {
     margin: 4vh auto !important;
     border-top: 5px solid var(--accent-color);
 }
-
 .quiz-header-icon {
     font-size: 40px;
     margin-bottom: 12px;
 }
-
 .cardQuizSiswa {
     background: var(--primary-gradient);
     color: white;
@@ -871,7 +1131,6 @@ body:has(#chatPage:not(.hidden)) .copyright {
     accent-color: var(--accent-color);
     box-shadow: none;
 }
-
 .opsi-label:has(input[type="radio"]:checked) {
     background-color: #e6f4f1;
     border-color: var(--accent-color);
@@ -918,7 +1177,6 @@ body:has(#chatPage:not(.hidden)) .copyright {
     font-size: 13px;
     color: #334155;
 }
-
 .opsi-label.benar-pilihan {
     background-color: #d1fae5 !important;
     border-color: var(--success) !important;
@@ -931,14 +1189,12 @@ body:has(#chatPage:not(.hidden)) .copyright {
 
 /* ==========================================================================
    CSS SPESIFIK UNTUK HALAMAN JADWAL (#buatJadwalPage)
-   Sengaja di-scope agar tidak merusak halaman lain
    ========================================================================== */
 #buatJadwalPage {
     background-color: #f1f3f5;
     padding: 20px 10px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-
 #buatJadwalPage .kartu-utama { 
     background: white; 
     padding: 20px; 
@@ -946,7 +1202,6 @@ body:has(#chatPage:not(.hidden)) .copyright {
     box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
     margin-bottom: 20px; 
 }
-
 #buatJadwalPage .box-hasil { 
     display: none; 
     text-align: center; 
@@ -956,32 +1211,27 @@ body:has(#chatPage:not(.hidden)) .copyright {
     padding: 15px; 
     margin-top: 15px; 
 }
-
 #buatJadwalPage .kode-output { 
     font-size: 38px; 
     font-weight: bold; 
     color: #1b5e20; 
     letter-spacing: 2px; 
 }
-
 #buatJadwalPage .loading-overlay { 
     text-align: center; 
     color: #6c757d; 
     padding: 20px 0; 
 }
-
 #buatJadwalPage .tabel-area { 
     background: white; 
     padding: 15px; 
     border-radius: 16px; 
     box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
 }
-
 #buatJadwalPage .table th { 
     background-color: #e8f5e9 !important; 
     color: #1b5e20; 
 }
-
 #buatJadwalPage .text-kecil { 
     font-size: 11px; 
     color: #6c757d; 
