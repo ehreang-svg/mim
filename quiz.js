@@ -1,6 +1,5 @@
 let mataPelajaranTerpilih = ""; // Menyimpan mapel secara global saat ujian berlangsung
 let dataSiswaQuiz = null;
-let dataSoal = [];
 
 // Jalankan saat halaman pertama dimuat
 document.addEventListener("DOMContentLoaded", function() {
