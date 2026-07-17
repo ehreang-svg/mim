@@ -7,12 +7,17 @@ document.addEventListener("DOMContentLoaded", function() {
 // 1. Fungsi mengambil daftar kelas dari spreadsheet
 async function loadKelas() {
     try {
-        // TAMBAHKAN BERIKUT: opsi redirect follow
+        // Ambil element select
+        const selectKelas = document.getElementById("selectKelas");
+        if (!selectKelas) return; // Pengaman jika element belum siap di DOM
+
+        // Tambahkan opsi redirect agar fetch tidak mentok di sistem internal google
         const res = await fetch(Quiz_API + "?aksi=getKelas", { method: "GET", redirect: "follow" });
         const data = await res.json();
-        const selectKelas = document.getElementById("selectKelas");
         
+        // Kosongkan dan isi opsi kelas
         selectKelas.innerHTML = '<option value="">-- Pilih Kelas --</option>';
+        
         if (data.kelas && data.kelas.length > 0) {
             data.kelas.forEach(kelas => {
                 let opt = document.createElement("option");
@@ -25,7 +30,6 @@ async function loadKelas() {
         console.error("Gagal memuat data kelas:", err);
     }
 }
-
 function AksiPilihKelas() {
     loadSiswa();
     loadPelajaran();
