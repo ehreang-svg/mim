@@ -38,32 +38,42 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginBtn = document.getElementById('loginBtn');
 
     // 3. Fungsi Render Slide
-    function renderSlide(index) {
-        // Validasi ketersediaan elemen sebelum melakukan manipulasi DOM
-        if (!titleEl || !descEl || !dots[index]) return;
+   function renderSlide(index) {
+    // 1. Validasi batas indeks data agar tidak out-of-bounds
+    if (index < 0 || index >= slidesData.length) return;
+    
+    // 2. Validasi ketersediaan elemen teks utama
+    if (!titleEl || !descEl) return;
 
-        const data = slidesData[index];
-        titleEl.textContent = data.title;
-        descEl.textContent = data.desc;
-        
-        // Render Tags (jika ada)
-        if (tagsContainer) {
-            tagsContainer.innerHTML = '';
-            if (data.tags && data.tags.length > 0) {
-                data.tags.forEach(tag => {
-                    const a = document.createElement('a');
-                    a.href = '#';
-                    a.textContent = tag;
-                    tagsContainer.appendChild(a);
-                });
-            }
+    const data = slidesData[index];
+    titleEl.textContent = data.title;
+    descEl.textContent = data.desc;
+    
+    // 3. Render Tags (jika ada)
+    if (tagsContainer) {
+        tagsContainer.innerHTML = '';
+        if (data.tags && data.tags.length > 0) {
+            data.tags.forEach(tag => {
+                const a = document.createElement('a');
+                a.href = '#';
+                a.textContent = tag;
+                tagsContainer.appendChild(a);
+            });
         }
-
-        // Update Status Aktif Indikator/Dots
-        dots.forEach(d => d.classList.remove('active'));
-        dots[index].classList.add('active');
     }
 
+    // 4. Perbaikan Pembaruan Dots (Diproteksi agar tidak bikin macet)
+    if (dots && dots.length > 0) {
+        dots.forEach(d => {
+            if (d) d.classList.remove('active');
+        });
+        
+        // Pastikan elemen dot pada indeks ini benar-benar ada sebelum ditambah kelas 'active'
+        if (dots[index]) {
+            dots[index].classList.add('active');
+        }
+    }
+}
     // 4. Manajemen Autoplay (Slider Berjalan Otomatis)
     function startAutoplay() {
         stopAutoplay(); // Reset timer yang sudah ada untuk menghindari tumpang tindih
