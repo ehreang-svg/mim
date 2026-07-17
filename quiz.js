@@ -1,5 +1,5 @@
 let mataPelajaranTerpilih = ""; // Menyimpan mapel secara global saat ujian berlangsung
-let dataSiswaQuiz = null;
+let dataSiswaQuiz = null; // Pastikan variabel ini terinisialisasi di atas
 
 // Jalankan saat halaman pertama dimuat
 document.addEventListener("DOMContentLoaded", function() {
@@ -21,18 +21,31 @@ async function loadKelas() {
         const selectKelas = document.getElementById("selectKelas");
         if (!selectKelas) return;
 
+        console.log("Memanggil API Kelas ke:", Quiz_API + "?aksi=getKelas");
         const res = await fetch(Quiz_API + "?aksi=getKelas", { method: "GET", redirect: "follow" });
         const data = await res.json();
         
+        console.log("Data kelas yang diterima dari server:", data);
         selectKelas.innerHTML = '<option value="">-- Pilih Kelas --</option>';
         
-        if (data.kelas && data.kelas.length > 0) {
-            data.kelas.forEach(kelas => {
+        // Mengantisipasi jika data berupa { kelas: [...] } atau langsung berupa array [...]
+        let listKelas = [];
+        if (data && data.kelas && Array.isArray(data.kelas)) {
+            listKelas = data.kelas;
+        } else if (Array.isArray(data)) {
+            listKelas = data;
+        }
+
+        if (listKelas.length > 0) {
+            listKelas.forEach(kelas => {
                 let opt = document.createElement("option");
                 opt.value = kelas;
                 opt.textContent = kelas;
                 selectKelas.appendChild(opt);
             });
+            console.log(`Berhasil memuat ${listKelas.length} kelas ke dropdown.`);
+        } else {
+            console.warn("Data kelas ditemukan kosong atau format tidak sesuai.");
         }
     } catch (err) {
         console.error("Gagal memuat data kelas:", err);
@@ -59,8 +72,16 @@ async function loadSiswa() {
         const res = await fetch(Quiz_API + "?aksi=getSiswaByKelas&kelas=" + encodeURIComponent(kelas), { method: "GET", redirect: "follow" });
         const data = await res.json();
         selectSiswa.innerHTML = '<option value="">-- Pilih Nama --</option>';
-        if (data.siswa) {
-            data.siswa.forEach(s => {
+        
+        let listSiswa = [];
+        if (data && data.siswa && Array.isArray(data.siswa)) {
+            listSiswa = data.siswa;
+        } else if (Array.isArray(data)) {
+            listSiswa = data;
+        }
+
+        if (listSiswa.length > 0) {
+            listSiswa.forEach(s => {
                 let opt = document.createElement("option");
                 opt.value = s.nisn;
                 opt.textContent = s.nama;
@@ -87,8 +108,16 @@ async function loadPelajaran() {
         const res = await fetch(Quiz_API + "?aksi=getPelajaranByKelas&kelas=" + encodeURIComponent(kelas), { method: "GET", redirect: "follow" });
         const data = await res.json();
         selectPelajaran.innerHTML = '<option value="">-- Pilih Pelajaran --</option>';
-        if (data.pelajaran) {
-            data.pelajaran.forEach(p => {
+        
+        let listPelajaran = [];
+        if (data && data.pelajaran && Array.isArray(data.pelajaran)) {
+            listPelajaran = data.pelajaran;
+        } else if (Array.isArray(data)) {
+            listPelajaran = data;
+        }
+
+        if (listPelajaran.length > 0) {
+            listPelajaran.forEach(p => {
                 let opt = document.createElement("option");
                 opt.value = p;
                 opt.textContent = p;
