@@ -1,19 +1,18 @@
 let mataPelajaranTerpilih = ""; // Menyimpan mapel secara global saat ujian berlangsung
+let dataSiswaQuiz = null;
+let dataSoal = [];
 
-// Jalankan loadKelas saat halaman pertama dimuat jika element sudah ada di DOM
+// Jalankan saat halaman pertama dimuat
 document.addEventListener("DOMContentLoaded", function() {
     loadKelas();
 });
 
-// Contoh fungsi navigasi perpindahan halaman di aplikasi Anda
+// Fungsi navigasi perpindahan halaman
 function bukaHalamanQuiz() {
-    // 1. Munculkan halaman quiz dengan menghapus class hidden
     const halamanQuiz = document.getElementById("loginQuiz");
-    if(halamanQuiz) {
+    if (halamanQuiz) {
         halamanQuiz.classList.remove("hidden");
     }
-    
-    // 2. PANGGIL kembali untuk memastikan data kelas segar saat halaman dibuka
     loadKelas(); 
 }
 
@@ -21,7 +20,7 @@ function bukaHalamanQuiz() {
 async function loadKelas() {
     try {
         const selectKelas = document.getElementById("selectKelas");
-        if (!selectKelas) return; // Pengaman jika element belum siap di DOM
+        if (!selectKelas) return;
 
         const res = await fetch(Quiz_API + "?aksi=getKelas", { method: "GET", redirect: "follow" });
         const data = await res.json();
@@ -41,9 +40,7 @@ async function loadKelas() {
     }
 }
 
-// ==========================================
-// FIX: Menambahkan tutup kurung kurawal yang hilang di sini
-// ==========================================
+// Trigger gabungan saat kelas diubah
 function AksiPilihKelas() {
     loadSiswa();
     loadPelajaran();
@@ -63,12 +60,14 @@ async function loadSiswa() {
         const res = await fetch(Quiz_API + "?aksi=getSiswaByKelas&kelas=" + encodeURIComponent(kelas), { method: "GET", redirect: "follow" });
         const data = await res.json();
         selectSiswa.innerHTML = '<option value="">-- Pilih Nama --</option>';
-        data.siswa.forEach(s => {
-            let opt = document.createElement("option");
-            opt.value = s.nisn;
-            opt.textContent = s.nama;
-            selectSiswa.appendChild(opt);
-        });
+        if (data.siswa) {
+            data.siswa.forEach(s => {
+                let opt = document.createElement("option");
+                opt.value = s.nisn;
+                opt.textContent = s.nama;
+                selectSiswa.appendChild(opt);
+            });
+        }
         selectSiswa.disabled = false;
     } catch (err) { 
         console.error("Gagal memuat siswa:", err); 
@@ -89,12 +88,14 @@ async function loadPelajaran() {
         const res = await fetch(Quiz_API + "?aksi=getPelajaranByKelas&kelas=" + encodeURIComponent(kelas), { method: "GET", redirect: "follow" });
         const data = await res.json();
         selectPelajaran.innerHTML = '<option value="">-- Pilih Pelajaran --</option>';
-        data.pelajaran.forEach(p => {
-            let opt = document.createElement("option");
-            opt.value = p;
-            opt.textContent = p;
-            selectPelajaran.appendChild(opt);
-        });
+        if (data.pelajaran) {
+            data.pelajaran.forEach(p => {
+                let opt = document.createElement("option");
+                opt.value = p;
+                opt.textContent = p;
+                selectPelajaran.appendChild(opt);
+            });
+        }
         selectPelajaran.disabled = false;
     } catch (err) { 
         console.error("Gagal memuat pelajaran:", err); 
@@ -153,7 +154,7 @@ function tampilSiswaQuiz(){
 
 function tampilSoal(){
     let html = "";
-    if (dataSoal.length === 0) {
+    if (!dataSoal || dataSoal.length === 0) {
         document.getElementById("quiz").innerHTML = `<div class="rbm-empty-state">Belum tersedia soal untuk mata pelajaran ini.</div>`;
         return;
     }
@@ -208,22 +209,28 @@ async function koreksi(){
     
     document.getElementById("hasil").scrollIntoView({ behavior: 'smooth' });
 
-    await fetch(Quiz_API, {
-        method: "POST",
-        body: JSON.stringify({
-            nisn: dataSiswaQuiz.nisn,
-            nama: dataSiswaQuiz.nama,
-            pelajaran: mataPelajaranTerpilih,
-            nilai: nilai,
-            status: status
-        })
-    });
+    try {
+        await fetch(Quiz_API, {
+            method: "POST",
+            body: JSON.stringify({
+                nisn: dataSiswaQuiz.nisn,
+                nama: dataSiswaQuiz.nama,
+                pelajaran: mataPelajaranTerpilih,
+                nilai: nilai,
+                status: status
+            })
+        });
+    } catch(e) {
+        console.error("Gagal mengirim hasil ujian:", e);
+    }
 }
 
 async function simpanSoalBaru(event) {
     event.preventDefault();
     
     const btnSubmit = document.getElementById("btnSimpanSoal");
+    if (!btnSubmit) return;
+    
     const teksAsliTombol = btnSubmit.innerText;
     
     btnSubmit.disabled = true;
