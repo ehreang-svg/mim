@@ -186,18 +186,37 @@ button:active { transform: translateY(0); }
 /* ==========================================================================
    EXCLUSIVE SCOPED CSS FOR HOMEPAGE (#homePage) - PORTAL UTAMA
    ========================================================================== */
+/* ==========================================================================
+   EXCLUSIVE SCOPED CSS FOR HOMEPAGE (#homePage) - PORTAL UTAMA
+   ========================================================================== */
+
+/* Pastikan box-sizing aman untuk semua elemen di dalam homePage */
+#homePage, 
+#homePage *, 
+#homePage *::before, 
+#homePage *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 #homePage {
     background-color: #ffffff;
     min-height: 100vh;
+    font-family: 'Plus Jakarta Sans', 'Poppins', sans-serif;
+    color: #0f172a;
+    line-height: 1.6;
 }
 
+/* Header Area */
 #homePage header {
-    background-color: #ffffff;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-    position: sticky;
+    background-color: #ffffff !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03) !important;
+    position: sticky !important;
     top: 0;
     z-index: 1000;
     border-bottom: 1px solid #f1f5f9;
+    width: 100%;
 }
 
 #homePage .header-container {
@@ -228,22 +247,28 @@ button:active { transform: translateY(0); }
     letter-spacing: 0.5px;
 }
 
+/* Login Button override agar tidak mengikuti button form global */
 #homePage .btn-login {
-    width: auto;
-    background: #0d9488;
-    color: #ffffff;
-    padding: 10px 24px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    box-shadow: 0 4px 6px -1px rgba(13, 148, 136, 0.2);
+    width: auto !important;
+    background: #0d9488 !important;
+    color: #ffffff !important;
+    padding: 10px 24px !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    box-shadow: 0 4px 6px -1px rgba(13, 148, 136, 0.2) !important;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
 }
 
 #homePage .btn-login:hover {
-    background: #0f766e;
-    transform: translateY(-1px);
+    background: #0f766e !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 12px -1px rgba(13, 148, 136, 0.3) !important;
 }
 
+/* Wrapper Main */
 #homePage .main-wrapper {
     max-width: 1200px;
     margin: 0 auto;
@@ -262,26 +287,9 @@ button:active { transform: translateY(0); }
 
 #homePage .hero-left {
     padding-right: 0;
-}
-
-#homePage .hero-title {
-    font-size: 42px;
-    font-weight: 800;
-    color: #0f172a;
-    line-height: 1.2;
-    margin-bottom: 20px;
-}
-
-#homePage .hero-title span {
-    color: #0d9488;
-    display: block;
-    margin-top: 4px;
-}
-
-#homePage .hero-desc {
-    font-size: 16px;
-    color: #475569;
-    max-width: 540px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
 #homePage .hero-right {
@@ -295,10 +303,10 @@ button:active { transform: translateY(0); }
     height: auto;
     max-height: 380px;
     filter: drop-shadow(0 20px 25px rgba(0, 0, 0, 0.08));
-    animation: floatEffect 4s ease-in-out infinite;
+    animation: homePageFloat 4s ease-in-out infinite;
 }
 
-@keyframes floatEffect {
+@keyframes homePageFloat {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-10px); }
 }
@@ -311,13 +319,43 @@ button:active { transform: translateY(0); }
     opacity: 0.3;
 }
 
+/* WhatsApp Button */
+#homePage .btn-whatsapp {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    background-color: #25D366 !important;
+    color: #ffffff !important;
+    padding: 12px 28px !important;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    text-decoration: none !important;
+    border-radius: 50px !important;
+    box-shadow: 0 4px 14px rgba(37, 211, 102, 0.4) !important;
+    transition: all 0.3s ease;
+    letter-spacing: 0.5px;
+    margin-top: 15px;
+    width: auto !important;
+}
+
+#homePage .btn-whatsapp:hover {
+    background-color: #1ebd58 !important;
+    box-shadow: 0 6px 20px rgba(37, 211, 102, 0.6) !important;
+    transform: translateY(-2px) !important;
+}
+
+#homePage .btn-whatsapp:active {
+    transform: translateY(0) !important;
+}
+
 /* Slider Section */
 #homePage .slider-section {
     padding: 40px 0;
 }
 
 #homePage .slider-box {
-    background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
+    background: linear-gradient(135deg, #0f766e 0%, #115e59 100%) !important;
     box-shadow: 0 10px 30px rgba(15, 118, 110, 0.15);
     border-radius: 16px;
     width: 100%;
@@ -342,6 +380,7 @@ button:active { transform: translateY(0); }
 #homePage .slider-title {
     font-size: 28px;
     font-weight: 700;
+    color: #ffffff !important;
     margin: 0 0 15px 0;
 }
 
@@ -349,6 +388,7 @@ button:active { transform: translateY(0); }
     font-size: 15px;
     line-height: 1.6;
     opacity: 0.9;
+    color: #ffffff !important;
     margin: 0;
     max-width: 90%;
 }
@@ -357,18 +397,19 @@ button:active { transform: translateY(0); }
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    width: 40px;
-    height: 40px;
-    background-color: #ffffff;
-    border-radius: 50%;
-    border: none;
+    width: 40px !important;
+    height: 40px !important;
+    background-color: #ffffff !important;
+    border-radius: 50% !important;
+    border: none !important;
     cursor: pointer;
     text-align: center;
     line-height: 40px;
     font-weight: bold;
-    color: #333;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    color: #333333 !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1) !important;
     z-index: 5;
+    padding: 0 !important;
 }
 
 #homePage .arrow-left { left: 15px; }
@@ -395,7 +436,7 @@ button:active { transform: translateY(0); }
     transform: scale(1.3);
 }
 
-/* Sejahtera & Profesional Section */
+/* Guru Profesional & Program Unggulan Section */
 #homePage .sejahtera-section,
 #homePage .profesional-container {
     padding: 80px 0;
@@ -403,6 +444,7 @@ button:active { transform: translateY(0); }
     grid-template-columns: 1fr 1fr;
     gap: 60px;
     align-items: center;
+    position: relative;
 }
 
 #homePage .profesional-section {
@@ -437,8 +479,12 @@ button:active { transform: translateY(0); }
 #homePage .brand-title {
     font-size: 26px;
     font-weight: 700;
-    color: #0f172a;
+    color: #0f172a !important;
     margin: 0;
+}
+
+#homePage ul {
+    list-style: none !important;
 }
 
 #homePage .checklist-item {
@@ -448,7 +494,7 @@ button:active { transform: translateY(0); }
     display: flex;
     align-items: center;
     font-weight: 500;
-    list-style: none;
+    list-style: none !important;
 }
 
 #homePage .check-icon-green {
@@ -461,9 +507,10 @@ button:active { transform: translateY(0); }
     transform: rotate(45deg);
     margin-right: 15px;
     margin-bottom: 4px;
+    flex-shrink: 0;
 }
 
-/* Collage & Grid Photos */
+/* Collage Design */
 #homePage .collage-container {
     position: relative;
     height: 340px;
@@ -476,18 +523,23 @@ button:active { transform: translateY(0); }
     overflow: hidden;
     box-shadow: 0 10px 25px rgba(0,0,0,0.08);
     background-color: #eee;
+    margin-bottom: 0 !important;
+    padding: 0 !important;
+    border: none !important;
 }
 
 #homePage .collage-photo img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
 }
 
 #homePage .collage-1 { width: 160px; height: 240px; left: 0; top: 30px; z-index: 2; }
 #homePage .collage-2 { width: 200px; height: 260px; left: 140px; top: 0px; z-index: 1; }
 #homePage .collage-3 { width: 160px; height: 220px; left: 310px; top: 60px; z-index: 3; }
 
+/* Grid Photos Design */
 #homePage .grid-photo-container {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -508,6 +560,7 @@ button:active { transform: translateY(0); }
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
 }
 
 #homePage .photo-block:hover {
@@ -519,8 +572,9 @@ button:active { transform: translateY(0); }
 #homePage .pb-4 { grid-row: span 2; height: 232px; }
 #homePage .pb-5 { grid-column: span 2; }
 
-/* Decor SVGs */
-#homePage .dots-decor-left, #homePage .dots-decor-right {
+/* Decorative SVGs */
+#homePage .dots-decor-left, 
+#homePage .dots-decor-right {
     position: absolute;
     width: 60px;
     opacity: 0.2;
@@ -528,24 +582,29 @@ button:active { transform: translateY(0); }
 #homePage .dots-decor-left { left: -20px; top: 10px; }
 #homePage .dots-decor-right { right: 10px; bottom: 10px; }
 
-/* Footer */
+/* Footer Khusus Portal Utama */
 #homePage footer {
-    background-color: #0f172a;
-    color: #94a3b8;
-    padding: 60px 20px 100px 20px;
-    text-align: center;
-    border-top: none;
-    margin-top: 0;
+    background-color: #0f172a !important;
+    color: #94a3b8 !important;
+    padding: 60px 20px 100px 20px !important;
+    text-align: center !important;
+    border-top: none !important;
+    margin-top: 0 !important;
+    position: relative !important;
+    width: 100%;
+    left: 0; bottom: 0;
+    box-shadow: none !important;
 }
 
 #homePage .footer-logo {
     height: 60px;
     width: auto;
     margin-bottom: 20px;
+    display: inline-block;
 }
 
 #homePage .footer-company {
-    color: #ffffff;
+    color: #ffffff !important;
     font-size: 18px;
     font-weight: 700;
     margin-bottom: 8px;
@@ -553,11 +612,65 @@ button:active { transform: translateY(0); }
 
 #homePage .footer-sub {
     font-size: 13px;
-    color: #94a3b8;
+    color: #94a3b8 !important;
     max-width: 500px;
-    margin: 4px auto;
+    margin: 4px auto !important;
 }
 
+/* ==========================================================================
+   HOMEPAGE MEDIA QUERIES (RESPONSIVENESS)
+   ========================================================================== */
+@media (max-width: 992px) {
+    #homePage .hero-section,
+    #homePage .sejahtera-section,
+    #homePage .profesional-container {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        text-align: center;
+        padding: 50px 0;
+    }
+    #homePage .hero-right, 
+    #homePage .hero-left { 
+        justify-content: center; 
+        text-align: center;
+        align-items: center;
+    }
+    #homePage .slider-box { 
+        padding: 45px 30px; 
+        flex-direction: column;
+    }
+    #homePage .slider-content { 
+        width: 100%; 
+    }
+    #homePage .slider-graphic { 
+        display: none; 
+    }
+    #homePage .collage-container { 
+        max-width: 470px; 
+        margin: 0 auto; 
+    }
+    #homePage .checklist-item { 
+        justify-content: center; 
+    }
+}
+
+@media (max-width: 768px) {
+    #homePage .hero-title {
+        font-size: 32px;
+    }
+    #homePage .slider-title {
+        font-size: 22px;
+    }
+    #homePage .brand-title {
+        font-size: 22px;
+    }
+    #homePage .header-container {
+        padding: 12px 16px;
+    }
+    #homePage .logo-area span {
+        font-size: 14px;
+    }
+}
 
 /* ==========================================================================
    TOPBAR & INTERNAL PORTAL PROFILE STYLE
