@@ -122,12 +122,23 @@ button:active { transform: translateY(0); }
 /* ==========================================================================
    3. LAYOUT, CARDS & CONTAINERS GLOBAL
    ========================================================================== */
-.page, .rbm-container {
+/* ==========================================================================
+   3. LAYOUT, CARDS & CONTAINERS GLOBAL
+   ========================================================================== */
+/* Perbaikan: Kecualikan #homePage dari pembatas max-width 1200px global */
+.page:not(#homePage), .rbm-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 24px 16px 80px 16px;
     animation: fadeIn 0.3s ease;
 }
+
+/* Biarkan animasi fadeIn tetap berjalan di #homePage */
+#homePage.page {
+    animation: fadeIn 0.3s ease;
+    padding: 0; /* Hapus padding default page global agar footer & header menempel ke tepi */
+}
+
 .rbm-container { max-width: 1150px; background: #ffffff; padding: 30px; border-radius: 16px; box-shadow: var(--shadow-lg); }
 
 @keyframes fadeIn {
@@ -198,6 +209,9 @@ button:active { transform: translateY(0); }
     font-family: 'Plus Jakarta Sans', 'Poppins', sans-serif;
     color: #0f172a;
     line-height: 1.6;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
 }
 
 #homePage header {
@@ -486,7 +500,7 @@ button:active { transform: translateY(0); }
 #homePage footer {
     background-color: #0f172a !important;
     color: #94a3b8 !important;
-    padding: 60px 20px 100px 20px !important;
+    padding: 60px 20px 140px 20px !important; /* Ditinggikan agar tidak tertutup copyright */
     text-align: center !important;
     border-top: none !important;
     width: 100%;
@@ -494,7 +508,6 @@ button:active { transform: translateY(0); }
 #homePage .footer-logo { height: 60px; width: auto; margin-bottom: 20px; display: inline-block; }
 #homePage .footer-company { color: #ffffff !important; font-size: 18px; font-weight: 700; margin-bottom: 8px; }
 #homePage .footer-sub { font-size: 13px; color: #94a3b8 !important; max-width: 500px; margin: 4px auto !important; }
-
 
 /* ==========================================================================
    5. TOPBAR & INTERNAL PORTAL PROFILE STYLE
