@@ -34,6 +34,7 @@ const pages = [
    "inputSoalPage",
    "buatJadwalPage",
    "chatPage",
+   "nilaiLatihanPage",
      "raportMDPage"
 ];
 /* ===========================
