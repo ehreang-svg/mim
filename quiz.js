@@ -320,91 +320,148 @@ async function simpanSoalBaru(event) {
     }
 }
 
+// GANTI dengan URL Web App Google Apps Script Anda yang aktif
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwGySXrBY2dmNZDS-bf-pCB6tDukp0PO_RttP2XaENv4dk4FmfRWq95CBsWqQukB2jX/exec"; 
+
+let masterDaftarNilai = []; // Menyimpan cadangan data dari sheet Hasil
+
+/**
+ * 1. FUNGSI UTAMA: Dipicu otomatis oleh lifecycle hook navigation.js saat halaman dibuka
+ */
+function ambilDataNilai() {
+  // Reset filter ke kondisi awal
+  document.getElementById("filterDaftarKelas").innerHTML = '<option value="">-- Pilih Kelas --</option>';
+  resetDropdownSiswa();
+  resetDropdownMapel();
+  sembunyikanHasil();
+
+  // Langkah A: Ambil semua data nilai dari sheet 'Hasil' untuk pencarian akhir nanti
+  fetch(`${WEB_APP_URL}?aksi=getDaftarNilai`)
+    .then(res => res.json())
+    .then(data => {
+      masterDaftarNilai = data.nilaiSiswa;
+      
+      // Langkah B: Ambil daftar kelas unik dari sistem (Aksi 1 di Apps Script)
+      return fetch(`${WEB_APP_URL}?aksi=getKelas`);
+    })
+    .then(res => res.json())
+    .then(data => {
+      const selectKelas = document.getElementById("filterDaftarKelas");
+      data.kelas.forEach(kelas => {
+        selectKelas.innerHTML += `<option value="${kelas}">${kelas}</option>`;
+      });
+    })
+    .catch(err => console.error("Gagal memuat data awal rekap:", err));
+}
+
+/**
+ * 2. DIPICU SAAT KELAS DIPILIH: Mengambil nama siswa berdasarkan kelas
+ */
+function handleKelasChange() {
+  const kelasPilihan = document.getElementById("filterDaftarKelas").value;
+  resetDropdownSiswa();
+  resetDropdownMapel();
+  sembunyikanHasil();
+
+  if (!kelasPilihan) return;
+
+  // Panggil Aksi 2 di Apps Script (getSiswaByKelas)
+  fetch(`${WEB_APP_URL}?aksi=getSiswaByKelas&kelas=${encodeURIComponent(kelasPilihan)}`)
+    .then(res => res.json())
+    .then(data => {
+      const selectSiswa = document.getElementById("filterDaftarSiswa");
+      selectSiswa.disabled = false;
+      
+      data.siswa.forEach(siswa => {
+        selectSiswa.innerHTML += `<option value="${siswa.nisn}">${siswa.nama}</option>`;
+      });
+    })
+    .catch(err => console.error("Gagal memuat daftar siswa:", err));
+}
+
+/**
+ * 3. DIPICU SAAT NAMA SISWA DIPILIH: Mengambil mapel yang tersedia untuk kelas tersebut
+ */
+function handleSiswaChange() {
+  const kelasPilihan = document.getElementById("filterDaftarKelas").value;
+  const nisnPilihan = document.getElementById("filterDaftarSiswa").value;
+  
+  resetDropdownMapel();
+  sembunyikanHasil();
+
+  if (!nisnPilihan) return;
+
+  // Panggil Aksi 3 di Apps Script (getPelajaranByKelas)
+  fetch(`${WEB_APP_URL}?aksi=getPelajaranByKelas&kelas=${encodeURIComponent(kelasPilihan)}`)
+    .then(res => res.json())
+    .then(data => {
+      const selectMapel = document.getElementById("filterDaftarMapel");
+      selectMapel.disabled = false;
+      
+      data.pelajaran.forEach(mapel => {
+        selectMapel.innerHTML += `<option value="${mapel}">${mapel}</option>`;
+      });
+    })
+    .catch(err => console.error("Gagal memuat daftar pelajaran:", err));
+}
+
+/**
+ * 4. TAHAP AKHIR: Mencocokkan 3 Parameter dan Menampilkan Nilai Siswa
+ */
+function tampilkanNilaiAkhir() {
+  const nisnPilihan = document.getElementById("filterDaftarSiswa").value;
+  const mapelPilihan = document.getElementById("filterDaftarMapel").value;
+
+  if (!nisnPilihan || !mapelPilihan) {
+    sembunyikanHasil();
+    return;
+  }
+
+  // Cari data yang cocok di master data rekap
+  const dataCocok = masterDaftarNilai.find(item => 
+    String(item.nisn).trim() === String(nisnPilihan).trim() && 
+    String(item.pelajaran).trim().toLowerCase() === String(mapelPilihan).trim().toLowerCase()
+  );
+
+  if (dataCocok) {
+    document.getElementById("textNilaiAkhir").innerText = dataCocok.nilai;
+    document.getElementById("textNamaSiswa").innerText = dataCocok.nama;
+    document.getElementById("textDetailSiswa").innerText = `NISN: ${dataCocok.nisn} | Kelas: ${dataCocok.kelas} | Mapel: ${dataCocok.pelajaran}`;
     
-    let semuaData = [];
-
-    // Ambil data saat halaman dibuka
-    document.addEventListener("DOMContentLoaded", function() {
-        ambilDataNilai();
-    });
-
-    function ambilDataNilai() {
-        fetch(`${WEB_APP_URL}?aksi=getDaftarNilai`)
-            .then(response => response.json())
-            .then(data => {
-                semuaData = data.nilaiSiswa;
-                isiPilihanFilter(semuaData);
-                tampilkanTabel(semuaData);
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                document.getElementById("tabelNilai").innerHTML = `
-                    <tr><td colspan="6" class="text-center text-danger">Gagal memuat data dari server.</td></tr>
-                `;
-            });
+    // Atur badge kelulusan
+    const badge = document.getElementById("badgeStatusAkhir");
+    badge.innerText = dataCocok.status;
+    if (String(dataCocok.status).toLowerCase() === 'lulus') {
+      badge.className = "badge bg-success px-4 py-2 fs-6";
+    } else {
+      badge.className = "badge bg-danger px-4 py-2 fs-6";
     }
 
-    // Mengisi dropdown opsi filter Kelas & Mapel secara dinamis dari data yang ada
-    function isiPilihanFilter(data) {
-        const kelasSet = new Set();
-        const mapelSet = new Set();
+    document.getElementById("boxHasilNilai").classList.remove("d-none");
+    document.getElementById("boxInfoKosong").classList.add("d-none");
+  } else {
+    // Jika filter lengkap tapi data di sheet 'Hasil' belum ada (siswa belum ikut ujian mapel ini)
+    document.getElementById("boxHasilNilai").classList.add("d-none");
+    document.getElementById("boxInfoKosong").className = "text-center text-danger py-5 fw-bold";
+    document.getElementById("boxInfoKosong").innerText = "Siswa yang dipilih belum memiliki rekap nilai untuk mata pelajaran ini.";
+  }
+}
 
-        data.forEach(item => {
-            if(item.kelas) kelasSet.add(item.kelas.toString().trim());
-            if(item.pelajaran) mapelSet.add(item.pelajaran.toString().trim());
-        });
+// --- FUNGSI PEMBANTU (RESETS) ---
+function resetDropdownSiswa() {
+  const s = document.getElementById("filterDaftarSiswa");
+  s.innerHTML = '<option value="">-- Pilih Nama --</option>';
+  s.disabled = true;
+}
 
-        const filterKelas = document.getElementById("filterKelas");
-        Array.from(kelasSet).sort().forEach(kelas => {
-            filterKelas.innerHTML += `<option value="${kelas}">${kelas}</option>`;
-        });
+function resetDropdownMapel() {
+  const m = document.getElementById("filterDaftarMapel");
+  m.innerHTML = '<option value="">-- Pilih Mapel --</option>';
+  m.disabled = true;
+}
 
-        const filterMapel = document.getElementById("filterMapel");
-        Array.from(mapelSet).sort().forEach(mapel => {
-            filterMapel.innerHTML += `<option value="${mapel}">${mapel}</option>`;
-        });
-    }
-
-    // Fungsi Render Tabel
-    function tampilkanTabel(data) {
-        const tbody = document.getElementById("tabelNilai");
-        tbody.innerHTML = "";
-
-        if (data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-3">Data tidak ditemukan</td></tr>`;
-            return;
-        }
-
-        data.forEach((item, index) => {
-            let badgeStatus = item.status.toLowerCase() === 'lulus' ? 'bg-success' : 'bg-danger';
-            
-            tbody.innerHTML += `
-                <tr>
-                    <td class="text-center">${index + 1}</td>
-                    <td><strong>${item.nama}</strong><br><small class="text-muted">NISN: ${item.nisn}</small></td>
-                    <td class="text-center">${item.kelas}</td>
-                    <td>${item.pelajaran}</td>
-                    <td class="text-center fw-bold fs-5">${item.nilai}</td>
-                    <td class="text-center"><span class="badge ${badgeStatus} px-3 py-2">${item.status}</span></td>
-                </tr>
-            `;
-        });
-    }
-
-    // Fungsi Filter secara Real-time berdasarkan input user
-    function filterData() {
-        const keywordNama = document.getElementById("searchNama").value.toLowerCase();
-        const pilihanKelas = document.getElementById("filterKelas").value;
-        const pilihanMapel = document.getElementById("filterMapel").value;
-
-        const dataTerfilter = semuaData.filter(item => {
-            const cocokNama = item.nama.toLowerCase().includes(keywordNama);
-            const cocokKelas = pilihanKelas === "" || String(item.kelas) === pilihanKelas;
-            const cocokMapel = pilihanMapel === "" || String(item.pelajaran) === pilihanMapel;
-
-            return cocokNama && cocokKelas && cocokMapel;
-        });
-
-        tampilkanTabel(dataTerfilter);
-    }
+function sembunyikanHasil() {
+  document.getElementById("boxHasilNilai").classList.add("d-none");
+  document.getElementById("boxInfoKosong").className = "text-center text-muted py-5";
+  document.getElementById("boxInfoKosong").innerText = "Silakan tentukan Kelas, Nama, dan Mata Pelajaran di atas untuk melihat nilai.";
+}
