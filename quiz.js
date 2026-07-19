@@ -277,17 +277,20 @@ async function simpanSoalBaru(event) {
    FITUR REKAP NAMA, KELAS, DAN MAPEL DI HALAMAN REKAP NILAI SISWA
    ========================================================================= */
 
+/* =========================================================================
+   FITUR REKAP NAMA, KELAS, DAN MAPEL DI HALAMAN REKAP NILAI SISWA
+   ========================================================================= */
+
 function ambilDataNilai() {
   const selectKelas = document.getElementById("filterDaftarKelas");
   if(selectKelas) selectKelas.innerHTML = '<option value="">-- Pilih Kelas --</option>';
   
   resetDropdownSiswa();
   resetDropdownMapel();
-  sembunyikanHasil();
 
   console.log("Menghubungi server Apps Script di URL:", window.Quiz_API);
 
-  // PERBAIKAN: Menambahkan opsi redirect follow agar browser mengikuti pengalihan URL Google
+  // Ambil data nilai secara keseluruhan dari sheet
   fetch(`${window.Quiz_API}?aksi=getDaftarNilai`, { method: "GET", redirect: "follow" })
     .then(res => {
       if (!res.ok) throw new Error("Respon jaringan tidak oke");
@@ -295,7 +298,6 @@ function ambilDataNilai() {
     })
     .then(data => {
       masterDaftarNilai = data.nilaiSiswa || [];
-      // PERBAIKAN: Menambahkan opsi redirect follow juga di sini
       return fetch(`${window.Quiz_API}?aksi=getKelas`, { method: "GET", redirect: "follow" });
     })
     .then(res => {
@@ -316,18 +318,24 @@ function ambilDataNilai() {
         selectKelas.innerHTML += `<option value="${kelas}">${kelas}</option>`;
       });
       console.log("Dropdown filter kelas berhasil diisi.");
+      
+      // Tampilkan data awal (instruksi pilih kelas)
+      tampilkanNilaiSpesifik();
     })
     .catch(err => {
       console.error("Gagal memuat data awal rekap nilai:", err);
     });
 }
+
 function handleKelasChange() {
   const kelasPilihan = document.getElementById("filterDaftarKelas").value;
   resetDropdownSiswa();
   resetDropdownMapel();
-  sembunyikanHasil();
 
-  if (!kelasPilihan) return;
+  if (!kelasPilihan) {
+    tampilkanNilaiSpesifik();
+    return;
+  }
 
   fetch(`${window.Quiz_API}?aksi=getSiswaByKelas&kelas=${encodeURIComponent(kelasPilihan)}`)
     .then(res => res.json())
@@ -339,6 +347,9 @@ function handleKelasChange() {
       data.siswa.forEach(siswa => {
         selectSiswa.innerHTML += `<option value="${siswa.nisn}">${siswa.nama}</option>`;
       });
+
+      // OTOMATIS: Update tabel untuk memunculkan seluruh data kelas tersebut
+      tampilkanNilaiSpesifik();
     })
     .catch(err => console.error("Gagal memuat daftar siswa rekap:", err));
 }
@@ -348,9 +359,11 @@ function handleSiswaChange() {
   const nisnPilihan = document.getElementById("filterDaftarSiswa").value;
   
   resetDropdownMapel();
-  sembunyikanHasil();
 
-  if (!nisnPilihan) return;
+  if (!nisnPilihan) {
+    tampilkanNilaiSpesifik();
+    return;
+  }
 
   fetch(`${window.Quiz_API}?aksi=getPelajaranByKelas&kelas=${encodeURIComponent(kelasPilihan)}`)
     .then(res => res.json())
@@ -362,45 +375,11 @@ function handleSiswaChange() {
       data.pelajaran.forEach(mapel => {
         selectMapel.innerHTML += `<option value="${mapel}">${mapel}</option>`;
       });
+
+      // OTOMATIS: Update tabel untuk memunculkan data dari nama/nisn tersebut
+      tampilkanNilaiSpesifik();
     })
     .catch(err => console.error("Gagal memuat pelajaran rekap:", err));
-}
-
-function tampilkanNilaiAkhir() {
-  const nisnPilihan = document.getElementById("filterDaftarSiswa").value;
-  const mapelPilihan = document.getElementById("filterDaftarMapel").value;
-
-  if (!nisnPilihan || !mapelPilihan) {
-    sembunyikanHasil();
-    return;
-  }
-
-  const dataCocok = masterDaftarNilai.find(item => 
-    String(item.nisn).trim() === String(nisnPilihan).trim() && 
-    String(item.pelajaran).trim().toLowerCase() === String(mapelPilihan).trim().toLowerCase()
-  );
-
-  if (dataCocok) {
-    document.getElementById("textNilaiAkhir").innerText = dataCocok.nilai;
-    document.getElementById("textNamaSiswa").innerText = dataCocok.nama;
-    document.getElementById("textDetailSiswa").innerText = `NISN: ${dataCocok.nisn} | Kelas: ${dataCocok.kelas} | Mapel: ${dataCocok.pelajaran}`;
-    
-    const badge = document.getElementById("badgeStatusAkhir");
-    if(badge) {
-        badge.innerText = dataCocok.status;
-        badge.className = String(dataCocok.status).toLowerCase() === 'lulus' ? "badge bg-success px-4 py-2 fs-6" : "badge bg-danger px-4 py-2 fs-6";
-    }
-
-    document.getElementById("boxHasilNilai").classList.remove("d-none");
-    document.getElementById("boxInfoKosong").classList.add("d-none");
-  } else {
-    document.getElementById("boxHasilNilai").classList.add("d-none");
-    const boxKosong = document.getElementById("boxInfoKosong");
-    if(boxKosong) {
-        boxKosong.className = "text-center text-danger py-5 fw-bold";
-        boxKosong.innerText = "Siswa yang dipilih belum memiliki rekap nilai untuk mata pelajaran ini.";
-    }
-  }
 }
 
 function resetDropdownSiswa() {
@@ -413,16 +392,7 @@ function resetDropdownMapel() {
   if(m) { m.innerHTML = '<option value="">-- Pilih Mapel --</option>'; m.disabled = true; }
 }
 
-function sembunyikanHasil() {
-  const boxHasil = document.getElementById("boxHasilNilai");
-  const boxKosong = document.getElementById("boxInfoKosong");
-  if(boxHasil) boxHasil.classList.add("d-none");
-  if(boxKosong) {
-    boxKosong.className = "text-center text-muted py-5";
-    boxKosong.innerText = "Silakan tentukan Kelas, Nama, dan Mata Pelajaran di atas untuk melihat nilai.";
-  }
-}
-// Panggil fungsi ini setiap kali dropdown filter berubah nilainya
+// Render data otomatis ke tabel HTML berdasarkan filter bertingkat
 function tampilkanNilaiSpesifik() {
   const kelasPilihan = document.getElementById("filterDaftarKelas").value;
   const nisnPilihan = document.getElementById("filterDaftarSiswa").value;
@@ -431,25 +401,30 @@ function tampilkanNilaiSpesifik() {
   const bodyTabel = document.getElementById("bodyTabelNilai");
   if (!bodyTabel) return;
 
-  // Saring data dari variabel masterDaftarNilai yang didapat dari sheet 'Hasil'
-  let dataTersaring = masterDaftarNilai.filter(item => {
-    let cocokKelas = !kelasPilihan || item.kelas == kelasPilihan;
-    let cocokSiswa = !nisnPilihan || item.nisn == nisnPilihan;
-    let cocokMapel = !mapelPilihan || item.pelajaran == mapelPilihan;
-    return cocokKelas && cocokSiswa && cocokMapel;
-  });
-
-  // Jika tidak ada data cocok
-  if (dataTersaring.length === 0) {
-    bodyTabel.innerHTML = `<tr><td colspan="6" class="text-center data-kosong">Tidak ada rekap data nilai yang cocok dengan filter.</td></tr>`;
-    document.getElementById("rekapStats").style.display = "none";
+  // Jika filter kelas belum ditentukan, beri instruksi jelas ke user
+  if (!kelasPilihan) {
+    bodyTabel.innerHTML = `<tr><td colspan="6" class="text-center data-kosong">Silahkan pilih filter kelas untuk menampilkan data.</td></tr>`;
     return;
   }
 
-  // Masukkan baris data ke dalam tabel dengan badge status profesional
+  // Lakukan penyaringan bertingkat (Case-insensitive & string comparison aman)
+  let dataTersaring = masterDaftarNilai.filter(item => {
+    let cocokKelas = !kelasPilihan || String(item.kelas) === String(kelasPilihan);
+    let cocokSiswa = !nisnPilihan || String(item.nisn) === String(nisnPilihan);
+    let cocokMapel = !mapelPilihan || String(item.pelajaran).trim().toLowerCase() === String(mapelPilihan).trim().toLowerCase();
+    return cocokKelas && cocokSiswa && cocokMapel;
+  });
+
+  // Jika hasil filter tidak ditemukan di array master data
+  if (dataTersaring.length === 0) {
+    bodyTabel.innerHTML = `<tr><td colspan="6" class="text-center data-kosong">Tidak ada rekap data nilai yang cocok dengan filter.</td></tr>`;
+    return;
+  }
+
+  // Gambar baris tabel berdasarkan data yang berhasil difilter
   bodyTabel.innerHTML = "";
   dataTersaring.forEach(item => {
-    let kelasBadge = item.status.toLowerCase() === "lulus" ? "badge-sukses" : "badge-bahaya";
+    let kelasBadge = String(item.status).toLowerCase() === "lulus" ? "badge-sukses" : "badge-bahaya";
     
     bodyTabel.innerHTML += `
       <tr>
@@ -458,13 +433,11 @@ function tampilkanNilaiSpesifik() {
         <td>${item.kelas}</td>
         <td>${item.pelajaran}</td>
         <td><strong>${item.nilai}</strong></td>
-        <td><span class="badge ${kelasBadge}">${item.status.toUpperCase()}</span></td>
+        <td><span class="badge ${kelasBadge}">${String(item.status).toUpperCase()}</span></td>
       </tr>
     `;
   });
 }
 
-// Tambahkan ini di bagian paling bawah kode JavaScript kamu
+// Buka akses fungsi ke scope global HTML agar onchange="..." bekerja
 window.tampilkanNilaiSpesifik = tampilkanNilaiSpesifik;
-
-// Pastikan fungsi ini dipanggil di ujung akhir rantai .then() milik ambilDataNilai(), handleKelasChange(), dan handleSiswaChange()
