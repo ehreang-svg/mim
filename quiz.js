@@ -422,3 +422,57 @@ function sembunyikanHasil() {
     boxKosong.innerText = "Silakan tentukan Kelas, Nama, dan Mata Pelajaran di atas untuk melihat nilai.";
   }
 }
+// Panggil fungsi ini setiap kali dropdown filter berubah nilainya
+function tampilkanNilaiSpesifik() {
+  const kelasPilihan = document.getElementById("filterDaftarKelas").value;
+  const nisnPilihan = document.getElementById("filterDaftarSiswa").value;
+  const mapelPilihan = document.getElementById("filterDaftarMapel").value;
+  
+  const bodyTabel = document.getElementById("bodyTabelNilai");
+  if (!bodyTabel) return;
+
+  // Saring data dari variabel masterDaftarNilai yang didapat dari sheet 'Hasil'
+  let dataTersaring = masterDaftarNilai.filter(item => {
+    let cocokKelas = !kelasPilihan || item.kelas == kelasPilihan;
+    let cocokSiswa = !nisnPilihan || item.nisn == nisnPilihan;
+    let cocokMapel = !mapelPilihan || item.pelajaran == mapelPilihan;
+    return cocokKelas && cocokSiswa && cocokMapel;
+  });
+
+  // Jika tidak ada data cocok
+  if (dataTersaring.length === 0) {
+    bodyTabel.innerHTML = `<tr><td colspan="6" class="text-center data-kosong">Tidak ada rekap data nilai yang cocok dengan filter.</td></tr>`;
+    document.getElementById("rekapStats").style.display = "none";
+    return;
+  }
+
+  // Hitung data untuk ringkasan kartu statistik singkat
+  let totalUjian = dataTersaring.length;
+  let lulus = dataTersaring.filter(i => i.status.toLowerCase() === "lulus").length;
+  let remedi = totalUjian - lulus;
+
+  // Tampilkan & isi nilai kartu statistik
+  document.getElementById("statTotal").innerText = totalUjian;
+  document.getElementById("statLulus").innerText = lulus;
+  document.getElementById("statRemedi").innerText = remedi;
+  document.getElementById("rekapStats").style.display = "grid";
+
+  // Masukkan baris data ke dalam tabel dengan badge status profesional
+  bodyTabel.innerHTML = "";
+  dataTersaring.forEach(item => {
+    let kelasBadge = item.status.toLowerCase() === "lulus" ? "badge-sukses" : "badge-bahaya";
+    
+    bodyTabel.innerHTML += `
+      <tr>
+        <td><strong>${item.nisn}</strong></td>
+        <td>${item.nama}</td>
+        <td>${item.kelas}</td>
+        <td>${item.pelajaran}</td>
+        <td><strong>${item.nilai}</strong></td>
+        <td><span class="badge ${kelasBadge}">${item.status.toUpperCase()}</span></td>
+      </tr>
+    `;
+  });
+}
+
+// Pastikan fungsi ini dipanggil di ujung akhir rantai .then() milik ambilDataNilai(), handleKelasChange(), dan handleSiswaChange()
