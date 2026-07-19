@@ -1926,63 +1926,76 @@
 
 <!-- Sesuaikan ID ini dengan daftar di navigation.js Anda (nilaiLatihanPage atau hasilLatihanPage) -->
 <div id="nilaiLatihanPage" class="hidden">
-  <div class="container my-4">
-    <div class="card shadow-sm">
-      <div class="card-header bg-primary text-white py-3">
-        <h5 class="mb-0">Cari Rekap Nilai Latihan Siswa</h5>
-      </div>
-      <div class="card-body p-4">
-        
-        <!-- ALUR FILTER BERJENJANG -->
-        <div class="row g-3 mb-4">
-          <!-- 1. Filter Kelas -->
-          <div class="col-md-4">
-            <label class="form-label fw-bold">1. Pilih Kelas</label>
-            <select id="filterDaftarKelas" class="form-select" onchange="handleKelasChange()">
-              <option value="">-- Pilih Kelas --</option>
-            </select>
-          </div>
+  <!-- Kontainer Utama Rekap Nilai -->
+<div class="rekap-container">
+  <div class="rekap-header">
+    <h2>Daftar Nilai Latihan Siswa</h2>
+    <p class="rekap-subtitle">Pantau dan filter hasil ujian siswa secara real-time.</p>
+  </div>
 
-          <!-- 2. Filter Nama (Muncul setelah Kelas dipilih) -->
-          <div class="col-md-4">
-            <label class="form-label fw-bold">2. Pilih Nama Siswa</label>
-            <select id="filterDaftarSiswa" class="form-select" onchange="handleSiswaChange()" disabled>
-              <option value="">-- Pilih Nama --</option>
-            </select>
-          </div>
-
-          <!-- 3. Filter Mapel (Muncul setelah Nama dipilih) -->
-          <div class="col-md-4">
-            <label class="form-label fw-bold">3. Pilih Mata Pelajaran</label>
-            <select id="filterDaftarMapel" class="form-select" onchange="tampilkanNilaiAkhir()" disabled>
-              <option value="">-- Pilih Mapel --</option>
-            </select>
-          </div>
-        </div>
-
-        <hr>
-
-        <!-- TEMPAT MENAMPILKAN HASIL NILAI -->
-        <div id="boxHasilNilai" class="d-none">
-          <div class="row justify-content-center">
-            <div class="col-md-6 text-center">
-              <div class="p-4 border rounded bg-light">
-                <h6 class="text-muted uppercase tracking-wider">Nilai Latihan</h6>
-                <div id="textNilaiAkhir" class="display-3 fw-bold text-primary my-2">0</div>
-                <h5 id="textNamaSiswa" class="mb-1">-</h5>
-                <p id="textDetailSiswa" class="text-muted small mb-3">-</p>
-                <span id="badgeStatusAkhir" class="badge px-4 py-2 fs-6">-</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Info jika data belum dicari/kosong -->
-        <div id="boxInfoKosong" class="text-center text-muted py-5">
-          Silakan tentukan Kelas, Nama, dan Mata Pelajaran di atas untuk melihat nilai.
-        </div>
-
-      </div>
+  <!-- Bar Filter Pilihan -->
+  <div class="filter-card">
+    <div class="filter-group">
+      <label for="filterDaftarKelas">Kelas</label>
+      <select id="filterDaftarKelas" onchange="handleKelasChange()">
+        <option value="">-- Pilih Kelas --</option>
+      </select>
     </div>
+    
+    <div class="filter-group">
+      <label for="filterDaftarSiswa">Nama Siswa</label>
+      <select id="filterDaftarSiswa" id="filterDaftarSiswa" onchange="handleSiswaChange()" disabled>
+        <option value="">-- Pilih Siswa --</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="filterDaftarMapel">Mata Pelajaran</label>
+      <select id="filterDaftarMapel" onchange="tampilkanNilaiSpesifik()" disabled>
+        <option value="">-- Pilih Pelajaran --</option>
+      </select>
+    </div>
+    
+    <button class="btn-reset" onclick="ambilDataNilai()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+      Reset Filter
+    </button>
+  </div>
+
+  <!-- Ringkasan Statistik Singkat -->
+  <div class="stats-grid" id="rekapStats" style="display: none;">
+    <div class="stat-card">
+      <span class="stat-label">Total Ujian</span>
+      <span class="stat-value" id="statTotal">-</span>
+    </div>
+    <div class="stat-card success">
+      <span class="stat-label">Lulus</span>
+      <span class="stat-value" id="statLulus">-</span>
+    </div>
+    <div class="stat-card danger">
+      <span class="stat-label">Belum Lulus</span>
+      <span class="stat-value" id="statRemedi">-</span>
+    </div>
+  </div>
+
+  <!-- Area Tabel Data -->
+  <div class="table-responsive">
+    <table class="tabel-profesional">
+      <thead>
+        <tr>
+          <th>NISN</th>
+          <th>Nama Siswa</th>
+          <th>Kelas</th>
+          <th>Mata Pelajaran</th>
+          <th>Nilai</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="bodyTabelNilai">
+        <tr>
+          <td colspan="6" class="text-center data-kosong">Silahkan pilih filter kelas untuk menampilkan data.</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>
