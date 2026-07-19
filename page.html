@@ -1924,53 +1924,65 @@
   </div>
 </div>
 
-<div class="page hidden" id="nilaiLatihanPage">
-<div class="container">
-    <div class="card">
-        <div class="card-header bg-primary text-white text-center py-3">
-            <h3 class="mb-0">Daftar Nilai Latihan Siswa</h3>
-        </div>
-        <div class="card-body p-4">
-            
-            <div class="row g-3 mb-4">
-                <div class="col-md-4">
-                    <label class="form-label font-weight-bold">Cari Nama Siswa</label>
-                    <input type="text" id="searchNama" class="form-control" placeholder="Ketik nama siswa..." onkeyup="filterData()">
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label font-weight-bold">Filter Kelas</label>
-                    <select id="filterKelas" class="form-select" onchange="filterData()">
-                        <option value="">-- Semua Kelas --</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label font-weight-bold">Filter Mata Pelajaran</label>
-                    <select id="filterMapel" class="form-select" onchange="filterData()">
-                        <option value="">-- Semua Mapel --</option>
-                    </select>
-                </div>
-            </div>
+<!-- Sesuaikan ID ini dengan daftar di navigation.js Anda (nilaiLatihanPage atau hasilLatihanPage) -->
+<div id="nilaiLatihanPage" class="hidden">
+  <div class="container my-4">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white py-3">
+        <h5 class="mb-0">Cari Rekap Nilai Latihan Siswa</h5>
+      </div>
+      <div class="card-body p-4">
+        
+        <!-- ALUR FILTER BERJENJANG -->
+        <div class="row g-3 mb-4">
+          <!-- 1. Filter Kelas -->
+          <div class="col-md-4">
+            <label class="form-label fw-bold">1. Pilih Kelas</label>
+            <select id="filterDaftarKelas" class="form-select" onchange="handleKelasChange()">
+              <option value="">-- Pilih Kelas --</option>
+            </select>
+          </div>
 
-            <div class="table-responsive">
-                <table class="table table-striped table-hover table-bordered align-middle">
-                    <thead class="table-dark text-center">
-                        <tr>
-                            <th style="width: 5%">No</th>
-                            <th style="width: 25%">Nama Siswa</th>
-                            <th style="width: 15%">Kelas</th>
-                            <th style="width: 20%">Mata Pelajaran</th>
-                            <th style="width: 15%">Nilai</th>
-                            <th style="width: 20%">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabelNilai">
-                        <tr>
-                            <td colspan="6" class="text-center text-muted py-4">Sedang memuat data...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+          <!-- 2. Filter Nama (Muncul setelah Kelas dipilih) -->
+          <div class="col-md-4">
+            <label class="form-label fw-bold">2. Pilih Nama Siswa</label>
+            <select id="filterDaftarSiswa" class="form-select" onchange="handleSiswaChange()" disabled>
+              <option value="">-- Pilih Nama --</option>
+            </select>
+          </div>
 
+          <!-- 3. Filter Mapel (Muncul setelah Nama dipilih) -->
+          <div class="col-md-4">
+            <label class="form-label fw-bold">3. Pilih Mata Pelajaran</label>
+            <select id="filterDaftarMapel" class="form-select" onchange="tampilkanNilaiAkhir()" disabled>
+              <option value="">-- Pilih Mapel --</option>
+            </select>
+          </div>
         </div>
+
+        <hr>
+
+        <!-- TEMPAT MENAMPILKAN HASIL NILAI -->
+        <div id="boxHasilNilai" class="d-none">
+          <div class="row justify-content-center">
+            <div class="col-md-6 text-center">
+              <div class="p-4 border rounded bg-light">
+                <h6 class="text-muted uppercase tracking-wider">Nilai Latihan</h6>
+                <div id="textNilaiAkhir" class="display-3 fw-bold text-primary my-2">0</div>
+                <h5 id="textNamaSiswa" class="mb-1">-</h5>
+                <p id="textDetailSiswa" class="text-muted small mb-3">-</p>
+                <span id="badgeStatusAkhir" class="badge px-4 py-2 fs-6">-</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Info jika data belum dicari/kosong -->
+        <div id="boxInfoKosong" class="text-center text-muted py-5">
+          Silakan tentukan Kelas, Nama, dan Mata Pelajaran di atas untuk melihat nilai.
+        </div>
+
+      </div>
     </div>
+  </div>
 </div>
