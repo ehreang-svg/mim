@@ -319,3 +319,92 @@ async function simpanSoalBaru(event) {
         btnSubmit.innerText = teksAsliTombol;
     }
 }
+
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwGySXrBY2dmNZDS-bf-pCB6tDukp0PO_RttP2XaENv4dk4FmfRWq95CBsWqQukB2jX/exec"; 
+    
+    let semuaData = [];
+
+    // Ambil data saat halaman dibuka
+    document.addEventListener("DOMContentLoaded", function() {
+        ambilDataNilai();
+    });
+
+    function ambilDataNilai() {
+        fetch(`${WEB_APP_URL}?aksi=getDaftarNilai`)
+            .then(response => response.json())
+            .then(data => {
+                semuaData = data.nilaiSiswa;
+                isiPilihanFilter(semuaData);
+                tampilkanTabel(semuaData);
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                document.getElementById("tabelNilai").innerHTML = `
+                    <tr><td colspan="6" class="text-center text-danger">Gagal memuat data dari server.</td></tr>
+                `;
+            });
+    }
+
+    // Mengisi dropdown opsi filter Kelas & Mapel secara dinamis dari data yang ada
+    function isiPilihanFilter(data) {
+        const kelasSet = new Set();
+        const mapelSet = new Set();
+
+        data.forEach(item => {
+            if(item.kelas) kelasSet.add(item.kelas.toString().trim());
+            if(item.pelajaran) mapelSet.add(item.pelajaran.toString().trim());
+        });
+
+        const filterKelas = document.getElementById("filterKelas");
+        Array.from(kelasSet).sort().forEach(kelas => {
+            filterKelas.innerHTML += `<option value="${kelas}">${kelas}</option>`;
+        });
+
+        const filterMapel = document.getElementById("filterMapel");
+        Array.from(mapelSet).sort().forEach(mapel => {
+            filterMapel.innerHTML += `<option value="${mapel}">${mapel}</option>`;
+        });
+    }
+
+    // Fungsi Render Tabel
+    function tampilkanTabel(data) {
+        const tbody = document.getElementById("tabelNilai");
+        tbody.innerHTML = "";
+
+        if (data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-3">Data tidak ditemukan</td></tr>`;
+            return;
+        }
+
+        data.forEach((item, index) => {
+            let badgeStatus = item.status.toLowerCase() === 'lulus' ? 'bg-success' : 'bg-danger';
+            
+            tbody.innerHTML += `
+                <tr>
+                    <td class="text-center">${index + 1}</td>
+                    <td><strong>${item.nama}</strong><br><small class="text-muted">NISN: ${item.nisn}</small></td>
+                    <td class="text-center">${item.kelas}</td>
+                    <td>${item.pelajaran}</td>
+                    <td class="text-center fw-bold fs-5">${item.nilai}</td>
+                    <td class="text-center"><span class="badge ${badgeStatus} px-3 py-2">${item.status}</span></td>
+                </tr>
+            `;
+        });
+    }
+
+    // Fungsi Filter secara Real-time berdasarkan input user
+    function filterData() {
+        const keywordNama = document.getElementById("searchNama").value.toLowerCase();
+        const pilihanKelas = document.getElementById("filterKelas").value;
+        const pilihanMapel = document.getElementById("filterMapel").value;
+
+        const dataTerfilter = semuaData.filter(item => {
+            const cocokNama = item.nama.toLowerCase().includes(keywordNama);
+            const cocokKelas = pilihanKelas === "" || String(item.kelas) === pilihanKelas;
+            const cocokMapel = pilihanMapel === "" || String(item.pelajaran) === pilihanMapel;
+
+            return cocokNama && cocokKelas && cocokMapel;
+        });
+
+        tampilkanTabel(dataTerfilter);
+    }
