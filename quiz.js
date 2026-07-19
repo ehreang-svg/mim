@@ -475,4 +475,7 @@ function tampilkanNilaiSpesifik() {
   });
 }
 
+// Tambahkan ini di bagian paling bawah kode JavaScript kamu
+window.tampilkanNilaiSpesifik = tampilkanNilaiSpesifik;
+
 // Pastikan fungsi ini dipanggil di ujung akhir rantai .then() milik ambilDataNilai(), handleKelasChange(), dan handleSiswaChange()
