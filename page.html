@@ -1927,75 +1927,64 @@
 <!-- Sesuaikan ID ini dengan daftar di navigation.js Anda (nilaiLatihanPage atau hasilLatihanPage) -->
 <div id="nilaiLatihanPage" class="hidden">
   <!-- Kontainer Utama Rekap Nilai -->
-<div class="rekap-container">
-  <div class="rekap-header">
-    <h2>Daftar Nilai Latihan Siswa</h2>
-    <p class="rekap-subtitle">Pantau dan filter hasil ujian siswa secara real-time.</p>
-  </div>
-
-  <!-- Bar Filter Pilihan -->
-  <div class="filter-card">
-    <div class="filter-group">
-      <label for="filterDaftarKelas">Kelas</label>
-      <select id="filterDaftarKelas" onchange="handleKelasChange()">
-        <option value="">-- Pilih Kelas --</option>
-      </select>
-    </div>
-    
-    <div class="filter-group">
-      <label for="filterDaftarSiswa">Nama Siswa</label>
-      <select id="filterDaftarSiswa" id="filterDaftarSiswa" onchange="handleSiswaChange()" disabled>
-        <option value="">-- Pilih Siswa --</option>
-      </select>
+  <div class="rekap-container">
+    <div class="rekap-header">
+      <h2>Daftar Nilai Latihan Siswa</h2>
+      <p class="rekap-subtitle">Pantau hasil ujian siswa secara real-time.</p>
     </div>
 
-    <div class="filter-group">
-      <label for="filterDaftarMapel">Mata Pelajaran</label>
-      <select id="filterDaftarMapel" onchange="tampilkanNilaiSpesifik()" disabled>
-        <option value="">-- Pilih Pelajaran --</option>
-      </select>
-    </div>
-    
-    <button class="btn-reset" onclick="ambilDataNilai()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-      Reset Filter
-    </button>
-  </div>
+    <!-- Bar Filter Pilihan -->
+    <div class="filter-card">
+      <div class="filter-group">
+        <label for="filterDaftarKelas">Kelas</label>
+        <select id="filterDaftarKelas" onchange="handleKelasChange()">
+          <option value="">-- Pilih Kelas --</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="filterDaftarSiswa">Nama Siswa</label>
+        <!-- PERBAIKAN: ID ganda telah dihapus -->
+        <select id="filterDaftarSiswa" onchange="handleSiswaChange()" disabled>
+          <option value="">-- Pilih Siswa --</option>
+        </select>
+      </div>
 
-  <!-- Ringkasan Statistik Singkat -->
-  <div class="stats-grid" id="rekapStats" style="display: none;">
-    <div class="stat-card">
-      <span class="stat-label">Total Ujian</span>
-      <span class="stat-value" id="statTotal">-</span>
+      <div class="filter-group">
+        <label for="filterDaftarMapel">Mata Pelajaran</label>
+        <select id="filterDaftarMapel" onchange="tampilkanNilaiSpesifik()" disabled>
+          <option value="">-- Pilih Pelajaran --</option>
+        </select>
+      </div>
+      
+      <button class="btn-reset" onclick="ambilDataNilai()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M23 4v6h-6M1 20v-6h6"></path>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+        </svg>
+        Reset Filter
+      </button>
     </div>
-    <div class="stat-card success">
-      <span class="stat-label">Lulus</span>
-      <span class="stat-value" id="statLulus">-</span>
-    </div>
-    <div class="stat-card danger">
-      <span class="stat-label">Belum Lulus</span>
-      <span class="stat-value" id="statRemedi">-</span>
-    </div>
-  </div>
 
-  <!-- Area Tabel Data -->
-  <div class="table-responsive">
-    <table class="tabel-profesional">
-      <thead>
-        <tr>
-          <th>NISN</th>
-          <th>Nama Siswa</th>
-          <th>Kelas</th>
-          <th>Mata Pelajaran</th>
-          <th>Nilai</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody id="bodyTabelNilai">
-        <tr>
-          <td colspan="6" class="text-center data-kosong">Silahkan pilih filter kelas untuk menampilkan data.</td>
-        </tr>
-      </tbody>
-    </table>
+    <!-- Area Tabel Data -->
+    <div class="table-responsive">
+      <table class="tabel-profesional">
+        <thead>
+          <tr>
+            <th>NISN</th>
+            <th>Nama Siswa</th>
+            <th>Kelas</th>
+            <th>Mata Pelajaran</th>
+            <th>Nilai</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="bodyTabelNilai">
+          <tr>
+            <td colspan="6" class="text-center data-kosong">Silahkan pilih filter kelas untuk menampilkan data.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
