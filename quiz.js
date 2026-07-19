@@ -164,10 +164,14 @@ function tampilSoal(){
         document.getElementById("quiz").innerHTML = `<div class="rbm-empty-state">Belum tersedia soal untuk mata pelajaran ini.</div>`;
         return;
     }
+    
+    // index dimulai dari 0, jadi kita gunakan (index + 1) agar penomoran selalu mulai dari 1
     dataSoal.forEach((s, index) => {
+        let nomorSoalMandiri = index + 1; 
+        
         html += `
         <div class="cardSoal">
-            <span class="soal-teks">${s.no}. ${s.soal}</span>
+            <span class="soal-teks">${nomorSoalMandiri}. ${s.soal}</span>
             <label class="opsi-label" id="label-${index}-A"><input type="radio" name="q${index}" value="A"><span><b>A.</b> ${s.A}</span></label>
             <label class="opsi-label" id="label-${index}-B"><input type="radio" name="q${index}" value="B"><span><b>B.</b> ${s.B}</span></label>
             <label class="opsi-label" id="label-${index}-C"><input type="radio" name="q${index}" value="C"><span><b>C.</b> ${s.C}</span></label>
@@ -178,7 +182,6 @@ function tampilSoal(){
     html += `<button type="button" id="btnKirimQuiz" onclick="koreksi()">🚀 Kirim Jawaban</button>`;
     document.getElementById("quiz").innerHTML = html;
 }
-
 async function koreksi(){
     let benar = 0;
     document.getElementById("btnKirimQuiz").classList.add("hidden");
