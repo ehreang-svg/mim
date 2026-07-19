@@ -335,25 +335,42 @@ function ambilDataNilai() {
   resetDropdownMapel();
   sembunyikanHasil();
 
-  // Langkah A: Ambil semua data nilai dari sheet 'Hasil' untuk pencarian akhir nanti
+  console.log("Menghubungi server Apps Script di URL:", WEB_APP_URL);
+
+  // Langkah A: Ambil data nilai
   fetch(`${WEB_APP_URL}?aksi=getDaftarNilai`)
     .then(res => res.json())
     .then(data => {
-      masterDaftarNilai = data.nilaiSiswa;
+      console.log("1. Respons Master Nilai:", data);
+      masterDaftarNilai = data.nilaiSiswa || [];
       
-      // Langkah B: Ambil daftar kelas unik dari sistem (Aksi 1 di Apps Script)
+      // Langkah B: Ambil daftar kelas
       return fetch(`${WEB_APP_URL}?aksi=getKelas`);
     })
     .then(res => res.json())
     .then(data => {
+      console.log("2. Respons Daftar Kelas dari Server:", data);
+      
       const selectKelas = document.getElementById("filterDaftarKelas");
+      
+      // Validasi keamanan data jika server mengirim data kosong
+      if (!data || !data.kelas || data.kelas.length === 0) {
+        console.warn("Peringatan: Server tidak mengembalikan daftar kelas atau array kelas kosong!");
+        selectKelas.innerHTML = '<option value="">-- Kelas Tidak Ditemukan di Sheet --</option>';
+        return;
+      }
+
+      // Masukkan ke dropdown
       data.kelas.forEach(kelas => {
         selectKelas.innerHTML += `<option value="${kelas}">${kelas}</option>`;
       });
+      
+      console.log("3. Berhasil memasukkan", data.kelas.length, "kelas ke dropdown.");
     })
-    .catch(err => console.error("Gagal memuat data awal rekap:", err));
+    .catch(err => {
+      console.error("Gagal total saat mengambil data awal:", err);
+    });
 }
-
 /**
  * 2. DIPICU SAAT KELAS DIPILIH: Mengambil nama siswa berdasarkan kelas
  */
