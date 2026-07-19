@@ -1,20 +1,6 @@
-// Mengisi variabel yang sudah dideklarasikan secara global di include.js
-mataPelajaranTerpilih = ""; 
-dataSiswaQuiz = null; 
-masterDaftarNilai = []; 
-
-// Fungsi navigasi perpindahan halaman kuis siswa
-function bukaHalamanQuiz() {
-    const halamanQuiz = document.getElementById("loginQuiz");
-    if (halamanQuiz) {
-        halamanQuiz.classList.remove("hidden");
-    }
-    loadKelas(); 
-}
-
-// =========================================================================
-// FITUR UTAMA KUIS: AMBIL DATA DARI APP SCRIPT & RENDER KE HTML
-// =========================================================================
+/* =========================================================================
+   FITUR UTAMA KUIS: AMBIL DATA DARI APP SCRIPT & RENDER KE HTML
+   ========================================================================= */
 
 // 1. Fungsi mengambil daftar kelas dari spreadsheet
 async function loadKelas() {
@@ -144,7 +130,7 @@ async function mulai() {
         if (data.error) { alert(data.error); return; }
 
         dataSiswaQuiz = data.siswa;
-        dataSoal = data.soal; // Menyimpan data ke penampung global di include.js
+        dataSoal = data.soal; // Langsung mengisi variabel global dari include.js tanpa 'let'
         
         tampilSiswaQuiz();
         tampilSoal();
@@ -287,9 +273,9 @@ async function simpanSoalBaru(event) {
     }
 }
 
-// =========================================================================
-// FITUR REKAP NAMA, KELAS, DAN MAPEL DI HALAMAN REKAP NILAI SISWA
-// =========================================================================
+/* =========================================================================
+   FITUR REKAP NAMA, KELAS, DAN MAPEL DI HALAMAN REKAP NILAI SISWA
+   ========================================================================= */
 
 function ambilDataNilai() {
   const selectKelas = document.getElementById("filterDaftarKelas");
@@ -301,12 +287,10 @@ function ambilDataNilai() {
 
   console.log("Menghubungi server Apps Script di URL:", window.Quiz_API);
 
-  // Mengambil Master Nilai dari database rekap
   fetch(`${window.Quiz_API}?aksi=getDaftarNilai`)
     .then(res => res.json())
     .then(data => {
       masterDaftarNilai = data.nilaiSiswa || [];
-      // Mengambil data pilihan list kelas untuk dropdown filter
       return fetch(`${window.Quiz_API}?aksi=getKelas`);
     })
     .then(res => res.json())
