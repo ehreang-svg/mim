@@ -57,6 +57,7 @@ async function loadSiswa() {
     }
     
     try {
+        // PERBAIKAN: Memastikan parameter kelas dikirim dengan aman
         const res = await fetch(window.Quiz_API + "?aksi=getSiswaByKelas&kelas=" + encodeURIComponent(kelas), { method: "GET", redirect: "follow" });
         const data = await res.json();
         selectSiswa.innerHTML = '<option value="">-- Pilih Nama --</option>';
@@ -65,7 +66,7 @@ async function loadSiswa() {
         if (listSiswa.length > 0) {
             listSiswa.forEach(s => {
                 let opt = document.createElement("option");
-                opt.value = s.nisn;
+                opt.value = s.nisn; // Value berupa NISN untuk password nanti
                 opt.textContent = s.nama;
                 selectSiswa.appendChild(opt);
             });
@@ -113,7 +114,7 @@ async function loadPelajaran() {
 async function mulai() {
     const selectSiswa = document.getElementById("selectSiswa");
     const selectPelajaran = document.getElementById("selectPelajaran");
-    const passwordNisn = document.getElementById("passwordNisn").value;
+    const passwordNisn = document.getElementById("passwordNisn").value.trim();
     
     const nisnTerpilih = selectSiswa.value;
     mataPelajaranTerpilih = selectPelajaran.value;
@@ -122,7 +123,9 @@ async function mulai() {
         alert("Semua kolom pilihan dan password wajib diisi!");
         return;
     }
-    if (passwordNisn !== nisnTerpilih) {
+    
+    // PERBAIKAN: Paksa perbandingan string agar tidak terkendala angka/teks
+    if (String(passwordNisn) !== String(nisnTerpilih)) {
         alert("Password (NISN) salah untuk siswa yang Anda pilih!");
         return;
     }
@@ -130,10 +133,10 @@ async function mulai() {
     document.getElementById("siswa").innerHTML = "<p>Memuat lembar soal kuis...</p>";
 
     try {
-        const res = await fetch(window.Quiz_API + `?aksi=loginQuiz&nisn=${passwordNisn}&pelajaran=${encodeURIComponent(mataPelajaranTerpilih)}`, { method: "GET", redirect: "follow" });
+        const res = await fetch(window.Quiz_API + `?aksi=loginQuiz&nisn=${encodeURIComponent(passwordNisn)}&pelajaran=${encodeURIComponent(mataPelajaranTerpilih)}`, { method: "GET", redirect: "follow" });
         const data = await res.json();
         
-        if (data.error) { alert(data.error); return; }
+        if (data.error) { alert(data.message || data.error); return; }
 
         dataSiswaQuiz = data.siswa;
         dataSoal = data.soal; 
@@ -150,7 +153,7 @@ function tampilSiswaQuiz(){
     document.getElementById("areaKuis").classList.remove("hidden");
     document.getElementById("siswa").innerHTML = `
         <div class="cardQuizSiswa">
-            <img src="${dataSiswaQuiz.foto || 'https://via.placeholder.com/150'}">
+            <img src="${dataSiswaQuiz.foto || 'https://via.placeholder.com/150'}" alt="Foto Siswa">
             <div>
                 <h3>${dataSiswaQuiz.nama || '-'}</h3>
                 <p>${dataSiswaQuiz.kelas} | Mapel: <b>${mataPelajaranTerpilih}</b></p>
@@ -233,55 +236,11 @@ async function koreksi(){
     }
 }
 
-async function simpanSoalBaru(event) {
-    event.preventDefault();
-    
-    const btnSubmit = document.getElementById("btnSimpanSoal");
-    if (!btnSubmit) return;
-    
-    const teksAsliTombol = btnSubmit.innerText;
-    btnSubmit.disabled = true;
-    btnSubmit.innerText = "⏳ Sedang Menyimpan...";
-
-    const payload = {
-        tipe: "tambahSoal",
-        kelas: document.getElementById("inputKelas").value,
-        pelajaran: document.getElementById("inputPelajaran").value,
-        soal: document.getElementById("inputIsiSoal").value.trim(),
-        A: document.getElementById("inputA").value.trim(),
-        B: document.getElementById("inputB").value.trim(),
-        C: document.getElementById("inputC").value.trim(),
-        D: document.getElementById("inputD").value.trim(),
-        jawaban: document.getElementById("inputJawaban").value,
-        penjelasan: document.getElementById("inputPenjelasan").value.trim()
-    };
-
-    try {
-        const response = await fetch(window.Quiz_API, {
-            method: "POST",
-            body: JSON.stringify(payload)
-        });
-
-        const hasil = await response.text();
-
-        if (hasil === "OK_SOAL_TERSMPAN") {
-            alert("🎉 Soal berhasil disimpan ke database!");
-            document.getElementById("formInputSoal").reset();
-        } else {
-            alert("⚠️ Gagal menyimpan soal: " + hasil);
-        }
-    } catch (err) {
-        console.error(err);
-        alert("❌ Terjadi kesalahan jaringan / sistem gagal terhubung.");
-    } finally {
-        btnSubmit.disabled = false;
-        btnSubmit.innerText = teksAsliTombol;
-    }
-}
-
 /* =========================================================================
    FITUR REKAP NAMA, KELAS, DAN MAPEL DI HALAMAN REKAP NILAI SISWA
    ========================================================================= */
+
+let masterDaftarNilai = []; // Variabel penampung data rekap
 
 function ambilDataNilai() {
   const selectKelas = document.getElementById("filterDaftarKelas");
@@ -427,5 +386,11 @@ function tampilkanNilaiSpesifik() {
     `;
   });
 }
+
+// Inisialisasi awal saat dokumen selesai dimuat
+document.addEventListener("DOMContentLoaded", () => {
+    loadKelas();       // Memuat dropdown kelas di halaman Kuis
+    ambilDataNilai();  // Memuat data awal di halaman Rekap Nilai
+});
 
 window.tampilkanNilaiSpesifik = tampilkanNilaiSpesifik;
