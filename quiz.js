@@ -2,7 +2,7 @@
    FITUR UTAMA KUIS: AMBIL DATA DARI APP SCRIPT & RENDER KE HTML
    ========================================================================= */
 
-// 1. Fungsi mengambil daftar kelas dari spreadsheet untuk halaman Kuis
+// 1. Ambil daftar kelas untuk halaman Kuis Utama
 async function loadKelas() {
     try {
         const selectKelas = document.getElementById("selectKelas");
@@ -10,11 +10,9 @@ async function loadKelas() {
 
         const urlAPI = window.Quiz_API;
         if (!urlAPI) {
-            console.error("window.Quiz_API belum terdefinisi. Periksa urutan file skrip Anda.");
+            console.error("window.Quiz_API belum terdefinisi.");
             return;
         }
-
-        console.log("Memanggil URL:", urlAPI + "?aksi=getKelas");
         
         const res = await fetch(urlAPI + "?aksi=getKelas", { method: "GET", redirect: "follow" });
         if (!res.ok) return;
@@ -33,7 +31,7 @@ async function loadKelas() {
             console.log("Dropdown kelas kuis sukses diisi.");
         }
     } catch (err) {
-        console.error("Gagal total memuat kelas kuis:", err);
+        console.error("Gagal memuat kelas kuis:", err);
     }
 }
 
@@ -57,7 +55,6 @@ async function loadSiswa() {
     }
     
     try {
-        // PERBAIKAN: Memastikan parameter kelas dikirim dengan aman
         const res = await fetch(window.Quiz_API + "?aksi=getSiswaByKelas&kelas=" + encodeURIComponent(kelas), { method: "GET", redirect: "follow" });
         const data = await res.json();
         selectSiswa.innerHTML = '<option value="">-- Pilih Nama --</option>';
@@ -66,7 +63,7 @@ async function loadSiswa() {
         if (listSiswa.length > 0) {
             listSiswa.forEach(s => {
                 let opt = document.createElement("option");
-                opt.value = s.nisn; // Value berupa NISN untuk password nanti
+                opt.value = s.nisn;
                 opt.textContent = s.nama;
                 selectSiswa.appendChild(opt);
             });
@@ -77,7 +74,7 @@ async function loadSiswa() {
     }
 }
 
-// 3. Ambil mata pelajaran yang tersedia berdasarkan kelas (Halaman Kuis)
+// 3. Ambil mata pelajaran berdasarkan kelas (Halaman Kuis)
 async function loadPelajaran() {
     const selectKelasEl = document.getElementById("selectKelas");
     const selectPelajaran = document.getElementById("selectPelajaran");
@@ -124,7 +121,6 @@ async function mulai() {
         return;
     }
     
-    // PERBAIKAN: Paksa perbandingan string agar tidak terkendala angka/teks
     if (String(passwordNisn) !== String(nisnTerpilih)) {
         alert("Password (NISN) salah untuk siswa yang Anda pilih!");
         return;
@@ -240,7 +236,7 @@ async function koreksi(){
    FITUR REKAP NAMA, KELAS, DAN MAPEL DI HALAMAN REKAP NILAI SISWA
    ========================================================================= */
 
-let masterDaftarNilai = []; // Variabel penampung data rekap
+let masterDaftarNilai = []; 
 
 function ambilDataNilai() {
   const selectKelas = document.getElementById("filterDaftarKelas");
@@ -250,18 +246,12 @@ function ambilDataNilai() {
   resetDropdownMapel();
 
   fetch(`${window.Quiz_API}?aksi=getDaftarNilai`, { method: "GET", redirect: "follow" })
-    .then(res => {
-      if (!res.ok) throw new Error("Respon jaringan tidak oke");
-      return res.json();
-    })
+    .then(res => res.json())
     .then(data => {
       masterDaftarNilai = data.nilaiSiswa || [];
       return fetch(`${window.Quiz_API}?aksi=getKelas`, { method: "GET", redirect: "follow" });
     })
-    .then(res => {
-      if (!res.ok) throw new Error("Respon jaringan tidak oke");
-      return res.json();
-    })
+    .then(res => res.json())
     .then(data => {
       const selectKelas = document.getElementById("filterDaftarKelas");
       if (!selectKelas) return;
@@ -277,9 +267,7 @@ function ambilDataNilai() {
       
       tampilkanNilaiSpesifik();
     })
-    .catch(err => {
-      console.error("Gagal memuat data awal rekap nilai:", err);
-    });
+    .catch(err => console.error("Gagal memuat rekap nilai:", err));
 }
 
 function handleKelasChange() {
@@ -387,10 +375,29 @@ function tampilkanNilaiSpesifik() {
   });
 }
 
-// Inisialisasi awal saat dokumen selesai dimuat
-document.addEventListener("DOMContentLoaded", () => {
-    loadKelas();       // Memuat dropdown kelas di halaman Kuis
-    ambilDataNilai();  // Memuat data awal di halaman Rekap Nilai
-});
+// Inisialisasi DOM pencarian elemen dengan fallback anti-kosong
+function initApp() {
+    const selectKelasKuis = document.getElementById("selectKelas");
+    const selectKelasRekap = document.getElementById("filterDaftarKelas");
+
+    if (selectKelasKuis) {
+        loadKelas();
+    } else {
+        setTimeout(() => { if(document.getElementById("selectKelas")) loadKelas(); }, 500);
+    }
+
+    if (selectKelasRekap) {
+        ambilDataNilai();
+    } else {
+        setTimeout(() => { if(document.getElementById("filterDaftarKelas")) ambilDataNilai(); }, 500);
+    }
+}
+
+// listener load halaman
+if (document.readyState === "complete" || document.readyState === "interactive") {
+    initApp();
+} else {
+    window.addEventListener("load", initApp);
+}
 
 window.tampilkanNilaiSpesifik = tampilkanNilaiSpesifik;
