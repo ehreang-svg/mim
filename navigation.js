@@ -86,6 +86,11 @@ function nav(id) {
         initBuatJadwalPage();
     }
 
+   if ((id === "nilaiLatihanPage" || id === "hasilLatihanPage") && typeof ambilDataNilai === "function") {
+        console.log("Memuat rekap daftar nilai siswa...");
+        ambilDataNilai(); 
+    }
+
     if (id === "siswaMateriPage" && typeof siswaAplikasi !== "undefined") {
         console.log("Siswa masuk ke Ruang Belajar Mandiri...");
         siswaAplikasi.init();
