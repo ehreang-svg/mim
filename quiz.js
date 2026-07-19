@@ -287,13 +287,21 @@ function ambilDataNilai() {
 
   console.log("Menghubungi server Apps Script di URL:", window.Quiz_API);
 
-  fetch(`${window.Quiz_API}?aksi=getDaftarNilai`)
-    .then(res => res.json())
+  // PERBAIKAN: Menambahkan opsi redirect follow agar browser mengikuti pengalihan URL Google
+  fetch(`${window.Quiz_API}?aksi=getDaftarNilai`, { method: "GET", redirect: "follow" })
+    .then(res => {
+      if (!res.ok) throw new Error("Respon jaringan tidak oke");
+      return res.json();
+    })
     .then(data => {
       masterDaftarNilai = data.nilaiSiswa || [];
-      return fetch(`${window.Quiz_API}?aksi=getKelas`);
+      // PERBAIKAN: Menambahkan opsi redirect follow juga di sini
+      return fetch(`${window.Quiz_API}?aksi=getKelas`, { method: "GET", redirect: "follow" });
     })
-    .then(res => res.json())
+    .then(res => {
+      if (!res.ok) throw new Error("Respon jaringan tidak oke");
+      return res.json();
+    })
     .then(data => {
       const selectKelas = document.getElementById("filterDaftarKelas");
       if (!selectKelas) return;
@@ -313,7 +321,6 @@ function ambilDataNilai() {
       console.error("Gagal memuat data awal rekap nilai:", err);
     });
 }
-
 function handleKelasChange() {
   const kelasPilihan = document.getElementById("filterDaftarKelas").value;
   resetDropdownSiswa();
