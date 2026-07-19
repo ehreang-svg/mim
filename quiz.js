@@ -446,17 +446,6 @@ function tampilkanNilaiSpesifik() {
     return;
   }
 
-  // Hitung data untuk ringkasan kartu statistik singkat
-  let totalUjian = dataTersaring.length;
-  let lulus = dataTersaring.filter(i => i.status.toLowerCase() === "lulus").length;
-  let remedi = totalUjian - lulus;
-
-  // Tampilkan & isi nilai kartu statistik
-  document.getElementById("statTotal").innerText = totalUjian;
-  document.getElementById("statLulus").innerText = lulus;
-  document.getElementById("statRemedi").innerText = remedi;
-  document.getElementById("rekapStats").style.display = "grid";
-
   // Masukkan baris data ke dalam tabel dengan badge status profesional
   bodyTabel.innerHTML = "";
   dataTersaring.forEach(item => {
