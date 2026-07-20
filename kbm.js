@@ -313,55 +313,63 @@ filtered.forEach(item => {
 };
 
 function submitMateriBaru() {
-  // 1. Berburu elemen HTML dengan segala kemungkinan ID (Case Insensitive & Fallback)
-  const elKelas = document.getElementById('inputKelas') || 
-                  document.getElementById('inputMateriKelas') || 
-                  document.getElementById('kelas') ||
-                  document.querySelector('[name="kelas"]');
-                  
-  const elPelajaran = document.getElementById('inputPelajaran') || 
-                      document.getElementById('inputMateriPelajaran') || 
-                      document.getElementById('pelajaran') ||
-                      document.querySelector('[name="pelajaran"]') ||
-                      document.querySelector('[name="mapel"]');
-                      
-  const elMateri = document.getElementById('inputMateri') || 
-                   document.getElementById('inputMateriTeks') || 
-                   document.getElementById('materi') ||
-                   document.querySelector('[name="materi"]');
-                   
-  const elStatus = document.getElementById('inputStatus') || 
-                   document.getElementById('inputMateriStatus') || 
-                   document.getElementById('status') ||
-                   document.querySelector('[name="status"]');
-                   
-  const elCatatan = document.getElementById('inputCatatan') || 
-                    document.getElementById('inputMateriCatatan') || 
-                    document.getElementById('catatan') ||
-                    document.querySelector('[name="catatan"]');
+  // --- LAPIS 1: Mencari dengan ID & Atribut Umum ---
+  let elKelas = document.getElementById('inputKelas') || document.getElementById('inputMateriKelas') || document.getElementById('kelas') || document.querySelector('[name="kelas"]');
+  let elPelajaran = document.getElementById('inputPelajaran') || document.getElementById('inputMateriPelajaran') || document.getElementById('pelajaran') || document.querySelector('[name="pelajaran"]') || document.querySelector('[name="mapel"]');
+  let elMateri = document.getElementById('inputMateri') || document.getElementById('inputMateriTeks') || document.getElementById('materi') || document.querySelector('[name="materi"]');
+  let elStatus = document.getElementById('inputStatus') || document.getElementById('inputMateriStatus') || document.getElementById('status') || document.querySelector('[name="status"]');
+  let elCatatan = document.getElementById('inputCatatan') || document.getElementById('inputMateriCatatan') || document.getElementById('catatan') || document.querySelector('[name="catatan"]');
 
-  // 2. Ambil nilainya jika elemennya ditemukan
+  // --- LAPIS 2: Ambil berdasarkan urutan elemen (Jika Lapis 1 Gagal) ---
+  // Kita kumpulkan semua elemen input/select/textarea yang ada di halaman
+  const semuaInputs = Array.from(document.querySelectorAll('input, select, textarea'));
+  
+  // Cari elemen berdasarkan urutan logika umum form pembuatan materi
+  if (!elKelas) elKelas = semuaInputs.find(el => el.id.toLowerCase().includes('kelas') || el.name.toLowerCase().includes('kelas'));
+  if (!elPelajaran) elPelajaran = semuaInputs.find(el => el.id.toLowerCase().includes('pelajar') || el.id.toLowerCase().includes('mapel') || el.name.toLowerCase().includes('pelajar') || el.name.toLowerCase().includes('mapel'));
+  if (!elMateri) elMateri = semuaInputs.find(el => el.tagName === 'TEXTAREA' || el.id.toLowerCase().includes('materi') || el.name.toLowerCase().includes('materi'));
+
+  // --- LAPIS 3: Fallback darurat berdasarkan urutan index elemen di form ---
+  // Biasanya form berurutan: Kelas (input 1), Pelajaran (input 2), Materi (input 3/textarea)
+  const inputsForm = document.querySelectorAll('#formInputMateri input, #formInputMateri select, #formInputMateri textarea');
+  if (inputsForm.length >= 3) {
+    if (!elKelas) elKelas = inputsForm[0];
+    if (!elPelajaran) elPelajaran = inputsForm[1];
+    if (!elMateri) elMateri = inputsForm[2];
+  }
+
+  // Ambil nilai akhir setelah melewati 3 lapis pencarian
   const kelas = elKelas ? elKelas.value.trim() : "";
   const pelajaran = elPelajaran ? elPelajaran.value.trim() : "";
   const materi = elMateri ? elMateri.value.trim() : "";
   const status = elStatus ? elStatus.value.trim() : "🔴 Belum";
   const catatan = elCatatan ? elCatatan.value.trim() : "";
 
-  // Bantuan Debugging: Tekan F12 di browser untuk melihat apa yang ditangkap JavaScript
-  console.log("Data Terdeteksi oleh Sistem:", { kelas, pelajaran, materi, status, catatan });
-
-  // 3. Validasi field wajib
+  // 3. Validasi & Tampilkan Solusi Akurat Jika Masih Gagal
   if (!kelas || !pelajaran || !materi) {
-    alert(`⚠️ Sistem gagal membaca input Anda!\n\nPastikan field diisi. Jika sudah diisi tapi pesan ini tetap muncul, periksa atribut id/name pada file HTML Anda.\n\nDetail Terbaca:\n- Kelas: ${kelas ? '✅ Tersedia' : '❌ Kosong/Tidak Terbaca'}\n- Pelajaran: ${pelajaran ? '✅ Tersedia' : '❌ Kosong/Tidak Terbaca'}\n- Materi: ${materi ? '✅ Tersedia' : '❌ Kosong/Tidak Terbaca'}`);
+    // Kumpulkan semua ID yang ada di halaman Anda untuk melacak masalahnya
+    const listIDMasyarakat = semuaInputs.map(el => `Tag: ${el.tagName} | ID: "${el.id}" | Name: "${el.name}"`).join('\n');
+    
+    alert(`⚠️ SISTEM MASIH GAGAL MEMBACA INPUT!
+---------------------------------------------
+Kondisi Terbaca:
+- Kelas: ${kelas ? '✅ Terisi ('+kelas+')' : '❌ KOSONG / ID Salah'}
+- Pelajaran: ${pelajaran ? '✅ Terisi ('+pelajaran+')' : '❌ KOSONG / ID Salah'}
+- Materi: ${materi ? '✅ Terisi' : '❌ KOSONG / ID Salah'}
+
+---------------------------------------------
+Daftar Element Input yang Ditemukan di Web Anda:
+${listIDMasyarakat || "Tidak ada elemen input sama sekali yang terdeteksi!"}
+
+💡 SOLUSI: Silakan screenshot/salin isi pesan ini ke ruang obrolan agar saya tahu nama ID asli yang Anda gunakan pada file HTML.`);
     return;
   }
 
-  // Tampilkan loading
+  // 4. Kirim Data ke Google Sheets (Jika lolos validasi)
   if (typeof aplikasi !== "undefined" && typeof aplikasi.showLoading === "function") {
     aplikasi.showLoading(true);
   }
 
-  // 4. Kirim ke Google Apps Script
   if (window.KBM_API) {
     const urlTambahkan = `${window.KBM_API}?action=tambahMateriBaru` +
                           `&kelas=${encodeURIComponent(kelas)}` +
@@ -371,40 +379,24 @@ function submitMateriBaru() {
                           `&catatan=${encodeURIComponent(catatan)}`;
 
     fetch(urlTambahkan, { method: "GET", redirect: "follow" })
-      .then(res => {
-        if (!res.ok) throw new Error("Gagal terhubung ke Google Apps Script.");
-        return res.json();
-      })
+      .then(res => res.json())
       .then(response => {
         if (response.success) {
-          alert("🎉 " + (response.message || "Data materi berhasil disimpan!"));
-          
-          // Reset form input secara aman
+          alert("🎉 Data materi berhasil disimpan ke Google Sheets!");
           const formInput = document.getElementById('formInputMateri') || document.querySelector('form');
           if (formInput) formInput.reset(); 
-          
           if (typeof goBack === "function") goBack(); 
-          
-          if (typeof aplikasi !== "undefined" && typeof aplikasi.init === "function") {
-            aplikasi.init();
-          }
+          if (typeof aplikasi !== "undefined" && typeof aplikasi.init === "function") aplikasi.init();
         } else {
-          alert("❌ Gagal menyimpan ke Sheets: " + response.error);
+          alert("❌ Gagal menyimpan: " + response.error);
         }
-        if (typeof aplikasi !== "undefined" && typeof aplikasi.showLoading === "function") {
-          aplikasi.showLoading(false);
-        }
+        if (typeof aplikasi !== "undefined" && typeof aplikasi.showLoading === "function") aplikasi.showLoading(false);
       })
       .catch(err => {
         alert("⚠️ Gangguan Jaringan: " + err.message);
-        if (typeof aplikasi !== "undefined" && typeof aplikasi.showLoading === "function") {
-          aplikasi.showLoading(false);
-        }
+        if (typeof aplikasi !== "undefined" && typeof aplikasi.showLoading === "function") aplikasi.showLoading(false);
       });
   } else {
-    alert("🛑 Konfigurasi Gagal: API URL (window.KBM_API) tidak ditemukan.");
-    if (typeof aplikasi !== "undefined" && typeof aplikasi.showLoading === "function") {
-      aplikasi.showLoading(false);
-    }
+    alert("🛑 API URL (window.KBM_API) tidak ditemukan.");
   }
 }
