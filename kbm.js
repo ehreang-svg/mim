@@ -313,63 +313,50 @@ filtered.forEach(item => {
 };
 
 function submitMateriBaru() {
-  // --- LAPIS 1: Mencari dengan ID & Atribut Umum ---
-  let elKelas = document.getElementById('inputKelas') || document.getElementById('inputMateriKelas') || document.getElementById('kelas') || document.querySelector('[name="kelas"]');
-  let elPelajaran = document.getElementById('inputPelajaran') || document.getElementById('inputMateriPelajaran') || document.getElementById('pelajaran') || document.querySelector('[name="pelajaran"]') || document.querySelector('[name="mapel"]');
-  let elMateri = document.getElementById('inputMateri') || document.getElementById('inputMateriTeks') || document.getElementById('materi') || document.querySelector('[name="materi"]');
-  let elStatus = document.getElementById('inputStatus') || document.getElementById('inputMateriStatus') || document.getElementById('status') || document.querySelector('[name="status"]');
-  let elCatatan = document.getElementById('inputCatatan') || document.getElementById('inputMateriCatatan') || document.getElementById('catatan') || document.querySelector('[name="catatan"]');
-
-  // --- LAPIS 2: Ambil berdasarkan urutan elemen (Jika Lapis 1 Gagal) ---
-  // Kita kumpulkan semua elemen input/select/textarea yang ada di halaman
-  const semuaInputs = Array.from(document.querySelectorAll('input, select, textarea'));
+  // 1. Cari container form input materi baru
+  const form = document.getElementById('formInputMateri') || document.querySelector('form');
   
-  // Cari elemen berdasarkan urutan logika umum form pembuatan materi
-  if (!elKelas) elKelas = semuaInputs.find(el => el.id.toLowerCase().includes('kelas') || el.name.toLowerCase().includes('kelas'));
-  if (!elPelajaran) elPelajaran = semuaInputs.find(el => el.id.toLowerCase().includes('pelajar') || el.id.toLowerCase().includes('mapel') || el.name.toLowerCase().includes('pelajar') || el.name.toLowerCase().includes('mapel'));
-  if (!elMateri) elMateri = semuaInputs.find(el => el.tagName === 'TEXTAREA' || el.id.toLowerCase().includes('materi') || el.name.toLowerCase().includes('materi'));
-
-  // --- LAPIS 3: Fallback darurat berdasarkan urutan index elemen di form ---
-  // Biasanya form berurutan: Kelas (input 1), Pelajaran (input 2), Materi (input 3/textarea)
-  const inputsForm = document.querySelectorAll('#formInputMateri input, #formInputMateri select, #formInputMateri textarea');
-  if (inputsForm.length >= 3) {
-    if (!elKelas) elKelas = inputsForm[0];
-    if (!elPelajaran) elPelajaran = inputsForm[1];
-    if (!elMateri) elMateri = inputsForm[2];
+  if (!form) {
+    alert("🛑 Sistem Error: Form pengisian materi tidak ditemukan di HTML.");
+    return;
   }
 
-  // Ambil nilai akhir setelah melewati 3 lapis pencarian
+  // 2. Ambil semua elemen input di dalam form tersebut secara spesifik
+  const elKelas = form.querySelector('[id*="Kelas"]') || form.querySelector('[name*="kelas"]') || form.querySelectorAll('select, input')[0];
+  const elPelajaran = form.querySelector('[id*="Pelajar"]') || form.querySelector('[id*="Mapel"]') || form.querySelector('[name*="pelajaran"]') || form.querySelectorAll('select, input')[1];
+  const elMateri = form.querySelector('[id*="Materi"]') || form.querySelector('[id*="Teks"]') || form.querySelector('textarea') || form.querySelectorAll('select, input, textarea')[2];
+  const elStatus = form.querySelector('[id*="Status"]') || form.querySelector('[name*="status"]') || form.getElementById('inputStatus');
+  const elCatatan = form.querySelector('[id*="Catatan"]') || form.querySelector('[name*="catatan"]') || form.getElementById('inputCatatan');
+
+  // 3. Ekstrak Nilai
   const kelas = elKelas ? elKelas.value.trim() : "";
   const pelajaran = elPelajaran ? elPelajaran.value.trim() : "";
   const materi = elMateri ? elMateri.value.trim() : "";
   const status = elStatus ? elStatus.value.trim() : "🔴 Belum";
   const catatan = elCatatan ? elCatatan.value.trim() : "";
 
-  // 3. Validasi & Tampilkan Solusi Akurat Jika Masih Gagal
-  if (!kelas || !pelajaran || !materi) {
-    // Kumpulkan semua ID yang ada di halaman Anda untuk melacak masalahnya
-    const listIDMasyarakat = semuaInputs.map(el => `Tag: ${el.tagName} | ID: "${el.id}" | Name: "${el.name}"`).join('\n');
-    
-    alert(`⚠️ SISTEM MASIH GAGAL MEMBACA INPUT!
----------------------------------------------
-Kondisi Terbaca:
-- Kelas: ${kelas ? '✅ Terisi ('+kelas+')' : '❌ KOSONG / ID Salah'}
-- Pelajaran: ${pelajaran ? '✅ Terisi ('+pelajaran+')' : '❌ KOSONG / ID Salah'}
-- Materi: ${materi ? '✅ Terisi' : '❌ KOSONG / ID Salah'}
+  // Log ke console untuk Anda cek (Tekan F12 -> tab Console)
+  console.log("Mencoba Membaca Form:", { kelas, pelajaran, materi });
 
----------------------------------------------
-Daftar Element Input yang Ditemukan di Web Anda:
-${listIDMasyarakat || "Tidak ada elemen input sama sekali yang terdeteksi!"}
+  // 4. Validasi Data
+  if (!kelas || kelas === "Semua" || !pelajaran || pelajaran === "Semua" || !materi) {
+    alert(`⚠️ Input Gagal Dibaca!
+---------------------------------------
+Penyebab: Data masih kosong atau bernilai "Semua".
 
-💡 SOLUSI: Silakan screenshot/salin isi pesan ini ke ruang obrolan agar saya tahu nama ID asli yang Anda gunakan pada file HTML.`);
+Hasil scan form:
+- Kelas Terbaca: "${kelas || 'KOSONG'}"
+- Pelajaran Terbaca: "${pelajaran || 'KOSONG'}"
+- Isi Materi Terbaca: "${materi ? '✅ Terisi' : 'KOSONG'}"`);
     return;
   }
 
-  // 4. Kirim Data ke Google Sheets (Jika lolos validasi)
+  // 5. Jalankan Proses Loading
   if (typeof aplikasi !== "undefined" && typeof aplikasi.showLoading === "function") {
     aplikasi.showLoading(true);
   }
 
+  // 6. Kirim ke Google Sheets API via GET
   if (window.KBM_API) {
     const urlTambahkan = `${window.KBM_API}?action=tambahMateriBaru` +
                           `&kelas=${encodeURIComponent(kelas)}` +
@@ -382,21 +369,27 @@ ${listIDMasyarakat || "Tidak ada elemen input sama sekali yang terdeteksi!"}
       .then(res => res.json())
       .then(response => {
         if (response.success) {
-          alert("🎉 Data materi berhasil disimpan ke Google Sheets!");
-          const formInput = document.getElementById('formInputMateri') || document.querySelector('form');
-          if (formInput) formInput.reset(); 
+          alert("🎉 Data materi baru berhasil masuk ke Google Sheets!");
+          form.reset(); // Reset form otomatis
+          
           if (typeof goBack === "function") goBack(); 
-          if (typeof aplikasi !== "undefined" && typeof aplikasi.init === "function") aplikasi.init();
+          if (typeof aplikasi !== "undefined" && typeof aplikasi.init === "function") {
+            aplikasi.init(); // Refresh tabel admin
+          }
         } else {
-          alert("❌ Gagal menyimpan: " + response.error);
+          alert("❌ Gagal menyimpan ke Sheets: " + response.error);
         }
-        if (typeof aplikasi !== "undefined" && typeof aplikasi.showLoading === "function") aplikasi.showLoading(false);
+        if (typeof aplikasi !== "undefined" && typeof aplikasi.showLoading === "function") {
+          aplikasi.showLoading(false);
+        }
       })
       .catch(err => {
-        alert("⚠️ Gangguan Jaringan: " + err.message);
-        if (typeof aplikasi !== "undefined" && typeof aplikasi.showLoading === "function") aplikasi.showLoading(false);
+        alert("⚠️ Gangguan Jaringan Server: " + err.message);
+        if (typeof aplikasi !== "undefined" && typeof aplikasi.showLoading === "function") {
+          aplikasi.showLoading(false);
+        }
       });
   } else {
-    alert("🛑 API URL (window.KBM_API) tidak ditemukan.");
+    alert("🛑 Konfigurasi Gagal: URL window.KBM_API belum diset.");
   }
 }
