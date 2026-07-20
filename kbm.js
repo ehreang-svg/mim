@@ -313,16 +313,23 @@ filtered.forEach(item => {
 };
 
 function submitMateriBaru() {
-  // 1. Ambil data dari elemen HTML input
-  const kelas = document.getElementById('inputKelas').value;
-  const pelajaran = document.getElementById('inputPelajaran').value;
-  const materi = document.getElementById('inputMateri').value;
-  const status = document.getElementById('inputStatus').value;
-  const catatan = document.getElementById('inputCatatan').value;
+  // 1. Ambil data dari elemen HTML dengan sistem fallback ID alternatif
+  const elKelas = document.getElementById('inputKelas') || document.getElementById('inputMateriKelas');
+  const elPelajaran = document.getElementById('inputPelajaran') || document.getElementById('inputMateriPelajaran');
+  const elMateri = document.getElementById('inputMateri') || document.getElementById('inputMateriTeks');
+  const elStatus = document.getElementById('inputStatus') || document.getElementById('inputMateriStatus');
+  const elCatatan = document.getElementById('inputCatatan') || document.getElementById('inputMateriCatatan');
 
-  // 2. Validasi field wajib
+  // Pastikan elemen ditemukan sebelum mengambil nilainya
+  const kelas = elKelas ? elKelas.value.trim() : "";
+  const pelajaran = elPelajaran ? elPelajaran.value.trim() : "";
+  const materi = elMateri ? elMateri.value.trim() : "";
+  const status = elStatus ? elStatus.value.trim() : "🔴 Belum";
+  const catatan = elCatatan ? elCatatan.value.trim() : "";
+
+  // 2. Validasi field wajib di sisi client
   if (!kelas || !pelajaran || !materi) {
-    alert("Mohon isi Kelas, Mata Pelajaran, dan Bab/Materi!");
+    alert("📌 Mohon isi Kelas, Mata Pelajaran, dan Isi Materi terlebih dahulu!");
     return;
   }
 
@@ -333,43 +340,50 @@ function submitMateriBaru() {
 
   // 3. Cek ketersediaan URL API KBM
   if (window.KBM_API) {
-    // Susun URL dengan query parameter agar diterima oleh fungsi doGet(e) di Apps Script
+    // Susun URL query parameter untuk dibaca secara tepat oleh doGet(e) di Apps Script
     const urlTambahkan = `${window.KBM_API}?action=tambahMateriBaru` +
-                         `&kelas=${encodeURIComponent(kelas)}` +
-                         `&pelajaran=${encodeURIComponent(pelajaran)}` +
-                         `&materi=${encodeURIComponent(materi)}` +
-                         `&status=${encodeURIComponent(status)}` +
-                         `&catatan=${encodeURIComponent(catatan)}`;
+                          `&kelas=${encodeURIComponent(kelas)}` +
+                          `&pelajaran=${encodeURIComponent(pelajaran)}` +
+                          `&materi=${encodeURIComponent(materi)}` +
+                          `&status=${encodeURIComponent(status)}` +
+                          `&catatan=${encodeURIComponent(catatan)}`;
 
-    fetch(urlTambahkan)
-      .then(res => res.json())
+    fetch(urlTambahkan, { method: "GET", redirect: "follow" })
+      .then(res => {
+        if (!res.ok) throw new Error("Koneksi ke server bermasalah.");
+        return res.json();
+      })
       .then(response => {
         if (response.success) {
-          alert(response.message || "Data materi berhasil disimpan!");
-          document.getElementById('formInputMateri').reset(); // Reset form input
+          alert("🎉 " + (response.message || "Data materi berhasil disimpan!"));
           
-          if (typeof goBack === "function") goBack(); // Kembali ke halaman tabel utama
+          // Reset form input secara aman
+          const formInput = document.getElementById('formInputMateri');
+          if (formInput) formInput.reset(); 
           
-          // Refresh data tabel otomatis setelah data baru masuk
+          // Kembali ke tampilan tabel utama jika fungsi navigasi goBack tersedia
+          if (typeof goBack === "function") goBack(); 
+          
+          // Refresh data tabel otomatis agar materi baru langsung muncul di aplikasi
           if (typeof aplikasi !== "undefined" && typeof aplikasi.init === "function") {
             aplikasi.init();
           }
         } else {
-          alert("Gagal menyimpan data ke Sheets: " + response.error);
+          alert("❌ Gagal menyimpan data ke Sheets: " + response.error);
         }
+        
         if (typeof aplikasi !== "undefined" && typeof aplikasi.showLoading === "function") {
           aplikasi.showLoading(false);
         }
       })
       .catch(err => {
-        alert("Terjadi kesalahan jaringan/API KBM: " + err);
+        alert("⚠️ Terjadi kesalahan jaringan/API KBM: " + err.message);
         if (typeof aplikasi !== "undefined" && typeof aplikasi.showLoading === "function") {
           aplikasi.showLoading(false);
         }
       });
   } else {
-    // Mode cadangan (Fallback) jika API tidak diatur di hosting lokal
-    alert("API KBM (window.KBM_API) belum didefinisikan di file konfigurasi Anda.");
+    alert("🛑 API KBM (window.KBM_API) belum didefinisikan di file konfigurasi Anda.");
     if (typeof aplikasi !== "undefined" && typeof aplikasi.showLoading === "function") {
       aplikasi.showLoading(false);
     }
