@@ -313,34 +313,56 @@ filtered.forEach(item => {
 };
 
 function submitMateriBaru() {
-  // 1. Ambil data dari elemen HTML dengan sistem fallback ID alternatif
-  const elKelas = document.getElementById('inputKelas') || document.getElementById('inputMateriKelas');
-  const elPelajaran = document.getElementById('inputPelajaran') || document.getElementById('inputMateriPelajaran');
-  const elMateri = document.getElementById('inputMateri') || document.getElementById('inputMateriTeks');
-  const elStatus = document.getElementById('inputStatus') || document.getElementById('inputMateriStatus');
-  const elCatatan = document.getElementById('inputCatatan') || document.getElementById('inputMateriCatatan');
+  // 1. Berburu elemen HTML dengan segala kemungkinan ID (Case Insensitive & Fallback)
+  const elKelas = document.getElementById('inputKelas') || 
+                  document.getElementById('inputMateriKelas') || 
+                  document.getElementById('kelas') ||
+                  document.querySelector('[name="kelas"]');
+                  
+  const elPelajaran = document.getElementById('inputPelajaran') || 
+                      document.getElementById('inputMateriPelajaran') || 
+                      document.getElementById('pelajaran') ||
+                      document.querySelector('[name="pelajaran"]') ||
+                      document.querySelector('[name="mapel"]');
+                      
+  const elMateri = document.getElementById('inputMateri') || 
+                   document.getElementById('inputMateriTeks') || 
+                   document.getElementById('materi') ||
+                   document.querySelector('[name="materi"]');
+                   
+  const elStatus = document.getElementById('inputStatus') || 
+                   document.getElementById('inputMateriStatus') || 
+                   document.getElementById('status') ||
+                   document.querySelector('[name="status"]');
+                   
+  const elCatatan = document.getElementById('inputCatatan') || 
+                    document.getElementById('inputMateriCatatan') || 
+                    document.getElementById('catatan') ||
+                    document.querySelector('[name="catatan"]');
 
-  // Pastikan elemen ditemukan sebelum mengambil nilainya
+  // 2. Ambil nilainya jika elemennya ditemukan
   const kelas = elKelas ? elKelas.value.trim() : "";
   const pelajaran = elPelajaran ? elPelajaran.value.trim() : "";
   const materi = elMateri ? elMateri.value.trim() : "";
   const status = elStatus ? elStatus.value.trim() : "🔴 Belum";
   const catatan = elCatatan ? elCatatan.value.trim() : "";
 
-  // 2. Validasi field wajib di sisi client
+  // Bantuan Debugging: Tekan F12 di browser untuk melihat apa yang ditangkap JavaScript
+  console.log("Data Terdeteksi oleh Sistem:", { kelas, pelajaran, materi, status, catatan });
+
+  // 3. Validasi field wajib
   if (!kelas || !pelajaran || !materi) {
-    alert("📌 Mohon isi Kelas, Mata Pelajaran, dan Isi Materi terlebih dahulu!");
+    alert(`⚠️ Sistem gagal membaca input Anda!\n\nPastikan field diisi. Jika sudah diisi tapi pesan ini tetap muncul, periksa atribut id/name pada file HTML Anda.\n\nDetail Terbaca:\n- Kelas: ${kelas ? '✅ Tersedia' : '❌ Kosong/Tidak Terbaca'}\n- Pelajaran: ${pelajaran ? '✅ Tersedia' : '❌ Kosong/Tidak Terbaca'}\n- Materi: ${materi ? '✅ Tersedia' : '❌ Kosong/Tidak Terbaca'}`);
     return;
   }
 
-  // Tampilkan indikator loading jika fungsi showLoading tersedia
+  // Tampilkan loading
   if (typeof aplikasi !== "undefined" && typeof aplikasi.showLoading === "function") {
     aplikasi.showLoading(true);
   }
 
-  // 3. Cek ketersediaan URL API KBM
+  // 4. Kirim ke Google Apps Script
   if (window.KBM_API) {
-    // Susun URL query parameter untuk dibaca secara tepat oleh doGet(e) di Apps Script
     const urlTambahkan = `${window.KBM_API}?action=tambahMateriBaru` +
                           `&kelas=${encodeURIComponent(kelas)}` +
                           `&pelajaran=${encodeURIComponent(pelajaran)}` +
@@ -350,7 +372,7 @@ function submitMateriBaru() {
 
     fetch(urlTambahkan, { method: "GET", redirect: "follow" })
       .then(res => {
-        if (!res.ok) throw new Error("Koneksi ke server bermasalah.");
+        if (!res.ok) throw new Error("Gagal terhubung ke Google Apps Script.");
         return res.json();
       })
       .then(response => {
@@ -358,32 +380,29 @@ function submitMateriBaru() {
           alert("🎉 " + (response.message || "Data materi berhasil disimpan!"));
           
           // Reset form input secara aman
-          const formInput = document.getElementById('formInputMateri');
+          const formInput = document.getElementById('formInputMateri') || document.querySelector('form');
           if (formInput) formInput.reset(); 
           
-          // Kembali ke tampilan tabel utama jika fungsi navigasi goBack tersedia
           if (typeof goBack === "function") goBack(); 
           
-          // Refresh data tabel otomatis agar materi baru langsung muncul di aplikasi
           if (typeof aplikasi !== "undefined" && typeof aplikasi.init === "function") {
             aplikasi.init();
           }
         } else {
-          alert("❌ Gagal menyimpan data ke Sheets: " + response.error);
+          alert("❌ Gagal menyimpan ke Sheets: " + response.error);
         }
-        
         if (typeof aplikasi !== "undefined" && typeof aplikasi.showLoading === "function") {
           aplikasi.showLoading(false);
         }
       })
       .catch(err => {
-        alert("⚠️ Terjadi kesalahan jaringan/API KBM: " + err.message);
+        alert("⚠️ Gangguan Jaringan: " + err.message);
         if (typeof aplikasi !== "undefined" && typeof aplikasi.showLoading === "function") {
           aplikasi.showLoading(false);
         }
       });
   } else {
-    alert("🛑 API KBM (window.KBM_API) belum didefinisikan di file konfigurasi Anda.");
+    alert("🛑 Konfigurasi Gagal: API URL (window.KBM_API) tidak ditemukan.");
     if (typeof aplikasi !== "undefined" && typeof aplikasi.showLoading === "function") {
       aplikasi.showLoading(false);
     }
