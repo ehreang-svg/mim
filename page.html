@@ -330,15 +330,14 @@
     </div>
 
 </div>
-<!-- ABSEN SISWA -->
-<div class="page hidden" id="absenSiswaPage">
+<!-- ABSEN SISWA --><div class="page hidden" id="absenSiswaPage">
   <div class="back" onclick="goBack()">← Kembali</div>
 
   <div class="card">
     <h2>Absensi Siswa</h2>
     <br>
 
-    <!-- 1. PILIH KELAS (Dipakai untuk Mandiri & Kolektif) -->
+    <!-- 1. PILIH KELAS (Mandiri & Kolektif) -->
     <div class="mb-3">
       <label for="kelasFilter" class="form-label">Pilih Kelas</label>
       <select id="kelasFilter" onchange="handlePilihKelas()" class="form-select">
@@ -360,7 +359,7 @@
 
     <hr>
 
-    <!-- SECTION A: MODE ABSEN MANDIRI (Awalnya tersembunyi/hidden) -->
+    <!-- SECTION A: MODE ABSEN MANDIRI (Awalnya tersembunyi/d-none) -->
     <div id="sectionAbsenMandiri" class="d-none">
       <div class="mb-3">
         <label for="namaSiswa" class="form-label">Pilih Nama Siswa</label>
