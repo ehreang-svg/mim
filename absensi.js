@@ -298,33 +298,29 @@ async function exportPDF() {
 
 /* ================= ABSENSI SISWA ================= */
 
-// FUNGSI BARU: Dipanggil oleh event onchange di dropdown kelas HTML
 function handlePilihKelas() {
-    filterKelas(); // Memanggil fungsi pemfilteran nama siswa
+    filterKelas();
     
-    // Jika tampilan kolektif sedang aktif, render ulang tabel kolektif
-    const containerKolektif = document.getElementById("containerAbsenKolektif");
-    if (containerKolektif && containerKolektif.style.display !== "none") {
+    // Jika section kolektif sedang aktif, render ulang tabelnya
+    const sectionKolektif = document.getElementById("sectionAbsenKolektif");
+    if (sectionKolektif && !sectionKolektif.classList.contains("d-none")) {
         renderTabelAbsenKolektif();
     }
 }
 
-// FUNGSI BARU: Dipanggil oleh event onchange di radio button / toggle mode HTML
-function switchModeAbsen() {
-    const modeIndividu = document.getElementById("modeIndividu");
-    const containerIndividu = document.getElementById("formIndividu"); // Sesuaikan ID jika beda di HTML
-    const containerKolektif = document.getElementById("containerAbsenKolektif");
+function switchModeAbsen(mode) {
+    const sectionMandiri = document.getElementById("sectionAbsenMandiri");
+    const sectionKolektif = document.getElementById("sectionAbsenKolektif");
 
-    const isIndividu = modeIndividu ? modeIndividu.checked : true;
+    if (!sectionMandiri || !sectionKolektif) return;
 
-    if (containerIndividu) {
-        containerIndividu.style.display = isIndividu ? "block" : "none";
-    }
-    if (containerKolektif) {
-        containerKolektif.style.display = isIndividu ? "none" : "block";
-        if (!isIndividu) {
-            renderTabelAbsenKolektif();
-        }
+    if (mode === "mandiri") {
+        sectionMandiri.classList.remove("d-none");
+        sectionKolektif.classList.add("d-none");
+    } else {
+        sectionMandiri.classList.add("d-none");
+        sectionKolektif.classList.remove("d-none");
+        renderTabelAbsenKolektif();
     }
 }
 
@@ -346,7 +342,7 @@ async function loadDataSiswa() {
         const kelasInput = document.getElementById("kelasSiswa");
 
         if (kelasSelect) {
-            let options = '<option value="">Pilih Kelas</option>';
+            let options = '<option value="">-- Pilih Kelas --</option>';
             const listKelas = [...new Set(dataSiswa.map((x) => x.kelas))].sort();
             listKelas.forEach((k) => {
                 options += `<option value="${k}">${k}</option>`;
@@ -354,7 +350,7 @@ async function loadDataSiswa() {
             kelasSelect.innerHTML = options;
         }
 
-        if (namaSelect) namaSelect.innerHTML = '<option value="">Pilih Nama Siswa</option>';
+        if (namaSelect) namaSelect.innerHTML = '<option value="">-- Pilih Nama Siswa --</option>';
         if (kelasInput) kelasInput.value = "";
     } catch (err) {
         console.error("Gagal memuat data siswa:", err);
@@ -369,7 +365,7 @@ function filterKelas() {
     if (!kelasSelect || !namaSelect) return;
 
     const kelas = kelasSelect.value;
-    let options = '<option value="">Pilih Nama Siswa</option>';
+    let options = '<option value="">-- Pilih Nama Siswa --</option>';
 
     if (kelasInput) kelasInput.value = "";
 
@@ -508,7 +504,7 @@ function tampilRekapSiswa(data) {
             <td>${x.terlambat || 0}</td>
             <td>${persen}%</td>
             <td>
-                <button onclick="cetakSiswa('${x.nama}', '${bulanVal}')">
+                <button class="btn btn-sm btn-primary" onclick="cetakSiswa('${x.nama}', '${bulanVal}')">
                     📄 Cetak
                 </button>
             </td>
@@ -632,7 +628,7 @@ function renderTabelAbsenKolektif() {
     const kelas = kelasSelect.value;
 
     if (!kelas) {
-        container.innerHTML = "<p>Pilih kelas terlebih dahulu.</p>";
+        container.innerHTML = `<p class="text-muted">Silakan pilih kelas di atas untuk menampilkan daftar siswa.</p>`;
         return;
     }
 
@@ -641,7 +637,7 @@ function renderTabelAbsenKolektif() {
         .sort((a, b) => a.nama.localeCompare(b.nama));
 
     if (siswaKelas.length === 0) {
-        container.innerHTML = "<p>Tidak ada siswa di kelas ini.</p>";
+        container.innerHTML = `<p class="text-danger">Tidak ada siswa terdaftar di kelas ${kelas}.</p>`;
         return;
     }
 
@@ -649,9 +645,9 @@ function renderTabelAbsenKolektif() {
     <table class="table align-middle">
         <thead>
             <tr>
-                <th>No</th>
+                <th style="width: 50px;">No</th>
                 <th>Nama Siswa</th>
-                <th>Status Kehadiran</th>
+                <th style="width: 200px;">Status Kehadiran</th>
             </tr>
         </thead>
         <tbody>
@@ -677,7 +673,7 @@ function renderTabelAbsenKolektif() {
     html += `
         </tbody>
     </table>
-    <button type="button" class="btn btn-primary mt-3" onclick="submitAbsenSiswaKolektif()">
+    <button type="button" class="btn btn-primary w-100 mt-3" onclick="submitAbsenSiswaKolektif()">
         Simpan Absensi Kolektif
     </button>
     `;
@@ -730,6 +726,7 @@ async function submitAbsenSiswaKolektif() {
 /* ================= DOM READY ================= */
 
 document.addEventListener("DOMContentLoaded", () => {
+    // Inisialisasi awal foto absen guru
     const jenisAbsen = document.getElementById("jenisAbsen");
     const fotoGroup = document.getElementById("fotoGroup");
 
@@ -741,8 +738,12 @@ document.addEventListener("DOMContentLoaded", () => {
         toggleFoto();
     }
 
+    // Inisialisasi awal Rekap Guru jika halaman terbuka
     const rekapPage = document.getElementById("rekapGuruPage");
     if (rekapPage) {
         loadRekap();
     }
+
+    // Muat data siswa secara otomatis untuk opsi dropdown kelas & nama
+    loadDataSiswa();
 });
