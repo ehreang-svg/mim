@@ -332,33 +332,68 @@
 </div>
 <!-- ABSEN SISWA -->
 <div class="page hidden" id="absenSiswaPage">
-<div class="back" onclick="goBack()">← Kembali</div>
+  <div class="back" onclick="goBack()">← Kembali</div>
 
-<div class="card">
-<h2>Absensi Siswa</h2>
-<br>
+  <div class="card">
+    <h2>Absensi Siswa</h2>
+    <br>
 
-<!-- PILIH KELAS -->
-<select id="kelasFilter" onchange="filterKelas()">
-<option value="">Pilih Kelas</option>
-</select>
+    <!-- 1. PILIH KELAS (Dipakai untuk Mandiri & Kolektif) -->
+    <div class="mb-3">
+      <label for="kelasFilter" class="form-label">Pilih Kelas</label>
+      <select id="kelasFilter" onchange="handlePilihKelas()" class="form-select">
+        <option value="">-- Pilih Kelas --</option>
+      </select>
+    </div>
 
-<!-- PILIH SISWA (sesuai kelas) -->
-<select id="namaSiswa" onchange="pilihSiswa()">
-<option value="">Pilih Nama Siswa</option>
-</select>
+    <!-- 2. PILIH MODE ABSENSI -->
+    <div class="mb-3">
+      <label class="form-label">Mode Absensi:</label>
+      <div class="btn-group w-100" role="group">
+        <input type="radio" class="btn-check" name="modeAbsen" id="modeKolektif" value="kolektif" checked onchange="switchModeAbsen('kolektif')">
+        <label class="btn btn-outline-primary" for="modeKolektif">Absen Kolektif (Satu Kelas)</label>
 
-<input id="kelasSiswa" readonly placeholder="Kelas">
+        <input type="radio" class="btn-check" name="modeAbsen" id="modeMandiri" value="mandiri" onchange="switchModeAbsen('mandiri')">
+        <label class="btn btn-outline-primary" for="modeMandiri">Absen Per Siswa</label>
+      </div>
+    </div>
 
-<select id="kehadiranSiswa">
-<option value="HADIR">HADIR</option>
-<option value="IZIN">IZIN</option>
-<option value="SAKIT">SAKIT</option>
-</select>
+    <hr>
 
-<button onclick="submitAbsenSiswa()">Simpan Absensi</button>
+    <!-- SECTION A: MODE ABSEN MANDIRI (Awalnya tersembunyi/hidden) -->
+    <div id="sectionAbsenMandiri" class="d-none">
+      <div class="mb-3">
+        <label for="namaSiswa" class="form-label">Pilih Nama Siswa</label>
+        <select id="namaSiswa" onchange="pilihSiswa()" class="form-select">
+          <option value="">-- Pilih Nama Siswa --</option>
+        </select>
+      </div>
 
-</div>
+      <div class="mb-3">
+        <input id="kelasSiswa" readonly placeholder="Kelas Siswa" class="form-control" />
+      </div>
+
+      <div class="mb-3">
+        <label for="kehadiranSiswa" class="form-label">Status Kehadiran</label>
+        <select id="kehadiranSiswa" class="form-select">
+          <option value="HADIR">HADIR</option>
+          <option value="IZIN">IZIN</option>
+          <option value="SAKIT">SAKIT</option>
+          <option value="ALPA">ALPA / TIDAK HADIR</option>
+        </select>
+      </div>
+
+      <button type="button" class="btn btn-primary w-100" onclick="submitAbsenSiswa()">Simpan Absensi Mandiri</button>
+    </div>
+
+    <!-- SECTION B: MODE ABSEN KOLEKTIF (Default Aktif) -->
+    <div id="sectionAbsenKolektif">
+      <div id="containerAbsenKolektif">
+        <p class="text-muted">Silakan pilih kelas di atas untuk menampilkan daftar siswa.</p>
+      </div>
+    </div>
+
+  </div>
 </div>
 
 <!-- REKAP ABSEN -->
