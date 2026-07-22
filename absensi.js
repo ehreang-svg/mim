@@ -298,6 +298,36 @@ async function exportPDF() {
 
 /* ================= ABSENSI SISWA ================= */
 
+// FUNGSI BARU: Dipanggil oleh event onchange di dropdown kelas HTML
+function handlePilihKelas() {
+    filterKelas(); // Memanggil fungsi pemfilteran nama siswa
+    
+    // Jika tampilan kolektif sedang aktif, render ulang tabel kolektif
+    const containerKolektif = document.getElementById("containerAbsenKolektif");
+    if (containerKolektif && containerKolektif.style.display !== "none") {
+        renderTabelAbsenKolektif();
+    }
+}
+
+// FUNGSI BARU: Dipanggil oleh event onchange di radio button / toggle mode HTML
+function switchModeAbsen() {
+    const modeIndividu = document.getElementById("modeIndividu");
+    const containerIndividu = document.getElementById("formIndividu"); // Sesuaikan ID jika beda di HTML
+    const containerKolektif = document.getElementById("containerAbsenKolektif");
+
+    const isIndividu = modeIndividu ? modeIndividu.checked : true;
+
+    if (containerIndividu) {
+        containerIndividu.style.display = isIndividu ? "block" : "none";
+    }
+    if (containerKolektif) {
+        containerKolektif.style.display = isIndividu ? "none" : "block";
+        if (!isIndividu) {
+            renderTabelAbsenKolektif();
+        }
+    }
+}
+
 async function loadDataSiswa() {
     try {
         const apiUrl = getAbsenApiUrl();
