@@ -7,7 +7,6 @@ const ABSEN_API = window.ABSEN_API || "";
 const SCRIPT_URL = ABSEN_API;
 
 // Inisialisasi variabel global
-const HARI_LIBUR = window.HARI_LIBUR || []; // Cegah error jika HARI_LIBUR tidak didefinisikan
 let rekapGuruData = [];
 let dataSiswa = [];
 
