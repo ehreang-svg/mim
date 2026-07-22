@@ -781,3 +781,110 @@ async function exportPDFSiswa(){
     }
 
 }
+// Render tabel presensi kolektif saat kelas dipilih
+function renderTabelAbsenKolektif() {
+  const kelas = document.getElementById("kelasFilter").value;
+  const container = document.getElementById("containerAbsenKolektif");
+
+  if (!kelas) {
+    container.innerHTML = "<p>Pilih kelas terlebih dahulu.</p>";
+    return;
+  }
+
+  const siswaKelas = dataSiswa
+    .filter(x => x.kelas === kelas)
+    .sort((a, b) => a.nama.localeCompare(b.nama));
+
+  if (siswaKelas.length === 0) {
+    container.innerHTML = "<p>Tidak ada siswa di kelas ini.</p>";
+    return;
+  }
+
+  let html = `
+    <table class="table align-middle">
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Nama Siswa</th>
+          <th>Status Kehadiran</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  siswaKelas.forEach((s, idx) => {
+    html += `
+      <tr>
+        <td>${idx + 1}</td>
+        <td><strong>${s.nama}</strong></td>
+        <td>
+          <select class="form-select status-kehadiran-siswa" data-nama="${s.nama}" data-kelas="${s.kelas}">
+            <option value="HADIR" selected>HADIR</option>
+            <option value="IZIN">IZIN</option>
+            <option value="SAKIT">SAKIT</option>
+            <option value="ALPA">ALPA / TIDAK HADIR</option>
+          </select>
+        </td>
+      </tr>
+    `;
+  });
+
+  html += `
+      </tbody>
+    </table>
+    <button type="button" class="btn btn-primary mt-3" onclick="submitAbsenSiswaKolektif()">
+      Simpan Absensi Kolektif
+    </button>
+  `;
+
+  container.innerHTML = html;
+}
+
+// Fungsi untuk mengirim seluruh daftar presensi siswa
+async function submitAbsenSiswaKolektif() {
+  const selectElements = document.querySelectorAll(".status-kehadiran-siswa");
+  
+  if (selectElements.length === 0) {
+    alert("Pilih kelas dan tampilkan data siswa terlebih dahulu.");
+    return;
+  }
+
+  const listSiswa = [];
+  selectElements.forEach(el => {
+    listSiswa.push({
+      nama: el.getAttribute("data-nama"),
+      kelas: el.getAttribute("data-kelas"),
+      kehadiran: el.value
+    });
+  });
+
+  const sekarang = new Date();
+  const hari = sekarang.toLocaleDateString("id-ID", { weekday: "long" });
+  const tanggal = sekarang.getDate();
+  const bulan = sekarang.toLocaleDateString("id-ID", { month: "long" });
+  const jam = sekarang.toLocaleTimeString("id-ID", {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+
+  try {
+    const res = await fetch(ABSEN_API, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "absenSiswaKolektif",
+        hari: hari,
+        tanggal: tanggal,
+        bulan: bulan,
+        masuk: jam,
+        pulang: "",
+        listSiswa: listSiswa
+      })
+    });
+
+    const result = await res.json();
+    alert(result.message);
+
+  } catch (err) {
+    alert("Terjadi kesalahan: " + err);
+  }
+}
