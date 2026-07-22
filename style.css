@@ -915,3 +915,149 @@ body:has(#chatPage:not(.hidden)) .copyright {
 @media (min-width: 1024px) {
     .rbm-siswa-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
+/* ==========================================================================
+   9. ABSEN KOLEKTIF & STATUS TOGGLE STYLES (FIX)
+   ========================================================================== */
+
+/* Container Utama Absen Kolektif */
+.rbm-absen-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+/* Card Per Siswa dalam Absen Kolektif */
+.rbm-absen-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
+}
+
+.rbm-absen-item:hover {
+    border-color: #cbd5e1;
+    background-color: #f8fafc;
+}
+
+/* Info Siswa (Foto / Nama / NIS) */
+.rbm-absen-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.rbm-absen-user img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.rbm-absen-nama {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-main);
+}
+
+.rbm-absen-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* Group Button Status Absen (Hadir, Izin, Sakit, Alpa) */
+.rbm-absen-options {
+    display: flex;
+    gap: 6px;
+    background: #f1f5f9;
+    padding: 4px;
+    border-radius: 8px;
+}
+
+/* Menyembunyikan radio/checkbox bawaan browser */
+.rbm-absen-options input[type="radio"] {
+    display: none !important;
+}
+
+/* Label Status bertindak sebagai Tombol Klik */
+.rbm-absen-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #64748b;
+    background: transparent;
+    transition: all 0.2s ease;
+    user-select: none;
+    margin-bottom: 0 !important; /* Overwrite global input margin */
+    box-shadow: none !important;
+    width: auto !important;
+}
+
+.rbm-absen-btn:hover {
+    color: var(--text-main);
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* STATE AKTIF Sesuai Status (Saat Radio di-check) */
+.rbm-absen-options input[value="H"]:checked + .rbm-absen-btn,
+.rbm-absen-btn.active-hadir {
+    background-color: #10b981 !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2) !important;
+}
+
+.rbm-absen-options input[value="I"]:checked + .rbm-absen-btn,
+.rbm-absen-btn.active-izin {
+    background-color: #3b82f6 !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2) !important;
+}
+
+.rbm-absen-options input[value="S"]:checked + .rbm-absen-btn,
+.rbm-absen-btn.active-sakit {
+    background-color: #f59e0b !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2) !important;
+}
+
+.rbm-absen-options input[value="A"]:checked + .rbm-absen-btn,
+.rbm-absen-btn.active-alpa {
+    background-color: #ef4444 !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2) !important;
+}
+
+/* Tombol Aksi Cepat Kolektif (Set Semua Hadir) */
+.rbm-absen-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    gap: 12px;
+}
+
+.rbm-absen-toolbar button {
+    width: auto !important;
+}
+
+/* Penyelesaian CSS Terpotong di Bagian Chat */
+#chatPage .sidebar-overlay {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 10;
+}
