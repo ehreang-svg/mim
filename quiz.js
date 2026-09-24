@@ -236,7 +236,7 @@ async function koreksi(){
 }
 
 /* =========================================================================
-   FITUR REKAP NAMA, KELAS, DAN MAPEL DI HALAMAN REKAP NILAI SISWA
+   FITUR REKAP NAMA, KELAS, DAN MAPEL DI HALAMAN REKAP NILAI SISWA (DIUPDATE)
    ========================================================================= */
 
 let masterDaftarNilai = []; 
@@ -283,6 +283,7 @@ function handleKelasChange() {
     return;
   }
 
+  // 1. Ambil data siswa berdasarkan kelas & hidupkan dropdown siswa
   fetch(`${window.Quiz_API}?aksi=getSiswaByKelas&kelas=${encodeURIComponent(kelasPilihan)}`)
     .then(res => res.json())
     .then(data => {
@@ -293,23 +294,10 @@ function handleKelasChange() {
       data.siswa.forEach(siswa => {
         selectSiswa.innerHTML += `<option value="${siswa.nisn}">${siswa.nama}</option>`;
       });
-
-      tampilkanNilaiSpesifik();
     })
     .catch(err => console.error("Gagal memuat daftar siswa rekap:", err));
-}
 
-function handleSiswaChange() {
-  const kelasPilihan = document.getElementById("filterDaftarKelas").value;
-  const nisnPilihan = document.getElementById("filterDaftarSiswa").value;
-  
-  resetDropdownMapel();
-
-  if (!nisnPilihan) {
-    tampilkanNilaiSpesifik();
-    return;
-  }
-
+  // 2. Ambil data mapel berdasarkan kelas & langsung hidupkan dropdown mapel (Meskipun siswa belum dipilih)
   fetch(`${window.Quiz_API}?aksi=getPelajaranByKelas&kelas=${encodeURIComponent(kelasPilihan)}`)
     .then(res => res.json())
     .then(data => {
@@ -320,10 +308,15 @@ function handleSiswaChange() {
       data.pelajaran.forEach(mapel => {
         selectMapel.innerHTML += `<option value="${mapel}">${mapel}</option>`;
       });
-
-      tampilkanNilaiSpesifik();
     })
     .catch(err => console.error("Gagal memuat pelajaran rekap:", err));
+
+  tampilkanNilaiSpesifik();
+}
+
+function handleSiswaChange() {
+  // Ketika siswa dipilih, cukup panggil ulang filter tampilannya saja karena mapel sudah aktif sebelumnya
+  tampilkanNilaiSpesifik();
 }
 
 function resetDropdownSiswa() {
