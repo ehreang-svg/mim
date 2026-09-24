@@ -1958,9 +1958,10 @@
   </div>
 </div>
 
-<!-- Sesuaikan ID ini dengan daftar di navigation.js Anda (nilaiLatihanPage atau hasilLatihanPage) -->
-<div id="nilaiLatihanPage" class="hidden">
+<!-- Halaman Rekap Nilai Latihan Siswa -->
+<div id="nilaiLatihanPage" class="hidden page">
   <div class="back" onclick="goBack()">← Kembali</div>
+  
   <!-- Kontainer Utama Rekap Nilai -->
   <div class="rekap-container">
     <div class="rekap-header">
@@ -1979,7 +1980,6 @@
 
       <div class="filter-group">
         <label for="filterDaftarMapel">Mata Pelajaran</label>
-        <!-- DIPERBAIKI: Mengubah onchange dari tampilkanNilaiSpesifik() menjadi handleMapelChange() -->
         <select id="filterDaftarMapel" onchange="handleMapelChange()" disabled>
           <option value="">-- Pilih Pelajaran --</option>
         </select>
@@ -2000,11 +2000,9 @@
         Reset Filter
       </button>
     </div>
-  </div>
-</div>
 
-    <!-- Area Tabel Data -->
-    <div class="table-responsive">
+    <!-- Area Tabel Data (SUDAH MASUK KE DALAM HALAMAN) -->
+    <div class="table-responsive" style="margin-top: 20px;">
       <table class="tabel-profesional">
         <thead>
           <tr>
@@ -2023,4 +2021,6 @@
         </tbody>
       </table>
     </div>
-</div>
+
+  </div> <!-- Penutup .rekap-container -->
+</div> <!-- Penutup #nilaiLatihanPage (PASTIKAN PENUTUP INI BERADA DI SINI) -->
