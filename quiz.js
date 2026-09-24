@@ -388,9 +388,9 @@ function tampilkanNilaiSpesifik() {
   });
 }
 // Inisialisasi DOM pencarian elemen dengan fallback anti-kosong
+// Inisialisasi DOM pencarian elemen dengan fallback anti-kosong
 function initApp() {
     const selectKelasKuis = document.getElementById("selectKelas");
-    const selectKelasRekap = document.getElementById("filterDaftarKelas");
 
     if (selectKelasKuis) {
         loadKelas();
@@ -398,11 +398,8 @@ function initApp() {
         setTimeout(() => { if(document.getElementById("selectKelas")) loadKelas(); }, 500);
     }
 
-    if (selectKelasRekap) {
-        ambilDataNilai();
-    } else {
-        setTimeout(() => { if(document.getElementById("filterDaftarKelas")) ambilDataNilai(); }, 500);
-    }
+    // Bagian pemanggilan otomatis untuk rekap nilai sengaja dihapus/dinonaktifkan
+    // agar tabel rekap tidak muncul secara otomatis di dashboard.
 }
 
 // listener load halaman
