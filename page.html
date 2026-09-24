@@ -1960,7 +1960,7 @@
 
 <!-- Sesuaikan ID ini dengan daftar di navigation.js Anda (nilaiLatihanPage atau hasilLatihanPage) -->
 <div id="nilaiLatihanPage" class="hidden">
-<div class="back" onclick="goBack()">← Kembali</div>
+  <div class="back" onclick="goBack()">← Kembali</div>
   <!-- Kontainer Utama Rekap Nilai -->
   <div class="rekap-container">
     <div class="rekap-header">
@@ -1977,22 +1977,21 @@
         </select>
       </div>
 
-        <div class="filter-group">
+      <div class="filter-group">
         <label for="filterDaftarMapel">Mata Pelajaran</label>
-        <select id="filterDaftarMapel" onchange="tampilkanNilaiSpesifik()" disabled>
+        <!-- DIPERBAIKI: Mengubah onchange dari tampilkanNilaiSpesifik() menjadi handleMapelChange() -->
+        <select id="filterDaftarMapel" onchange="handleMapelChange()" disabled>
           <option value="">-- Pilih Pelajaran --</option>
         </select>
       </div>
         
       <div class="filter-group">
         <label for="filterDaftarSiswa">Nama Siswa</label>
-        <!-- PERBAIKAN: ID ganda telah dihapus -->
         <select id="filterDaftarSiswa" onchange="handleSiswaChange()" disabled>
           <option value="">-- Pilih Siswa --</option>
         </select>
       </div>
 
-      
       <button class="btn-reset" onclick="ambilDataNilai()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M23 4v6h-6M1 20v-6h6"></path>
@@ -2001,7 +2000,8 @@
         Reset Filter
       </button>
     </div>
-
+  </div>
+</div>
     <!-- Area Tabel Data -->
     <div class="table-responsive">
       <table class="tabel-profesional">
