@@ -1976,7 +1976,14 @@
           <option value="">-- Pilih Kelas --</option>
         </select>
       </div>
-      
+
+        <div class="filter-group">
+        <label for="filterDaftarMapel">Mata Pelajaran</label>
+        <select id="filterDaftarMapel" onchange="tampilkanNilaiSpesifik()" disabled>
+          <option value="">-- Pilih Pelajaran --</option>
+        </select>
+      </div>
+        
       <div class="filter-group">
         <label for="filterDaftarSiswa">Nama Siswa</label>
         <!-- PERBAIKAN: ID ganda telah dihapus -->
@@ -1985,12 +1992,6 @@
         </select>
       </div>
 
-      <div class="filter-group">
-        <label for="filterDaftarMapel">Mata Pelajaran</label>
-        <select id="filterDaftarMapel" onchange="tampilkanNilaiSpesifik()" disabled>
-          <option value="">-- Pilih Pelajaran --</option>
-        </select>
-      </div>
       
       <button class="btn-reset" onclick="ambilDataNilai()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
