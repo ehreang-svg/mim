@@ -236,7 +236,7 @@ async function koreksi(){
 }
 
 /* =========================================================================
-   FITUR REKAP NAMA, KELAS, DAN MAPEL DI HALAMAN REKAP NILAI SISWA (DIUPDATE)
+   FITUR REKAP NAMA, KELAS, DAN MAPEL (URUTAN: KELAS -> MAPEL -> NAMA)
    ========================================================================= */
 
 let masterDaftarNilai = []; 
@@ -245,8 +245,8 @@ function ambilDataNilai() {
   const selectKelas = document.getElementById("filterDaftarKelas");
   if(selectKelas) selectKelas.innerHTML = '<option value="">-- Pilih Kelas --</option>';
   
-  resetDropdownSiswa();
   resetDropdownMapel();
+  resetDropdownSiswa();
 
   fetch(`${window.Quiz_API}?aksi=getDaftarNilai`, { method: "GET", redirect: "follow" })
     .then(res => res.json())
@@ -273,31 +273,19 @@ function ambilDataNilai() {
     .catch(err => console.error("Gagal memuat rekap nilai:", err));
 }
 
+// 1. Ketika Kelas dipilih: Ambil Mapel dan aktifkan dropdown Mapel terlebih dahulu
 function handleKelasChange() {
   const kelasPilihan = document.getElementById("filterDaftarKelas").value;
-  resetDropdownSiswa();
+  
   resetDropdownMapel();
+  resetDropdownSiswa();
 
   if (!kelasPilihan) {
     tampilkanNilaiSpesifik();
     return;
   }
 
-  // 1. Ambil data siswa berdasarkan kelas & hidupkan dropdown siswa
-  fetch(`${window.Quiz_API}?aksi=getSiswaByKelas&kelas=${encodeURIComponent(kelasPilihan)}`)
-    .then(res => res.json())
-    .then(data => {
-      const selectSiswa = document.getElementById("filterDaftarSiswa");
-      if(!selectSiswa) return;
-      selectSiswa.disabled = false;
-      
-      data.siswa.forEach(siswa => {
-        selectSiswa.innerHTML += `<option value="${siswa.nisn}">${siswa.nama}</option>`;
-      });
-    })
-    .catch(err => console.error("Gagal memuat daftar siswa rekap:", err));
-
-  // 2. Ambil data mapel berdasarkan kelas & langsung hidupkan dropdown mapel (Meskipun siswa belum dipilih)
+  // Ambil pelajaran berdasarkan kelas
   fetch(`${window.Quiz_API}?aksi=getPelajaranByKelas&kelas=${encodeURIComponent(kelasPilihan)}`)
     .then(res => res.json())
     .then(data => {
@@ -314,8 +302,37 @@ function handleKelasChange() {
   tampilkanNilaiSpesifik();
 }
 
+// 2. Ketika Mapel dipilih: Ambil data Siswa berdasarkan kelas dan aktifkan dropdown Nama
+function handleMapelChange() {
+  const kelasPilihan = document.getElementById("filterDaftarKelas").value;
+  const mapelPilihan = document.getElementById("filterDaftarMapel").value;
+  
+  resetDropdownSiswa();
+
+  if (!mapelPilihan) {
+    tampilkanNilaiSpesifik();
+    return;
+  }
+
+  // Ambil daftar siswa berdasarkan kelas
+  fetch(`${window.Quiz_API}?aksi=getSiswaByKelas&kelas=${encodeURIComponent(kelasPilihan)}`)
+    .then(res => res.json())
+    .then(data => {
+      const selectSiswa = document.getElementById("filterDaftarSiswa");
+      if(!selectSiswa) return;
+      selectSiswa.disabled = false;
+      
+      data.siswa.forEach(siswa => {
+        selectSiswa.innerHTML += `<option value="${siswa.nisn}">${siswa.nama}</option>`;
+      });
+
+      tampilkanNilaiSpesifik();
+    })
+    .catch(err => console.error("Gagal memuat daftar siswa rekap:", err));
+}
+
+// 3. Ketika Nama/Siswa dipilih: Hanya menyaring tampilan tabel
 function handleSiswaChange() {
-  // Ketika siswa dipilih, cukup panggil ulang filter tampilannya saja karena mapel sudah aktif sebelumnya
   tampilkanNilaiSpesifik();
 }
 
@@ -370,7 +387,6 @@ function tampilkanNilaiSpesifik() {
     `;
   });
 }
-
 // Inisialisasi DOM pencarian elemen dengan fallback anti-kosong
 function initApp() {
     const selectKelasKuis = document.getElementById("selectKelas");
