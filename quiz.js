@@ -187,39 +187,68 @@ function tampilSoal(){
     document.getElementById("quiz").innerHTML = html;
 }
 
-// 5. Fungsi Cetak Hasil Latihan
+// 5. Fungsi Cetak Hasil Latihan dengan Kop Surat Resmi
 function cetakHasilLatihan() {
     const areaSiswa = document.getElementById("siswa").innerHTML;
     const areaHasil = document.getElementById("hasil").innerHTML;
     const areaKuis = document.getElementById("quiz").innerHTML;
 
-    const jw = window.open('', '', 'width=800,height=600');
+    const jw = window.open('', '', 'width=900,height=700');
     jw.document.write(`
         <html>
         <head>
-            <title>Cetak Hasil Latihan Siswa</title>
+            <title>Cetak Hasil Latihan Siswa - MI Miftahul Mubtadiin</title>
             <style>
-                body { font-family: Arial, sans-serif; padding: 20px; color: #333; }
-                .cardQuizSiswa { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
-                .cardQuizSiswa img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; }
-                .cardHasil { text-align: center; padding: 15px; border: 1px solid #ccc; border-radius: 8px; margin-top: 20px; }
-                .score-big { font-size: 32px; font-weight: bold; }
-                .badge-status { font-size: 16px; font-weight: bold; margin-top: 5px; }
-                .cardSoal { margin-bottom: 15px; padding: 10px; border: 1px solid #eee; border-radius: 5px; }
-                .benar-pilihan { background-color: #d1e7dd; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
-                .salah-pilihan { background-color: #f8d7da; padding: 2px 6px; border-radius: 4px; text-decoration: line-through; }
+                body { font-family: Arial, sans-serif; padding: 20px; color: #000; font-size: 14px; }
+                
+                /* Styling Kop Surat */
+                .kop-surat { display: flex; align-items: center; border-bottom: 4px double #000; padding-bottom: 10px; margin-bottom: 20px; text-align: center; }
+                .kop-logo { width: 70px; height: auto; flex-shrink: 0; }
+                .kop-text { flex-grow: 1; text-align: center; }
+                .kop-yayasan { font-size: 15px; font-weight: bold; text-transform: uppercase; margin: 0; }
+                .kop-sekolah { font-size: 18px; font-weight: bold; color: #0056b3; text-transform: uppercase; margin: 3px 0; }
+                .kop-alamat-1 { font-size: 13px; font-weight: bold; color: #d9534f; text-transform: uppercase; margin: 0; }
+                .kop-alamat-2 { font-size: 13px; font-weight: bold; margin: 2px 0; }
+                .kop-nsm { font-size: 11px; font-weight: bold; margin-top: 4px; }
+                .kop-kontak { font-size: 11px; margin-top: 2px; }
+
+                /* Konten Hasil */
+                .cardQuizSiswa { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 10px; }
+                .cardQuizSiswa img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; }
+                .cardHasil { text-align: center; padding: 15px; border: 1px solid #ccc; border-radius: 8px; margin-top: 20px; background: #f9f9f9; }
+                .score-big { font-size: 28px; font-weight: bold; }
+                .badge-status { font-size: 14px; font-weight: bold; margin-top: 5px; }
+                .cardSoal { margin-bottom: 15px; padding: 10px; border: 1px solid #eee; border-radius: 5px; page-break-inside: avoid; }
+                .benar-pilihan { background-color: #d1e7dd !important; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+                .salah-pilihan { background-color: #f8d7da !important; padding: 2px 6px; border-radius: 4px; text-decoration: line-through; }
                 .pembahasan-box { background: #f8f9fa; padding: 8px; margin-top: 8px; font-size: 12px; border-left: 3px solid #0d6efd; }
                 button, #btnKirimQuiz { display: none !important; }
             </style>
         </head>
         <body>
-            <h2>HASIL LATIHAN / UJIAN SISWA</h2>
+            <!-- KOP SURAT -->
+            <div class="kop-surat">
+                <img src="https://iili.io/CAZVdsj.png" class="kop-logo" alt="Logo Madrasah">
+                <div class="kop-text">
+                    <div class="kop-yayasan">YAYASAN FATAHILLAH</div>
+                    <div class="kop-sekolah">MADRASAH IBTIDAIYAH MIFTAHUL MUBTADIIN</div>
+                    <div class="kop-alamat-1">JAGAPURA WETAN KECAMATAN GEGESIK KABUPATEN CIREBON</div>
+                    <div class="kop-alamat-2">TERAKREDITASI "B"</div>
+                    <div class="kop-nsm">NSM : 111.2.32.09.0101 &nbsp;&nbsp; NPSN : 60708624 &nbsp;&nbsp; NO. IJOP Kd.10.09/4/PP.00.4/227/2010</div>
+                    <div class="kop-kontak">Alamat : Jl. Raya Jagapura Wetan No. 105 Gegesik - Cirebon Telp. (0234) 484760 Kode Pos 45164</div>
+                </div>
+            </div>
+
+            <h3 style="text-align: center; margin-bottom: 20px; text-decoration: underline;">LEMBAR HASIL LATIHAN / UJIAN SISWA</h3>
+            
             ${areaSiswa}
-            <hr/>
-            <div>${areaKuis}</div>
+            <div style="margin-top: 15px;">${areaKuis}</div>
             ${areaHasil}
+            
             <script>
-                window.onload = function() { window.print(); }
+                window.onload = function() { 
+                    window.print(); 
+                }
             </script>
         </body>
         </html>
@@ -240,10 +269,15 @@ async function koreksi(){
 
         if (nilaiPilihan === kunciJawaban) {
             benar++;
-            document.getElementById(`label-${index}-${nilaiPilihan}`).classList.add("benar-pilihan");
+            let elBenar = document.getElementById(`label-${index}-${nilaiPilihan}`);
+            if(elBenar) elBenar.classList.add("benar-pilihan");
         } else {
-            if (nilaiPilihan) document.getElementById(`label-${index}-${nilaiPilihan}`).classList.add("salah-pilihan");
-            document.getElementById(`label-${index}-${kunciJawaban}`).classList.add("benar-pilihan");
+            if (nilaiPilihan) {
+                let elSalah = document.getElementById(`label-${index}-${nilaiPilihan}`);
+                if(elSalah) elSalah.classList.add("salah-pilihan");
+            }
+            let elKunci = document.getElementById(`label-${index}-${kunciJawaban}`);
+            if(elKunci) elKunci.classList.add("benar-pilihan");
         }
 
         let boxPembahasan = document.getElementById(`pembahasan${index}`);
@@ -261,7 +295,7 @@ async function koreksi(){
             <div class="badge-status ${isLulus ? 'lulus' : 'gagal'}">${status}</div>
             <br>
             <button onclick="cetakHasilLatihan()" style="background: #0d9488; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
-                🖨️ Cetak Hasil Latihan
+                🖨️ Cetak Hasil Latihan (Dengan Kop Surat)
             </button>
         </div>`;
     
