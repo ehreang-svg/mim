@@ -493,3 +493,116 @@ if (document.readyState === "complete" || document.readyState === "interactive")
 
 window.tampilkanNilaiSpesifik = tampilkanNilaiSpesifik;
 window.cetakHasilLatihan = cetakHasilLatihan;
+
+// Fungsi Khusus Cetak Rekap Nilai Latihan dengan Kop Surat
+function cetakRekapNilai() {
+    const kelasPilihan = document.getElementById("filterDaftarKelas").value;
+    const mapelPilihan = document.getElementById("filterDaftarMapel").value;
+    const isiTabel = document.getElementById("bodyTabelNilai").innerHTML;
+
+    if (!kelasPilihan) {
+        alert("Silakan pilih kelas terlebih dahulu sebelum mencetak rekap nilai!");
+        return;
+    }
+
+    const jw = window.open('', '_blank');
+    if (!jw) {
+        alert("Popup diblokir oleh browser. Izinkan popup untuk mencetak.");
+        return;
+    }
+
+    jw.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Cetak Rekap Nilai Latihan - MI Miftahul Mubtadiin</title>
+            <style>
+                body { font-family: Arial, sans-serif; padding: 20px; color: #000; font-size: 13px; background: #fff; }
+                
+                /* Kop Surat */
+                .kop-table { width: 100%; border-bottom: 4px double #000; padding-bottom: 8px; margin-bottom: 20px; }
+                .kop-logo { width: 65px; height: auto; }
+                .kop-text { text-align: center; }
+                .kop-yayasan { font-size: 14px; font-weight: bold; text-transform: uppercase; margin: 0; }
+                .kop-sekolah { font-size: 17px; font-weight: bold; color: #0056b3; text-transform: uppercase; margin: 2px 0; }
+                .kop-alamat-1 { font-size: 12px; font-weight: bold; color: #d9534f; text-transform: uppercase; margin: 0; }
+                .kop-alamat-2 { font-size: 12px; font-weight: bold; margin: 1px 0; }
+                .kop-nsm { font-size: 10px; font-weight: bold; margin-top: 3px; }
+                .kop-kontak { font-size: 10px; margin-top: 1px; }
+
+                h3 { text-align: center; margin-bottom: 5px; text-transform: uppercase; }
+                .info-filter { text-align: center; font-size: 12px; margin-bottom: 15px; color: #555; }
+
+                /* Tabel Rekap */
+                table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                th, td { border: 1px solid #333; padding: 8px 10px; font-size: 12px; text-align: left; }
+                th { background-color: #f2f2f2; text-align: center; }
+                .text-center { text-align: center; }
+                
+                /* Badge Status */
+                .badge { padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; display: inline-block; }
+                .badge-sukses, .badge.badge-sukses { background-color: #d1e7dd; color: #0f5132; }
+                .badge-bahaya, .badge.badge-bahaya { background-color: #f8d7da; color: #842029; }
+
+                @media print {
+                    body { padding: 0; }
+                }
+            </style>
+        </head>
+        <body>
+            <!-- KOP SURAT -->
+            <table class="kop-table">
+                <tr>
+                    <td style="width: 80px; vertical-align: middle; text-align: center;">
+                        <img src="https://iili.io/CAZVdsj.png" class="kop-logo" alt="Logo">
+                    </td>
+                    <td class="kop-text">
+                        <div class="kop-yayasan">YAYASAN FATAHILLAH</div>
+                        <div class="kop-sekolah">MADRASAH IBTIDAIYAH MIFTAHUL MUBTADIIN</div>
+                        <div class="kop-alamat-1">JAGAPURA WETAN KECAMATAN GEGESIK KABUPATEN CIREBON</div>
+                        <div class="kop-alamat-2">TERAKREDITASI "B"</div>
+                        <div class="kop-nsm">NSM : 111.2.32.09.0101 &nbsp;&nbsp; NPSN : 60708624 &nbsp;&nbsp; NO. IJOP Kd.10.09/4/PP.00.4/227/2010</div>
+                        <div class="kop-kontak">Alamat : Jl. Raya Jagapura Wetan No. 105 Gegesik - Cirebon Telp. (0234) 484760 Kode Pos 45164</div>
+                    </td>
+                </tr>
+            </table>
+
+            <h3>REKAPITULASI NILAI LATIHAN / UJIAN SISWA</h3>
+            <div class="info-filter">
+                Kelas: <b>${kelasPayloadText(kelasPilihan)}</b> | Mata Pelajaran: <b>${mapelPilihan || 'Semua Mata Pelajaran'}</b>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 15%;">NISN</th>
+                        <th style="width: 35%;">Nama Siswa</th>
+                        <th style="width: 15%;">Kelas</th>
+                        <th style="width: 20%;">Mata Pelajaran</th>
+                        <th style="width: 7%;">Nilai</th>
+                        <th style="width: 8%;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${isiTabel}
+                </tbody>
+            </table>
+
+            <script>
+                setTimeout(function() {
+                    window.print();
+                }, 800);
+            </script>
+        </body>
+        </html>
+    `);
+    jw.document.close();
+}
+
+// Helper kecil untuk merapikan teks kelas
+function kelasPayloadText(val) {
+    return val ? val : "-";
+}
+
+// Daftarkan fungsi ke objek window agar bisa dipanggil dari HTML
+window.cetakRekapNilai = cetakRekapNilai;
