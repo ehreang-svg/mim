@@ -4,7 +4,6 @@
 
 // Variabel penampung data kuis global
 let dataSiswaQuiz = null;
-let dataSoal = [];
 let mataPelajaranTerpilih = "";
 
 // 1. Ambil daftar kelas untuk halaman Kuis Utama
