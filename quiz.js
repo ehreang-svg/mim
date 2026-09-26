@@ -2,6 +2,11 @@
    FITUR UTAMA KUIS: AMBIL DATA DARI APP SCRIPT & RENDER KE HTML
    ========================================================================= */
 
+// Variabel penampung data kuis global
+let dataSiswaQuiz = null;
+let dataSoal = [];
+let mataPelajaranTerpilih = "";
+
 // 1. Ambil daftar kelas untuk halaman Kuis Utama
 async function loadKelas() {
     try {
@@ -182,6 +187,47 @@ function tampilSoal(){
     html += `<button type="button" id="btnKirimQuiz" onclick="koreksi()">🚀 Kirim Jawaban</button>`;
     document.getElementById("quiz").innerHTML = html;
 }
+
+// 5. Fungsi Cetak Hasil Latihan
+function cetakHasilLatihan() {
+    const areaSiswa = document.getElementById("siswa").innerHTML;
+    const areaHasil = document.getElementById("hasil").innerHTML;
+    const areaKuis = document.getElementById("quiz").innerHTML;
+
+    const jw = window.open('', '', 'width=800,height=600');
+    jw.document.write(`
+        <html>
+        <head>
+            <title>Cetak Hasil Latihan Siswa</title>
+            <style>
+                body { font-family: Arial, sans-serif; padding: 20px; color: #333; }
+                .cardQuizSiswa { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
+                .cardQuizSiswa img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; }
+                .cardHasil { text-align: center; padding: 15px; border: 1px solid #ccc; border-radius: 8px; margin-top: 20px; }
+                .score-big { font-size: 32px; font-weight: bold; }
+                .badge-status { font-size: 16px; font-weight: bold; margin-top: 5px; }
+                .cardSoal { margin-bottom: 15px; padding: 10px; border: 1px solid #eee; border-radius: 5px; }
+                .benar-pilihan { background-color: #d1e7dd; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+                .salah-pilihan { background-color: #f8d7da; padding: 2px 6px; border-radius: 4px; text-decoration: line-through; }
+                .pembahasan-box { background: #f8f9fa; padding: 8px; margin-top: 8px; font-size: 12px; border-left: 3px solid #0d6efd; }
+                button, #btnKirimQuiz { display: none !important; }
+            </style>
+        </head>
+        <body>
+            <h2>HASIL LATIHAN / UJIAN SISWA</h2>
+            ${areaSiswa}
+            <hr/>
+            <div>${areaKuis}</div>
+            ${areaHasil}
+            <script>
+                window.onload = function() { window.print(); }
+            </script>
+        </body>
+        </html>
+    `);
+    jw.document.close();
+}
+
 async function koreksi(){
     let benar = 0;
     document.getElementById("btnKirimQuiz").classList.add("hidden");
@@ -214,6 +260,10 @@ async function koreksi(){
         <div class="cardHasil ${isLulus ? 'lulus' : 'gagal'}">
             <div class="score-big ${isLulus ? 'lulus' : 'gagal'}">${nilai}</div>
             <div class="badge-status ${isLulus ? 'lulus' : 'gagal'}">${status}</div>
+            <br>
+            <button onclick="cetakHasilLatihan()" style="background: #0d9488; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                🖨️ Cetak Hasil Latihan
+            </button>
         </div>`;
     
     document.getElementById("hasil").scrollIntoView({ behavior: 'smooth' });
@@ -387,7 +437,7 @@ function tampilkanNilaiSpesifik() {
     `;
   });
 }
-// Inisialisasi DOM pencarian elemen dengan fallback anti-kosong
+
 // Inisialisasi DOM pencarian elemen dengan fallback anti-kosong
 function initApp() {
     const selectKelasKuis = document.getElementById("selectKelas");
@@ -397,9 +447,6 @@ function initApp() {
     } else {
         setTimeout(() => { if(document.getElementById("selectKelas")) loadKelas(); }, 500);
     }
-
-    // Bagian pemanggilan otomatis untuk rekap nilai sengaja dihapus/dinonaktifkan
-    // agar tabel rekap tidak muncul secara otomatis di dashboard.
 }
 
 // listener load halaman
@@ -410,3 +457,4 @@ if (document.readyState === "complete" || document.readyState === "interactive")
 }
 
 window.tampilkanNilaiSpesifik = tampilkanNilaiSpesifik;
+window.cetakHasilLatihan = cetakHasilLatihan;
