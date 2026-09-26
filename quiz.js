@@ -2,9 +2,11 @@
    FITUR UTAMA KUIS: AMBIL DATA DARI APP SCRIPT & RENDER KE HTML
    ========================================================================= */
 
-// Variabel penampung data kuis global
-let dataSiswaQuiz = null;
-let mataPelajaranTerpilih = "";
+// Deklarasi aman (mencegah double declaration error jika file dimuat ulang)
+if (typeof window.dataSiswaQuiz === 'undefined') { window.dataSiswaQuiz = null; }
+if (typeof window.dataSoal === 'undefined') { window.dataSoal = []; }
+if (typeof window.mataPelajaranTerpilih === 'undefined') { window.mataPelajaranTerpilih = ""; }
+if (typeof window.masterDaftarNilai === 'undefined') { window.masterDaftarNilai = []; }
 
 // 1. Ambil daftar kelas untuk halaman Kuis Utama
 async function loadKelas() {
@@ -32,7 +34,6 @@ async function loadKelas() {
                 opt.textContent = kelas;
                 selectKelas.appendChild(opt);
             });
-            console.log("Dropdown kelas kuis sukses diisi.");
         }
     } catch (err) {
         console.error("Gagal memuat kelas kuis:", err);
@@ -118,9 +119,9 @@ async function mulai() {
     const passwordNisn = document.getElementById("passwordNisn").value.trim();
     
     const nisnTerpilih = selectSiswa.value;
-    mataPelajaranTerpilih = selectPelajaran.value;
+    window.mataPelajaranTerpilih = selectPelajaran.value;
 
-    if (!nisnTerpilih || !mataPelajaranTerpilih || !passwordNisn) {
+    if (!nisnTerpilih || !window.mataPelajaranTerpilih || !passwordNisn) {
         alert("Semua kolom pilihan dan password wajib diisi!");
         return;
     }
@@ -133,13 +134,13 @@ async function mulai() {
     document.getElementById("siswa").innerHTML = "<p>Memuat lembar soal kuis...</p>";
 
     try {
-        const res = await fetch(window.Quiz_API + `?aksi=loginQuiz&nisn=${encodeURIComponent(passwordNisn)}&pelajaran=${encodeURIComponent(mataPelajaranTerpilih)}`, { method: "GET", redirect: "follow" });
+        const res = await fetch(window.Quiz_API + `?aksi=loginQuiz&nisn=${encodeURIComponent(passwordNisn)}&pelajaran=${encodeURIComponent(window.mataPelajaranTerpilih)}`, { method: "GET", redirect: "follow" });
         const data = await res.json();
         
         if (data.error) { alert(data.message || data.error); return; }
 
-        dataSiswaQuiz = data.siswa;
-        dataSoal = data.soal; 
+        window.dataSiswaQuiz = data.siswa;
+        window.dataSoal = data.soal; 
         
         tampilSiswaQuiz();
         tampilSoal();
@@ -153,10 +154,10 @@ function tampilSiswaQuiz(){
     document.getElementById("areaKuis").classList.remove("hidden");
     document.getElementById("siswa").innerHTML = `
         <div class="cardQuizSiswa">
-            <img src="${dataSiswaQuiz.foto || 'https://via.placeholder.com/150'}" alt="Foto Siswa">
+            <img src="${window.dataSiswaQuiz.foto || 'https://via.placeholder.com/150'}" alt="Foto Siswa">
             <div>
-                <h3>${dataSiswaQuiz.nama || '-'}</h3>
-                <p>${dataSiswaQuiz.kelas} | Mapel: <b>${mataPelajaranTerpilih}</b></p>
+                <h3>${window.dataSiswaQuiz.nama || '-'}</h3>
+                <p>${window.dataSiswaQuiz.kelas} | Mapel: <b>${window.mataPelajaranTerpilih}</b></p>
             </div>
         </div>
     `;
@@ -164,13 +165,12 @@ function tampilSiswaQuiz(){
 
 function tampilSoal(){
     let html = "";
-    if (!dataSoal || dataSoal.length === 0) {
+    if (!window.dataSoal || window.dataSoal.length === 0) {
         document.getElementById("quiz").innerHTML = `<div class="rbm-empty-state">Belum tersedia soal untuk mata pelajaran ini.</div>`;
         return;
     }
     
-    // index dimulai dari 0, jadi kita gunakan (index + 1) agar penomoran selalu mulai dari 1
-    dataSoal.forEach((s, index) => {
+    window.dataSoal.forEach((s, index) => {
         let nomorSoalMandiri = index + 1; 
         
         html += `
@@ -231,7 +231,7 @@ async function koreksi(){
     let benar = 0;
     document.getElementById("btnKirimQuiz").classList.add("hidden");
 
-    dataSoal.forEach((s, index) => {
+    window.dataSoal.forEach((s, index) => {
         let pilihanUser = document.querySelector(`input[name=q${index}]:checked`);
         let nilaiPilihan = pilihanUser ? pilihanUser.value : null;
         let kunciJawaban = s.jawaban;
@@ -251,7 +251,7 @@ async function koreksi(){
         boxPembahasan.classList.remove("hidden");
     });
     
-    let nilai = Math.round((benar / dataSoal.length) * 100);
+    let nilai = Math.round((benar / window.dataSoal.length) * 100);
     let isLulus = nilai >= 75;
     let status = isLulus ? "LULUS" : "BELUM LULUS";
     
@@ -271,10 +271,10 @@ async function koreksi(){
         await fetch(window.Quiz_API, {
             method: "POST",
             body: JSON.stringify({
-                nisn: dataSiswaQuiz.nisn,
-                nama: dataSiswaQuiz.nama,
-                kelas: dataSiswaQuiz.kelas,
-                pelajaran: mataPelajaranTerpilih,
+                nisn: window.dataSiswaQuiz.nisn,
+                nama: window.dataSiswaQuiz.nama,
+                kelas: window.dataSiswaQuiz.kelas,
+                pelajaran: window.mataPelajaranTerpilih,
                 nilai: nilai,
                 status: status
             })
@@ -288,8 +288,6 @@ async function koreksi(){
    FITUR REKAP NAMA, KELAS, DAN MAPEL (URUTAN: KELAS -> MAPEL -> NAMA)
    ========================================================================= */
 
-let masterDaftarNilai = []; 
-
 function ambilDataNilai() {
   const selectKelas = document.getElementById("filterDaftarKelas");
   if(selectKelas) selectKelas.innerHTML = '<option value="">-- Pilih Kelas --</option>';
@@ -300,7 +298,7 @@ function ambilDataNilai() {
   fetch(`${window.Quiz_API}?aksi=getDaftarNilai`, { method: "GET", redirect: "follow" })
     .then(res => res.json())
     .then(data => {
-      masterDaftarNilai = data.nilaiSiswa || [];
+      window.masterDaftarNilai = data.nilaiSiswa || [];
       return fetch(`${window.Quiz_API}?aksi=getKelas`, { method: "GET", redirect: "follow" });
     })
     .then(res => res.json())
@@ -322,7 +320,6 @@ function ambilDataNilai() {
     .catch(err => console.error("Gagal memuat rekap nilai:", err));
 }
 
-// 1. Ketika Kelas dipilih: Ambil Mapel dan aktifkan dropdown Mapel terlebih dahulu
 function handleKelasChange() {
   const kelasPilihan = document.getElementById("filterDaftarKelas").value;
   
@@ -334,7 +331,6 @@ function handleKelasChange() {
     return;
   }
 
-  // Ambil pelajaran berdasarkan kelas
   fetch(`${window.Quiz_API}?aksi=getPelajaranByKelas&kelas=${encodeURIComponent(kelasPilihan)}`)
     .then(res => res.json())
     .then(data => {
@@ -351,7 +347,6 @@ function handleKelasChange() {
   tampilkanNilaiSpesifik();
 }
 
-// 2. Ketika Mapel dipilih: Ambil data Siswa berdasarkan kelas dan aktifkan dropdown Nama
 function handleMapelChange() {
   const kelasPilihan = document.getElementById("filterDaftarKelas").value;
   const mapelPilihan = document.getElementById("filterDaftarMapel").value;
@@ -363,7 +358,6 @@ function handleMapelChange() {
     return;
   }
 
-  // Ambil daftar siswa berdasarkan kelas
   fetch(`${window.Quiz_API}?aksi=getSiswaByKelas&kelas=${encodeURIComponent(kelasPilihan)}`)
     .then(res => res.json())
     .then(data => {
@@ -380,7 +374,6 @@ function handleMapelChange() {
     .catch(err => console.error("Gagal memuat daftar siswa rekap:", err));
 }
 
-// 3. Ketika Nama/Siswa dipilih: Hanya menyaring tampilan tabel
 function handleSiswaChange() {
   tampilkanNilaiSpesifik();
 }
@@ -408,7 +401,7 @@ function tampilkanNilaiSpesifik() {
     return;
   }
 
-  let dataTersaring = masterDaftarNilai.filter(item => {
+  let dataTersaring = window.masterDaftarNilai.filter(item => {
     let cocokKelas = !kelasPilihan || String(item.kelas) === String(kelasPilihan);
     let cocokSiswa = !nisnPilihan || String(item.nisn) === String(nisnPilihan);
     let cocokMapel = !mapelPilihan || String(item.pelajaran).trim().toLowerCase() === String(mapelPilihan).trim().toLowerCase();
@@ -437,7 +430,6 @@ function tampilkanNilaiSpesifik() {
   });
 }
 
-// Inisialisasi DOM pencarian elemen dengan fallback anti-kosong
 function initApp() {
     const selectKelasKuis = document.getElementById("selectKelas");
 
@@ -448,7 +440,6 @@ function initApp() {
     }
 }
 
-// listener load halaman
 if (document.readyState === "complete" || document.readyState === "interactive") {
     initApp();
 } else {
