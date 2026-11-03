@@ -314,63 +314,89 @@ function cetakHasilLatihan() {
 }
 
 async function koreksi(){
-    let benar = 0;
+    let benarPG = 0;
+    let benarIsian = 0;
+    
+    // Saring dan pisahkan jenis soal
+    let soalPG = window.dataSoal.filter(s => s.type !== "isian" && s.A); // Mengambil soal yang memiliki opsi PG
+    let soalIsian = window.dataSoal.filter(s => s.type === "isian" || !s.A); // Mengambil soal Isian
+
     document.getElementById("btnKirimQuiz").classList.add("hidden");
 
     window.dataSoal.forEach((s, index) => {
-        let kunciJawaban = String(s.jawaban).trim().toLowerCase();
-        let boxPembahasan = document.getElementById(`pembahasan${index}`);
+        let isIsian = s.type === "isian" || !s.A;
 
-        if (s.jenis === "ISIAN") {
-            let inputEl = document.getElementById(`input-isian-${index}`);
-            let jawabanUser = inputEl ? inputEl.value.trim().toLowerCase() : "";
-            inputEl.disabled = true;
+        if (isIsian) {
+            // --- LOGIKA UNTUK SOAL ISIAN ---
+            let inputUser = document.getElementById(`input-isian-${index}`);
+            let jawabanUser = inputUser ? inputUser.value.trim().toLowerCase() : "";
+            let kunciJawaban = String(s.jawaban).trim().toLowerCase();
 
-            if (jawabanUser === kunciJawaban) {
-                benar++;
-                inputEl.style.backgroundColor = "#d1e7dd";
-                inputEl.style.borderColor = "#0f5132";
-                inputEl.style.fontWeight = "bold";
+            if (inputUser) inputUser.disabled = true;
+
+            if (jawabanUser !== "" && jawabanUser === kunciJawaban) {
+                benarIsian++;
+                if (inputUser) inputUser.classList.add("benar-pilihan");
             } else {
-                inputEl.style.backgroundColor = "#f8d7da";
-                inputEl.style.borderColor = "#842029";
+                if (inputUser) inputUser.classList.add("salah-pilihan");
             }
-
-            boxPembahasan.innerHTML = `<div class="pembahasan-box" style="margin-top:8px;"><b>💡 Kunci Jawaban:</b> ${s.jawaban}<br><b>Pembahasan:</b> ${s.penjelasan || 'Tidak ada penjelasan.'}</div>`;
         } else {
-            // Koreksi Pilihan Ganda
+            // --- LOGIKA UNTUK SOAL PILIHAN GANDA (PG) ---
             let pilihanUser = document.querySelector(`input[name=q${index}]:checked`);
-            let nilaiPilihan = pilihanUser ? pilihanUser.value.toLowerCase() : null;
+            let nilaiPilihan = pilihanUser ? pilihanUser.value : null;
+            let kunciJawaban = s.jawaban;
 
             document.querySelectorAll(`input[name=q${index}]`).forEach(r => r.disabled = true);
 
             if (nilaiPilihan === kunciJawaban) {
-                benar++;
-                let elBenar = document.getElementById(`label-${index}-${s.jawaban}`);
+                benarPG++;
+                let elBenar = document.getElementById(`label-${index}-${nilaiPilihan}`);
                 if(elBenar) elBenar.classList.add("benar-pilihan");
             } else {
-                if (pilihanUser) {
-                    let elSalah = document.getElementById(`label-${index}-${pilihanUser.value}`);
+                if (nilaiPilihan) {
+                    let elSalah = document.getElementById(`label-${index}-${nilaiPilihan}`);
                     if(elSalah) elSalah.classList.add("salah-pilihan");
                 }
-                let elKunci = document.getElementById(`label-${index}-${s.jawaban}`);
+                let elKunci = document.getElementById(`label-${index}-${kunciJawaban}`);
                 if(elKunci) elKunci.classList.add("benar-pilihan");
             }
-
-            boxPembahasan.innerHTML = `<div class="pembahasan-box" style="margin-top:8px;"><b>💡 Pembahasan:</b> ${s.penjelasan || 'Tidak ada penjelasan.'}</div>`;
         }
 
-        boxPembahasan.classList.remove("hidden");
+        // Tampilkan Pembahasan
+        let boxPembahasan = document.getElementById(`pembahasan${index}`);
+        if (boxPembahasan) {
+            boxPembahasan.innerHTML = `<div class="pembahasan-box"><b>💡 Pembahasan:</b> ${s.penjelasan || 'Tidak ada penjelasan.'}</div>`;
+            boxPembahasan.classList.remove("hidden");
+        }
     });
-    
-    let nilai = Math.round((benar / window.dataSoal.length) * 100);
+
+    // =========================================================================
+    // PERHITUNGAN NILAI GABUNGAN (BOBOT PG : ISIAN = 1 : 2)
+    // =========================================================================
+    let totalPG = soalPG.length;
+    let totalIsian = soalIsian.length;
+    let nilai = 0;
+
+    // Menghitung bobot total per kategori
+    // Bobot PG = 1, Bobot Isian = 2
+    let bobotTotal = (totalPG * 1) + (totalIsian * 2);
+
+    if (bobotTotal > 0) {
+        let poinPG = benarPG * 1;
+        let poinIsian = benarIsian * 2;
+        nilai = Math.round(((poinPG + poinIsian) / bobotTotal) * 100);
+    }
+
     let isLulus = nilai >= 75;
     let status = isLulus ? "LULUS" : "BELUM LULUS";
     
     document.getElementById("hasil").innerHTML = `
-        <div class="cardHasil ${isLulus ? 'lulus' : 'gagal'}" style="margin-top: 20px; padding: 15px; text-align: center; border: 1px solid #ccc; border-radius: 8px;">
-            <div class="score-big ${isLulus ? 'lulus' : 'gagal'}" style="font-size: 28px; font-weight: bold;">${nilai}</div>
-            <div class="badge-status ${isLulus ? 'lulus' : 'gagal'}" style="font-size: 14px; font-weight: bold; margin-top: 5px;">${status}</div>
+        <div class="cardHasil ${isLulus ? 'lulus' : 'gagal'}">
+            <div class="score-big ${isLulus ? 'lulus' : 'gagal'}">${nilai}</div>
+            <div class="badge-status ${isLulus ? 'lulus' : 'gagal'}">${status}</div>
+            <div style="margin-top: 10px; font-size: 13px; color: #555;">
+                Detail Benar: <b>PG (${benarPG}/${totalPG})</b> | <b>Isian (${benarIsian}/${totalIsian})</b>
+            </div>
             <br>
             <button onclick="cetakHasilLatihan()" style="background: #0d9488; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
                 🖨️ Cetak Hasil Latihan (Dengan Kop Surat)
