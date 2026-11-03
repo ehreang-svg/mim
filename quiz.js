@@ -173,9 +173,20 @@ function tampilSoal(){
     window.dataSoal.forEach((s, index) => {
         let nomorSoalMandiri = index + 1; 
         
+        // Render gambar soal jika properti s.gambar tersedia dan tidak kosong
+        let gambarHtml = "";
+        if (s.gambar && s.gambar.trim() !== "") {
+            gambarHtml = `
+                <div class="soal-gambar-container" style="margin: 10px 0; text-align: center;">
+                    <img src="${s.gambar}" alt="Gambar Soal ${nomorSoalMandiri}" style="max-width: 100%; max-height: 250px; border-radius: 6px; border: 1px solid #ddd;">
+                </div>
+            `;
+        }
+        
         html += `
         <div class="cardSoal">
             <span class="soal-teks">${nomorSoalMandiri}. ${s.soal}</span>
+            ${gambarHtml}
             <label class="opsi-label" id="label-${index}-A"><input type="radio" name="q${index}" value="A"><span><b>A.</b> ${s.A}</span></label>
             <label class="opsi-label" id="label-${index}-B"><input type="radio" name="q${index}" value="B"><span><b>B.</b> ${s.B}</span></label>
             <label class="opsi-label" id="label-${index}-C"><input type="radio" name="q${index}" value="C"><span><b>C.</b> ${s.C}</span></label>
@@ -225,6 +236,7 @@ function cetakHasilLatihan() {
                 .score-big { font-size: 28px; font-weight: bold; }
                 .badge-status { font-size: 14px; font-weight: bold; margin-top: 5px; }
                 .cardSoal { margin-bottom: 12px; padding: 8px; border: 1px solid #eee; border-radius: 5px; page-break-inside: avoid; }
+                .soal-gambar-container img { max-width: 200px !important; height: auto; }
                 .benar-pilihan { background-color: #d1e7dd !important; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
                 .salah-pilihan { background-color: #f8d7da !important; padding: 2px 6px; border-radius: 4px; text-decoration: line-through; }
                 .pembahasan-box { background: #f8f9fa; padding: 6px; margin-top: 6px; font-size: 11px; border-left: 3px solid #0d6efd; }
