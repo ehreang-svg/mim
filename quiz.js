@@ -183,34 +183,49 @@ function tampilSoal(){
             `;
         }
 
-        // Helper untuk merender opsi (teks + gambar opsional)
-        function renderOpsi(huruf, teksOpsi, urlGambarOpsi) {
-            let imgOpsiHtml = "";
-            if (urlGambarOpsi && urlGambarOpsi.trim() !== "") {
-                imgOpsiHtml = `<div style="margin-top: 5px;"><img src="${urlGambarOpsi}" alt="Opsi ${huruf}" style="max-width: 120px; max-height: 100px; border-radius: 4px; border: 1px solid #ddd;"></div>`;
-            }
-            return `
-            <label class="opsi-label" id="label-${index}-${huruf}" style="display: block; margin-bottom: 8px; cursor: pointer;">
-                <div style="display: flex; align-items: flex-start; gap: 8px;">
-                    <input type="radio" name="q${index}" value="${huruf}" style="margin-top: 3px;">
-                    <div>
-                        <span><b>${huruf}.</b> ${teksOpsi || ''}</span>
-                        ${imgOpsiHtml}
-                    </div>
+        let inputHtml = "";
+        
+        // Cek apakah jenis soal adalah Isian atau Pilihan Ganda
+        if (s.jenis === "ISIAN") {
+            inputHtml = `
+                <div style="margin-top: 10px;">
+                    <input type="text" id="input-isian-${index}" placeholder="Ketik jawaban singkat di sini..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
                 </div>
-            </label>`;
+            `;
+        } else {
+            // Render Pilihan Ganda (PG)
+            function renderOpsi(huruf, teksOpsi, urlGambarOpsi) {
+                let imgOpsiHtml = "";
+                if (urlGambarOpsi && urlGambarOpsi.trim() !== "") {
+                    imgOpsiHtml = `<div style="margin-top: 5px;"><img src="${urlGambarOpsi}" alt="Opsi ${huruf}" style="max-width: 120px; max-height: 100px; border-radius: 4px; border: 1px solid #ddd;"></div>`;
+                }
+                return `
+                <label class="opsi-label" id="label-${index}-${huruf}" style="display: block; margin-bottom: 8px; cursor: pointer;">
+                    <div style="display: flex; align-items: flex-start; gap: 8px;">
+                        <input type="radio" name="q${index}" value="${huruf}" style="margin-top: 3px;">
+                        <div>
+                            <span><b>${huruf}.</b> ${teksOpsi || ''}</span>
+                            ${imgOpsiHtml}
+                        </div>
+                    </div>
+                </label>`;
+            }
+
+            inputHtml = `
+                <div style="margin-top: 10px;">
+                    ${renderOpsi('A', s.A, s.gambarA)}
+                    ${renderOpsi('B', s.B, s.gambarB)}
+                    ${renderOpsi('C', s.C, s.gambarC)}
+                    ${renderOpsi('D', s.D, s.gambarD)}
+                </div>
+            `;
         }
         
         html += `
         <div class="cardSoal" style="margin-bottom: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 8px; background: #fff;">
             <span class="soal-teks" style="font-weight: bold;">${nomorSoalMandiri}. ${s.soal}</span>
             ${gambarHtml}
-            <div style="margin-top: 10px;">
-                ${renderOpsi('A', s.A, s.gambarA)}
-                ${renderOpsi('B', s.B, s.gambarB)}
-                ${renderOpsi('C', s.C, s.gambarC)}
-                ${renderOpsi('D', s.D, s.gambarD)}
-            </div>
+            ${inputHtml}
             <div id="pembahasan${index}" class="hidden"></div>
         </div>`;
     });
@@ -303,27 +318,48 @@ async function koreksi(){
     document.getElementById("btnKirimQuiz").classList.add("hidden");
 
     window.dataSoal.forEach((s, index) => {
-        let pilihanUser = document.querySelector(`input[name=q${index}]:checked`);
-        let nilaiPilihan = pilihanUser ? pilihanUser.value : null;
-        let kunciJawaban = s.jawaban;
+        let kunciJawaban = String(s.jawaban).trim().toLowerCase();
+        let boxPembahasan = document.getElementById(`pembahasan${index}`);
 
-        document.querySelectorAll(`input[name=q${index}]`).forEach(r => r.disabled = true);
+        if (s.jenis === "ISIAN") {
+            let inputEl = document.getElementById(`input-isian-${index}`);
+            let jawabanUser = inputEl ? inputEl.value.trim().toLowerCase() : "";
+            inputEl.disabled = true;
 
-        if (nilaiPilihan === kunciJawaban) {
-            benar++;
-            let elBenar = document.getElementById(`label-${index}-${nilaiPilihan}`);
-            if(elBenar) elBenar.classList.add("benar-pilihan");
-        } else {
-            if (nilaiPilihan) {
-                let elSalah = document.getElementById(`label-${index}-${nilaiPilihan}`);
-                if(elSalah) elSalah.classList.add("salah-pilihan");
+            if (jawabanUser === kunciJawaban) {
+                benar++;
+                inputEl.style.backgroundColor = "#d1e7dd";
+                inputEl.style.borderColor = "#0f5132";
+                inputEl.style.fontWeight = "bold";
+            } else {
+                inputEl.style.backgroundColor = "#f8d7da";
+                inputEl.style.borderColor = "#842029";
             }
-            let elKunci = document.getElementById(`label-${index}-${kunciJawaban}`);
-            if(elKunci) elKunci.classList.add("benar-pilihan");
+
+            boxPembahasan.innerHTML = `<div class="pembahasan-box" style="margin-top:8px;"><b>💡 Kunci Jawaban:</b> ${s.jawaban}<br><b>Pembahasan:</b> ${s.penjelasan || 'Tidak ada penjelasan.'}</div>`;
+        } else {
+            // Koreksi Pilihan Ganda
+            let pilihanUser = document.querySelector(`input[name=q${index}]:checked`);
+            let nilaiPilihan = pilihanUser ? pilihanUser.value.toLowerCase() : null;
+
+            document.querySelectorAll(`input[name=q${index}]`).forEach(r => r.disabled = true);
+
+            if (nilaiPilihan === kunciJawaban) {
+                benar++;
+                let elBenar = document.getElementById(`label-${index}-${s.jawaban}`);
+                if(elBenar) elBenar.classList.add("benar-pilihan");
+            } else {
+                if (pilihanUser) {
+                    let elSalah = document.getElementById(`label-${index}-${pilihanUser.value}`);
+                    if(elSalah) elSalah.classList.add("salah-pilihan");
+                }
+                let elKunci = document.getElementById(`label-${index}-${s.jawaban}`);
+                if(elKunci) elKunci.classList.add("benar-pilihan");
+            }
+
+            boxPembahasan.innerHTML = `<div class="pembahasan-box" style="margin-top:8px;"><b>💡 Pembahasan:</b> ${s.penjelasan || 'Tidak ada penjelasan.'}</div>`;
         }
 
-        let boxPembahasan = document.getElementById(`pembahasan${index}`);
-        boxPembahasan.innerHTML = `<div class="pembahasan-box"><b>💡 Pembahasan:</b> ${s.penjelasan || 'Tidak ada penjelasan.'}</div>`;
         boxPembahasan.classList.remove("hidden");
     });
     
@@ -332,9 +368,9 @@ async function koreksi(){
     let status = isLulus ? "LULUS" : "BELUM LULUS";
     
     document.getElementById("hasil").innerHTML = `
-        <div class="cardHasil ${isLulus ? 'lulus' : 'gagal'}">
-            <div class="score-big ${isLulus ? 'lulus' : 'gagal'}">${nilai}</div>
-            <div class="badge-status ${isLulus ? 'lulus' : 'gagal'}">${status}</div>
+        <div class="cardHasil ${isLulus ? 'lulus' : 'gagal'}" style="margin-top: 20px; padding: 15px; text-align: center; border: 1px solid #ccc; border-radius: 8px;">
+            <div class="score-big ${isLulus ? 'lulus' : 'gagal'}" style="font-size: 28px; font-weight: bold;">${nilai}</div>
+            <div class="badge-status ${isLulus ? 'lulus' : 'gagal'}" style="font-size: 14px; font-weight: bold; margin-top: 5px;">${status}</div>
             <br>
             <button onclick="cetakHasilLatihan()" style="background: #0d9488; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
                 🖨️ Cetak Hasil Latihan (Dengan Kop Surat)
@@ -359,7 +395,6 @@ async function koreksi(){
         console.error("Gagal mengirim hasil ujian:", e);
     }
 }
-
 /* =========================================================================
    FITUR REKAP NAMA, KELAS, DAN MAPEL (URUTAN: KELAS -> MAPEL -> NAMA)
    ========================================================================= */
