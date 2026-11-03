@@ -239,8 +239,8 @@ async function handleSubmenu(type, value, title) {
 function canShowMenu(menuName, status){
     menuName = menuName.toLowerCase(); status = status.toLowerCase();
     if(status === "admin"||status==="kepala sekolah") return true;
-    if(status === "guru"|| status === "wali kelas") return ["absensi","modul","latihan"].includes(menuName);
-    if(status === "siswa") return ["modul","latihan","absensi"].includes(menuName);
+    if(status === "guru"|| status === "wali kelas") return ["absensi","modul","asesmen"].includes(menuName);
+    if(status === "siswa") return ["modul","asesmen","absensi"].includes(menuName);
     return false;
 }
 
@@ -248,12 +248,12 @@ function canShowSubmenu(menuName, submenuName, status){
     menuName = menuName.toLowerCase(); submenuName = submenuName.toLowerCase(); status = status.toLowerCase();
     if(status === "admin" || status === "kepala sekolah") return true;
     if(status === "guru"||status === "wali kelas"){
-        if(menuName === "modul" || menuName === "latihan") return true;
+        if(menuName === "modul" || menuName === "asesmen") return true;
         if(menuName === "absensi") return (submenuName.includes("absen guru") ||submenuName.includes("absen siswa") ||submenuName.includes("rekap siswa") || submenuName.includes("rekap absensi"));
         return false;
     }
     if(status === "siswa"){
-        if(menuName === "latihan") return submenuName.includes("mulai");
+        if(menuName === "asesmen") return submenuName.includes("mulai");
         if(menuName === "modul") return submenuName.includes("mulai belajar");
         if(menuName === "tabungan") return submenuName.includes("lihat tabungan");
         if(menuName === "absensi") return (submenuName.includes("rekap siswa") || submenuName.includes("rekap absensi siswa"));
