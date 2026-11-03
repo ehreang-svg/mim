@@ -173,7 +173,7 @@ function tampilSoal(){
     window.dataSoal.forEach((s, index) => {
         let nomorSoalMandiri = index + 1; 
         
-        // Render gambar soal jika properti s.gambar tersedia dan tidak kosong
+        // Render gambar soal jika ada
         let gambarHtml = "";
         if (s.gambar && s.gambar.trim() !== "") {
             gambarHtml = `
@@ -182,22 +182,41 @@ function tampilSoal(){
                 </div>
             `;
         }
+
+        // Helper untuk merender opsi (teks + gambar opsional)
+        function renderOpsi(huruf, teksOpsi, urlGambarOpsi) {
+            let imgOpsiHtml = "";
+            if (urlGambarOpsi && urlGambarOpsi.trim() !== "") {
+                imgOpsiHtml = `<div style="margin-top: 5px;"><img src="${urlGambarOpsi}" alt="Opsi ${huruf}" style="max-width: 120px; max-height: 100px; border-radius: 4px; border: 1px solid #ddd;"></div>`;
+            }
+            return `
+            <label class="opsi-label" id="label-${index}-${huruf}" style="display: block; margin-bottom: 8px; cursor: pointer;">
+                <div style="display: flex; align-items: flex-start; gap: 8px;">
+                    <input type="radio" name="q${index}" value="${huruf}" style="margin-top: 3px;">
+                    <div>
+                        <span><b>${huruf}.</b> ${teksOpsi || ''}</span>
+                        ${imgOpsiHtml}
+                    </div>
+                </div>
+            </label>`;
+        }
         
         html += `
-        <div class="cardSoal">
-            <span class="soal-teks">${nomorSoalMandiri}. ${s.soal}</span>
+        <div class="cardSoal" style="margin-bottom: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 8px; background: #fff;">
+            <span class="soal-teks" style="font-weight: bold;">${nomorSoalMandiri}. ${s.soal}</span>
             ${gambarHtml}
-            <label class="opsi-label" id="label-${index}-A"><input type="radio" name="q${index}" value="A"><span><b>A.</b> ${s.A}</span></label>
-            <label class="opsi-label" id="label-${index}-B"><input type="radio" name="q${index}" value="B"><span><b>B.</b> ${s.B}</span></label>
-            <label class="opsi-label" id="label-${index}-C"><input type="radio" name="q${index}" value="C"><span><b>C.</b> ${s.C}</span></label>
-            <label class="opsi-label" id="label-${index}-D"><input type="radio" name="q${index}" value="D"><span><b>D.</b> ${s.D}</span></label>
+            <div style="margin-top: 10px;">
+                ${renderOpsi('A', s.A, s.gambarA)}
+                ${renderOpsi('B', s.B, s.gambarB)}
+                ${renderOpsi('C', s.C, s.gambarC)}
+                ${renderOpsi('D', s.D, s.gambarD)}
+            </div>
             <div id="pembahasan${index}" class="hidden"></div>
         </div>`;
     });
-    html += `<button type="button" id="btnKirimQuiz" onclick="koreksi()">🚀 Kirim Jawaban</button>`;
+    html += `<button type="button" id="btnKirimQuiz" onclick="koreksi()" style="background: #2563eb; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%;">🚀 Kirim Jawaban</button>`;
     document.getElementById("quiz").innerHTML = html;
 }
-
 // 5. Fungsi Cetak Hasil Latihan dengan Kop Surat
 function cetakHasilLatihan() {
     const areaSiswa = document.getElementById("siswa").innerHTML;
