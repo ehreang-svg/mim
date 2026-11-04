@@ -1,5 +1,5 @@
 /* =========================================================================
-   FITUR UTAMA KUIS: AMBIL DATA DARI APP SCRIPT & RENDER KE HTML (SISTEM TKA)
+   FITUR UTAMA KUIS: AMBIL DATA DARI APP SCRIPT & RENDER KE HTML (SISTEM TKA + TIMER)
    ========================================================================= */
 
 // Deklarasi variabel global aman
@@ -8,10 +8,12 @@ if (typeof window.dataSoal === 'undefined') { window.dataSoal = []; }
 if (typeof window.mataPelajaranTerpilih === 'undefined') { window.mataPelajaranTerpilih = ""; }
 if (typeof window.masterDaftarNilai === 'undefined') { window.masterDaftarNilai = []; }
 
-// State untuk Tatap Muka Ujian TKA
+// State untuk Tatap Muka Ujian TKA & Timer
 if (typeof window.soalAktifIndex === 'undefined') { window.soalAktifIndex = 0; }
 if (typeof window.jawabanSiswa === 'undefined') { window.jawabanSiswa = {}; }
 if (typeof window.statusRagu === 'undefined') { window.statusRagu = {}; }
+if (typeof window.timerInterval === 'undefined') { window.timerInterval = null; }
+if (typeof window.sisaDetik === 'undefined') { window.sisaDetik = 0; }
 
 // 1. Ambil daftar kelas untuk halaman Kuis Utama
 async function loadKelas() {
@@ -117,7 +119,7 @@ async function loadPelajaran() {
     }
 }
 
-// 4. Proses Login Utama Kuis
+// 4. Proses Login Utama Kuis & Memulai Timer
 async function mulai() {
     const selectSiswa = document.getElementById("selectSiswa");
     const selectPelajaran = document.getElementById("selectPelajaran");
@@ -152,8 +154,13 @@ async function mulai() {
         window.jawabanSiswa = {};
         window.statusRagu = {};
 
+        // Atur durasi ujian (Contoh: 60 menit / 3600 detik, atau ambil dari data server jika ada: data.durasi * 60)
+        let durasiMenit = data.durasi || 60; 
+        window.sisaDetik = durasiMenit * 60;
+
         tampilSiswaQuiz();
         tampilSoalTKA();
+        mulaiTimerUjian();
     } catch (err) { 
         alert("Gagal menyambung ke server kuis."); 
     }
@@ -163,14 +170,54 @@ function tampilSiswaQuiz(){
     document.getElementById("areaLogin").classList.add("hidden");
     document.getElementById("areaKuis").classList.remove("hidden");
     document.getElementById("siswa").innerHTML = `
-        <div class="cardQuizSiswa">
-            <img src="${window.dataSiswaQuiz.foto || 'https://via.placeholder.com/150'}" alt="Foto Siswa">
-            <div>
-                <h3>${window.dataSiswaQuiz.nama || '-'}</h3>
-                <p>${window.dataSiswaQuiz.kelas} | Mapel: <b>${window.mataPelajaranTerpilih}</b></p>
+        <div class="cardQuizSiswa" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <img src="${window.dataSiswaQuiz.foto || 'https://via.placeholder.com/150'}" alt="Foto Siswa" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                <div>
+                    <h3 style="margin: 0; font-size: 16px;">${window.dataSiswaQuiz.nama || '-'}</h3>
+                    <p style="margin: 2px 0 0 0; font-size: 13px; color: #555;">${window.dataSiswaQuiz.kelas} | Mapel: <b>${window.mataPelajaranTerpilih}</b></p>
+                </div>
+            </div>
+            <!-- Kotak Tampilan Timer di Header Siswa -->
+            <div id="boxTimerUjian" style="background: #1e293b; color: #fff; padding: 8px 15px; border-radius: 6px; font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+                ⏱️ Sisa Waktu: <span id="textTimer" style="color: #f87171; font-family: monospace; font-size: 16px;">00:00:00</span>
             </div>
         </div>
     `;
+}
+
+// Fungsi Countdown Timer
+function mulaiTimerUjian() {
+    if (window.timerInterval) clearInterval(window.timerInterval);
+
+    window.timerInterval = setInterval(() => {
+        if (window.sisaDetik <= 0) {
+            clearInterval(window.timerInterval);
+            alert("Waktu ujian telah habis! Sistem akan mengirimkan jawaban Anda secara otomatis.");
+            koreksi(true); // Kirim otomatis tanpa konfirmasi
+            return;
+        }
+
+        window.sisaDetik--;
+
+        let jam = Math.floor(window.sisaDetik / 3600);
+        let menit = Math.floor((window.sisaDetik % 3600) / 60);
+        let detik = window.sisaDetik % 60;
+
+        let formatWaktu = 
+            String(jam).padStart(2, '0') + ":" + 
+            String(menit).padStart(2, '0') + ":" + 
+            String(detik).padStart(2, '0');
+
+        let elTimer = document.getElementById("textTimer");
+        if (elTimer) {
+            elTimer.textContent = formatWaktu;
+            // Ubah warna teks jadi merah berkedip/terang jika waktu tinggal < 5 menit
+            if (window.sisaDetik < 300) {
+                elTimer.style.color = "#fca5a5";
+            }
+        }
+    }, 1000);
 }
 
 /* =========================================================================
@@ -188,7 +235,6 @@ function tampilSoalTKA() {
     let s = window.dataSoal[idx];
     let nomorSoal = idx + 1;
 
-    // Render Gambar Soal
     let gambarHtml = "";
     if (s.gambar && s.gambar.trim() !== "") {
         gambarHtml = `
@@ -198,7 +244,6 @@ function tampilSoalTKA() {
         `;
     }
 
-    // Render Input Jawaban (PG / Isian)
     let inputHtml = "";
     let jawSimpan = window.jawabanSiswa[idx] || "";
 
@@ -206,7 +251,7 @@ function tampilSoalTKA() {
         inputHtml = `
             <div style="margin-top: 15px;">
                 <label style="display:block; margin-bottom: 5px; font-weight:bold;">Jawaban Singkat Anda:</label>
-                <input type="text" id="inputIsianTKA" value="${jawSimpan}" onchange="simpanJawabanIsian(this.value)" placeholder="Ketik jawaban di sini..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; box-sizing: border-box;">
+                <input type="text" id="inputIsianTKA" value="${jawSimpan}" oninput="simpanJawabanIsian(this.value)" placeholder="Ketik jawaban di sini..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; box-sizing: border-box;">
             </div>
         `;
     } else {
@@ -238,7 +283,6 @@ function tampilSoalTKA() {
         `;
     }
 
-    // Grid Nomor Soal (Navigasi Kanan/Atas)
     let gridNomorHtml = window.dataSoal.map((_, i) => {
         let isAktif = i === idx ? 'border: 2px solid #2563eb; font-weight: bold;' : 'border: 1px solid #ccc;';
         let bgStatus = '#f3f4f6'; 
@@ -252,15 +296,13 @@ function tampilSoalTKA() {
             colorText = '#fff';
         }
 
-        return `<button onclick="pindahSoal(${i})" style="width: 36px; height: 36px; margin: 3px; background: ${bgStatus}; color: ${colorText}; border-radius: 6px; cursor: pointer; ${isAktif}">${i + 1}</button>`;
+        return `<button type="button" onclick="pindahSoal(${i})" style="width: 36px; height: 36px; margin: 3px; background: ${bgStatus}; color: ${colorText}; border-radius: 6px; cursor: pointer; ${isAktif}">${i + 1}</button>`;
     }).join("");
 
     let isRagu = window.statusRagu[idx] ? "checked" : "";
 
-    // Template Layout Tatap Muka Ujian (Dua Kolom: Soal & Grid Navigasi)
     let containerHtml = `
         <div class="tka-wrapper" style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start;">
-            <!-- Kolom Lembar Soal -->
             <div class="tka-soal-box" style="flex: 2; min-width: 280px; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px;">
                 <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">
                     <span style="font-size: 16px; font-weight: bold; color: #1e293b;">Soal No. ${nomorSoal} / ${totalSoal}</span>
@@ -272,25 +314,23 @@ function tampilSoalTKA() {
                 
                 <div id="pembahasan${idx}" class="hidden" style="margin-top: 15px;"></div>
 
-                <!-- Tombol Navigasi Bawah -->
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 25px; padding-top: 15px; border-top: 1px solid #eee;">
                     <button type="button" onclick="pindahSoal(${idx - 1})" ${idx === 0 ? 'disabled' : ''} style="background: #64748b; color: #fff; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; opacity: ${idx === 0 ? '0.5' : '1'};">
                         ⬅️ Sebelumnya
                     </button>
                     
-                    <label style="display: inline-flex; align-items: center; gap: 6px; background: #fffbebf; padding: 6px 12px; border: 1px solid #fcd34d; border-radius: 6px; cursor: pointer; font-size: 13px;">
+                    <label style="display: inline-flex; align-items: center; gap: 6px; background: #fef3c7; padding: 6px 12px; border: 1px solid #fcd34d; border-radius: 6px; cursor: pointer; font-size: 13px;">
                         <input type="checkbox" onchange="toggleRagu(${idx})" ${isRagu}>
                         🟡 Ragu-Ragu
                     </label>
 
                     ${idx < totalSoal - 1 
                         ? `<button type="button" onclick="pindahSoal(${idx + 1})" style="background: #2563eb; color: #fff; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;">Berikutnya ➡️</button>`
-                        : `<button type="button" id="btnKirimQuiz" onclick="koreksi()" style="background: #059669; color: #fff; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">🚀 Selesai & Kirim</button>`
+                        : `<button type="button" id="btnKirimQuiz" onclick="koreksi(false)" style="background: #059669; color: #fff; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">🚀 Selesai & Kirim</button>`
                     }
                 </div>
             </div>
 
-            <!-- Kolom Navigasi Nomor Soal -->
             <div class="tka-nav-box" style="flex: 1; min-width: 240px; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px;">
                 <h4 style="margin: 0 0 10px 0; font-size: 14px; text-align: center; color: #475569;">Navigasi Soal</h4>
                 <div style="display: flex; flex-wrap: wrap; justify-content: center;">
@@ -308,7 +348,6 @@ function tampilSoalTKA() {
     document.getElementById("quiz").innerHTML = containerHtml;
 }
 
-// Handler simpan jawaban
 function simpanJawabanPG(val) {
     window.jawabanSiswa[window.soalAktifIndex] = val;
     tampilSoalTKA();
@@ -367,7 +406,7 @@ function cetakHasilLatihan() {
                 .benar-pilihan { background-color: #d1e7dd !important; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
                 .salah-pilihan { background-color: #f8d7da !important; padding: 2px 6px; border-radius: 4px; text-decoration: line-through; }
                 .pembahasan-box { background: #f8f9fa; padding: 6px; margin-top: 6px; font-size: 11px; border-left: 3px solid #0d6efd; }
-                button, .tka-nav-box { display: none !important; }
+                button, .tka-nav-box, #boxTimerUjian { display: none !important; }
             </style>
         </head>
         <body>
@@ -404,10 +443,17 @@ function cetakHasilLatihan() {
     jw.document.close();
 }
 
-// 6. Fungsi Koreksi Nilai (Bobot PG 1 : Isian 2)
-async function koreksi(){
-    if (!confirm("Apakah Anda yakin ingin menyelesaikan dan mengirim jawaban?")) {
-        return;
+// 6. Fungsi Koreksi Nilai & Hentikan Timer
+async function koreksi(isAutoSubmit = false){
+    if (!isAutoSubmit) {
+        if (!confirm("Apakah Anda yakin ingin menyelesaikan dan mengirim jawaban ujian?")) {
+            return;
+        }
+    }
+
+    // Matikan timer aktif
+    if (window.timerInterval) {
+        clearInterval(window.timerInterval);
     }
 
     let benarPG = 0;
@@ -432,7 +478,6 @@ async function koreksi(){
         }
     });
 
-    // Perhitungan Nilai (PG : Isian = 1 : 2)
     let totalPG = soalPG.length;
     let totalIsian = soalIsian.length;
     let nilai = 0;
@@ -728,7 +773,7 @@ function cetakRekapNilai() {
                         <th style="width: 8%;">Status</th>
                     </tr>
                 </thead>
-                <tbody>
+                <body>
                     ${isiTabel}
                 </tbody>
             </table>
