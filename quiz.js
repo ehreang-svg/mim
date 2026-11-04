@@ -1,12 +1,17 @@
 /* =========================================================================
-   FITUR UTAMA KUIS: AMBIL DATA DARI APP SCRIPT & RENDER KE HTML
+   FITUR UTAMA KUIS: AMBIL DATA DARI APP SCRIPT & RENDER KE HTML (SISTEM TKA)
    ========================================================================= */
 
-// Deklarasi aman (mencegah double declaration error jika file dimuat ulang)
+// Deklarasi variabel global aman
 if (typeof window.dataSiswaQuiz === 'undefined') { window.dataSiswaQuiz = null; }
 if (typeof window.dataSoal === 'undefined') { window.dataSoal = []; }
 if (typeof window.mataPelajaranTerpilih === 'undefined') { window.mataPelajaranTerpilih = ""; }
 if (typeof window.masterDaftarNilai === 'undefined') { window.masterDaftarNilai = []; }
+
+// State untuk Tatap Muka Ujian TKA
+if (typeof window.soalAktifIndex === 'undefined') { window.soalAktifIndex = 0; }
+if (typeof window.jawabanSiswa === 'undefined') { window.jawabanSiswa = {}; }
+if (typeof window.statusRagu === 'undefined') { window.statusRagu = {}; }
 
 // 1. Ambil daftar kelas untuk halaman Kuis Utama
 async function loadKelas() {
@@ -46,7 +51,7 @@ function AksiPilihKelas() {
     loadPelajaran();
 } 
 
-// 2. Ambil daftar siswa berdasarkan kelas (Halaman Kuis)
+// 2. Ambil daftar siswa berdasarkan kelas
 async function loadSiswa() {
     const selectKelasEl = document.getElementById("selectKelas");
     const selectSiswa = document.getElementById("selectSiswa");
@@ -79,7 +84,7 @@ async function loadSiswa() {
     }
 }
 
-// 3. Ambil mata pelajaran berdasarkan kelas (Halaman Kuis)
+// 3. Ambil mata pelajaran berdasarkan kelas
 async function loadPelajaran() {
     const selectKelasEl = document.getElementById("selectKelas");
     const selectPelajaran = document.getElementById("selectPelajaran");
@@ -142,8 +147,13 @@ async function mulai() {
         window.dataSiswaQuiz = data.siswa;
         window.dataSoal = data.soal; 
         
+        // Reset state navigasi TKA
+        window.soalAktifIndex = 0;
+        window.jawabanSiswa = {};
+        window.statusRagu = {};
+
         tampilSiswaQuiz();
-        tampilSoal();
+        tampilSoalTKA();
     } catch (err) { 
         alert("Gagal menyambung ke server kuis."); 
     }
@@ -163,76 +173,164 @@ function tampilSiswaQuiz(){
     `;
 }
 
-function tampilSoal(){
-    let html = "";
+/* =========================================================================
+   TAMPILAN TATAP MUKA SISWA (MODEL TKA / CAT)
+   ========================================================================= */
+
+function tampilSoalTKA() {
     if (!window.dataSoal || window.dataSoal.length === 0) {
         document.getElementById("quiz").innerHTML = `<div class="rbm-empty-state">Belum tersedia soal untuk mata pelajaran ini.</div>`;
         return;
     }
-    
-    window.dataSoal.forEach((s, index) => {
-        let nomorSoalMandiri = index + 1; 
-        
-        // Render gambar soal jika ada
-        let gambarHtml = "";
-        if (s.gambar && s.gambar.trim() !== "") {
-            gambarHtml = `
-                <div class="soal-gambar-container" style="margin: 10px 0; text-align: center;">
-                    <img src="${s.gambar}" alt="Gambar Soal ${nomorSoalMandiri}" style="max-width: 100%; max-height: 250px; border-radius: 6px; border: 1px solid #ddd;">
-                </div>
-            `;
-        }
 
-        let inputHtml = "";
-        
-        // Cek apakah jenis soal adalah Isian atau Pilihan Ganda
-        if (s.jenis === "ISIAN") {
-            inputHtml = `
-                <div style="margin-top: 10px;">
-                    <input type="text" id="input-isian-${index}" placeholder="Ketik jawaban singkat di sini..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
-                </div>
-            `;
-        } else {
-            // Render Pilihan Ganda (PG)
-            function renderOpsi(huruf, teksOpsi, urlGambarOpsi) {
-                let imgOpsiHtml = "";
-                if (urlGambarOpsi && urlGambarOpsi.trim() !== "") {
-                    imgOpsiHtml = `<div style="margin-top: 5px;"><img src="${urlGambarOpsi}" alt="Opsi ${huruf}" style="max-width: 120px; max-height: 100px; border-radius: 4px; border: 1px solid #ddd;"></div>`;
-                }
-                return `
-                <label class="opsi-label" id="label-${index}-${huruf}" style="display: block; margin-bottom: 8px; cursor: pointer;">
-                    <div style="display: flex; align-items: flex-start; gap: 8px;">
-                        <input type="radio" name="q${index}" value="${huruf}" style="margin-top: 3px;">
-                        <div>
-                            <span><b>${huruf}.</b> ${teksOpsi || ''}</span>
-                            ${imgOpsiHtml}
-                        </div>
-                    </div>
-                </label>`;
+    let totalSoal = window.dataSoal.length;
+    let idx = window.soalAktifIndex;
+    let s = window.dataSoal[idx];
+    let nomorSoal = idx + 1;
+
+    // Render Gambar Soal
+    let gambarHtml = "";
+    if (s.gambar && s.gambar.trim() !== "") {
+        gambarHtml = `
+            <div class="soal-gambar-container" style="margin: 15px 0; text-align: center;">
+                <img src="${s.gambar}" alt="Gambar Soal ${nomorSoal}" style="max-width: 100%; max-height: 280px; border-radius: 6px; border: 1px solid #ddd;">
+            </div>
+        `;
+    }
+
+    // Render Input Jawaban (PG / Isian)
+    let inputHtml = "";
+    let jawSimpan = window.jawabanSiswa[idx] || "";
+
+    if (s.jenis === "ISIAN" || s.type === "isian" || !s.A) {
+        inputHtml = `
+            <div style="margin-top: 15px;">
+                <label style="display:block; margin-bottom: 5px; font-weight:bold;">Jawaban Singkat Anda:</label>
+                <input type="text" id="inputIsianTKA" value="${jawSimpan}" onchange="simpanJawabanIsian(this.value)" placeholder="Ketik jawaban di sini..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; box-sizing: border-box;">
+            </div>
+        `;
+    } else {
+        function renderOpsiTKA(huruf, teksOpsi, urlGambarOpsi) {
+            let checked = (jawSimpan === huruf) ? "checked" : "";
+            let imgOpsiHtml = "";
+            if (urlGambarOpsi && urlGambarOpsi.trim() !== "") {
+                imgOpsiHtml = `<div style="margin-top: 5px;"><img src="${urlGambarOpsi}" alt="Opsi ${huruf}" style="max-width: 120px; max-height: 100px; border-radius: 4px; border: 1px solid #ddd;"></div>`;
             }
-
-            inputHtml = `
-                <div style="margin-top: 10px;">
-                    ${renderOpsi('A', s.A, s.gambarA)}
-                    ${renderOpsi('B', s.B, s.gambarB)}
-                    ${renderOpsi('C', s.C, s.gambarC)}
-                    ${renderOpsi('D', s.D, s.gambarD)}
+            return `
+            <label class="opsi-label" id="label-${idx}-${huruf}" style="display: block; margin-bottom: 10px; padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: ${checked ? '#eff6ff' : '#fff'};">
+                <div style="display: flex; align-items: flex-start; gap: 10px;">
+                    <input type="radio" name="qTKA" value="${huruf}" ${checked} onchange="simpanJawabanPG('${huruf}')" style="margin-top: 3px;">
+                    <div>
+                        <span><b>${huruf}.</b> ${teksOpsi || ''}</span>
+                        ${imgOpsiHtml}
+                    </div>
                 </div>
-            `;
+            </label>`;
         }
-        
-        html += `
-        <div class="cardSoal" style="margin-bottom: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 8px; background: #fff;">
-            <span class="soal-teks" style="font-weight: bold;">${nomorSoalMandiri}. ${s.soal}</span>
-            ${gambarHtml}
-            ${inputHtml}
-            <div id="pembahasan${index}" class="hidden"></div>
-        </div>`;
-    });
-    html += `<button type="button" id="btnKirimQuiz" onclick="koreksi()" style="background: #2563eb; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%;">🚀 Kirim Jawaban</button>`;
-    document.getElementById("quiz").innerHTML = html;
+
+        inputHtml = `
+            <div style="margin-top: 15px;">
+                ${renderOpsiTKA('A', s.A, s.gambarA)}
+                ${renderOpsiTKA('B', s.B, s.gambarB)}
+                ${renderOpsiTKA('C', s.C, s.gambarC)}
+                ${renderOpsiTKA('D', s.D, s.gambarD)}
+            </div>
+        `;
+    }
+
+    // Grid Nomor Soal (Navigasi Kanan/Atas)
+    let gridNomorHtml = window.dataSoal.map((_, i) => {
+        let isAktif = i === idx ? 'border: 2px solid #2563eb; font-weight: bold;' : 'border: 1px solid #ccc;';
+        let bgStatus = '#f3f4f6'; 
+        let colorText = '#333';
+
+        if (window.statusRagu[i]) {
+            bgStatus = '#f59e0b'; // Oranye jika ragu-ragu
+            colorText = '#fff';
+        } else if (window.jawabanSiswa[i] !== undefined && window.jawabanSiswa[i] !== "") {
+            bgStatus = '#10b981'; // Hijau jika sudah terjawab
+            colorText = '#fff';
+        }
+
+        return `<button onclick="pindahSoal(${i})" style="width: 36px; height: 36px; margin: 3px; background: ${bgStatus}; color: ${colorText}; border-radius: 6px; cursor: pointer; ${isAktif}">${i + 1}</button>`;
+    }).join("");
+
+    let isRagu = window.statusRagu[idx] ? "checked" : "";
+
+    // Template Layout Tatap Muka Ujian (Dua Kolom: Soal & Grid Navigasi)
+    let containerHtml = `
+        <div class="tka-wrapper" style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start;">
+            <!-- Kolom Lembar Soal -->
+            <div class="tka-soal-box" style="flex: 2; min-width: 280px; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px;">
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">
+                    <span style="font-size: 16px; font-weight: bold; color: #1e293b;">Soal No. ${nomorSoal} / ${totalSoal}</span>
+                </div>
+                
+                <div class="soal-teks" style="font-size: 15px; color: #334155; line-height: 1.6;">${s.soal}</div>
+                ${gambarHtml}
+                ${inputHtml}
+                
+                <div id="pembahasan${idx}" class="hidden" style="margin-top: 15px;"></div>
+
+                <!-- Tombol Navigasi Bawah -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 25px; padding-top: 15px; border-top: 1px solid #eee;">
+                    <button type="button" onclick="pindahSoal(${idx - 1})" ${idx === 0 ? 'disabled' : ''} style="background: #64748b; color: #fff; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; opacity: ${idx === 0 ? '0.5' : '1'};">
+                        ⬅️ Sebelumnya
+                    </button>
+                    
+                    <label style="display: inline-flex; align-items: center; gap: 6px; background: #fffbebf; padding: 6px 12px; border: 1px solid #fcd34d; border-radius: 6px; cursor: pointer; font-size: 13px;">
+                        <input type="checkbox" onchange="toggleRagu(${idx})" ${isRagu}>
+                        🟡 Ragu-Ragu
+                    </label>
+
+                    ${idx < totalSoal - 1 
+                        ? `<button type="button" onclick="pindahSoal(${idx + 1})" style="background: #2563eb; color: #fff; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;">Berikutnya ➡️</button>`
+                        : `<button type="button" id="btnKirimQuiz" onclick="koreksi()" style="background: #059669; color: #fff; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">🚀 Selesai & Kirim</button>`
+                    }
+                </div>
+            </div>
+
+            <!-- Kolom Navigasi Nomor Soal -->
+            <div class="tka-nav-box" style="flex: 1; min-width: 240px; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px;">
+                <h4 style="margin: 0 0 10px 0; font-size: 14px; text-align: center; color: #475569;">Navigasi Soal</h4>
+                <div style="display: flex; flex-wrap: wrap; justify-content: center;">
+                    ${gridNomorHtml}
+                </div>
+                <div style="margin-top: 15px; font-size: 11px; color: #64748b; border-top: 1px solid #eee; padding-top: 10px;">
+                    <span style="display:inline-block; width:10px; height:10px; background:#10b981; border-radius:2px;"></span> Sudah Dijawab<br>
+                    <span style="display:inline-block; width:10px; height:10px; background:#f59e0b; border-radius:2px;"></span> Ragu-Ragu<br>
+                    <span style="display:inline-block; width:10px; height:10px; background:#f3f4f6; border:1px solid #ccc; border-radius:2px;"></span> Belum Dijawab
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.getElementById("quiz").innerHTML = containerHtml;
 }
-// 5. Fungsi Cetak Hasil Latihan dengan Kop Surat
+
+// Handler simpan jawaban
+function simpanJawabanPG(val) {
+    window.jawabanSiswa[window.soalAktifIndex] = val;
+    tampilSoalTKA();
+}
+
+function simpanJawabanIsian(val) {
+    window.jawabanSiswa[window.soalAktifIndex] = val.trim();
+}
+
+function toggleRagu(idx) {
+    window.statusRagu[idx] = !window.statusRagu[idx];
+    tampilSoalTKA();
+}
+
+function pindahSoal(targetIndex) {
+    if (targetIndex >= 0 && targetIndex < window.dataSoal.length) {
+        window.soalAktifIndex = targetIndex;
+        tampilSoalTKA();
+    }
+}
+
+// 5. Cetak Hasil Latihan
 function cetakHasilLatihan() {
     const areaSiswa = document.getElementById("siswa").innerHTML;
     const areaHasil = document.getElementById("hasil").innerHTML;
@@ -251,8 +349,6 @@ function cetakHasilLatihan() {
             <title>Cetak Hasil Latihan Siswa - MI Miftahul Mubtadiin</title>
             <style>
                 body { font-family: Arial, sans-serif; padding: 15px; color: #000; font-size: 13px; background: #fff; }
-                
-                /* Kop Surat Persis Gambar */
                 .kop-table { width: 100%; border-bottom: 4px double #000; padding-bottom: 8px; margin-bottom: 15px; }
                 .kop-logo { width: 65px; height: auto; }
                 .kop-text { text-align: center; }
@@ -263,22 +359,18 @@ function cetakHasilLatihan() {
                 .kop-nsm { font-size: 10px; font-weight: bold; margin-top: 3px; }
                 .kop-kontak { font-size: 10px; margin-top: 1px; }
 
-                /* Konten Hasil */
                 .cardQuizSiswa { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 10px; }
                 .cardQuizSiswa img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; }
                 .cardHasil { text-align: center; padding: 15px; border: 1px solid #ccc; border-radius: 8px; margin-top: 20px; background: #f9f9f9; }
                 .score-big { font-size: 28px; font-weight: bold; }
                 .badge-status { font-size: 14px; font-weight: bold; margin-top: 5px; }
-                .cardSoal { margin-bottom: 12px; padding: 8px; border: 1px solid #eee; border-radius: 5px; page-break-inside: avoid; }
-                .soal-gambar-container img { max-width: 200px !important; height: auto; }
                 .benar-pilihan { background-color: #d1e7dd !important; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
                 .salah-pilihan { background-color: #f8d7da !important; padding: 2px 6px; border-radius: 4px; text-decoration: line-through; }
                 .pembahasan-box { background: #f8f9fa; padding: 6px; margin-top: 6px; font-size: 11px; border-left: 3px solid #0d6efd; }
-                button, #btnKirimQuiz { display: none !important; }
+                button, .tka-nav-box { display: none !important; }
             </style>
         </head>
         <body>
-            <!-- KOP SURAT MENGGUNAKAN TABEL AGAR RAPI SAAT DICETAK -->
             <table class="kop-table">
                 <tr>
                     <td style="width: 80px; vertical-align: middle; text-align: center;">
@@ -302,7 +394,6 @@ function cetakHasilLatihan() {
             ${areaHasil}
             
             <script>
-                // Beri jeda 1 detik agar gambar logo termuat sempurna sebelum dialog print muncul
                 setTimeout(function() {
                     window.print();
                 }, 1000);
@@ -313,72 +404,38 @@ function cetakHasilLatihan() {
     jw.document.close();
 }
 
+// 6. Fungsi Koreksi Nilai (Bobot PG 1 : Isian 2)
 async function koreksi(){
+    if (!confirm("Apakah Anda yakin ingin menyelesaikan dan mengirim jawaban?")) {
+        return;
+    }
+
     let benarPG = 0;
     let benarIsian = 0;
     
-    // Saring dan pisahkan jenis soal
-    let soalPG = window.dataSoal.filter(s => s.type !== "isian" && s.A); // Mengambil soal yang memiliki opsi PG
-    let soalIsian = window.dataSoal.filter(s => s.type === "isian" || !s.A); // Mengambil soal Isian
-
-    document.getElementById("btnKirimQuiz").classList.add("hidden");
+    let soalPG = window.dataSoal.filter(s => s.type !== "isian" && s.A);
+    let soalIsian = window.dataSoal.filter(s => s.type === "isian" || !s.A);
 
     window.dataSoal.forEach((s, index) => {
         let isIsian = s.type === "isian" || !s.A;
+        let jawabanUser = String(window.jawabanSiswa[index] || "").trim().toLowerCase();
+        let kunciJawaban = String(s.jawaban).trim().toLowerCase();
 
         if (isIsian) {
-            // --- LOGIKA UNTUK SOAL ISIAN ---
-            let inputUser = document.getElementById(`input-isian-${index}`);
-            let jawabanUser = inputUser ? inputUser.value.trim().toLowerCase() : "";
-            let kunciJawaban = String(s.jawaban).trim().toLowerCase();
-
-            if (inputUser) inputUser.disabled = true;
-
             if (jawabanUser !== "" && jawabanUser === kunciJawaban) {
                 benarIsian++;
-                if (inputUser) inputUser.classList.add("benar-pilihan");
-            } else {
-                if (inputUser) inputUser.classList.add("salah-pilihan");
             }
         } else {
-            // --- LOGIKA UNTUK SOAL PILIHAN GANDA (PG) ---
-            let pilihanUser = document.querySelector(`input[name=q${index}]:checked`);
-            let nilaiPilihan = pilihanUser ? pilihanUser.value : null;
-            let kunciJawaban = s.jawaban;
-
-            document.querySelectorAll(`input[name=q${index}]`).forEach(r => r.disabled = true);
-
-            if (nilaiPilihan === kunciJawaban) {
+            if (jawabanUser === kunciJawaban) {
                 benarPG++;
-                let elBenar = document.getElementById(`label-${index}-${nilaiPilihan}`);
-                if(elBenar) elBenar.classList.add("benar-pilihan");
-            } else {
-                if (nilaiPilihan) {
-                    let elSalah = document.getElementById(`label-${index}-${nilaiPilihan}`);
-                    if(elSalah) elSalah.classList.add("salah-pilihan");
-                }
-                let elKunci = document.getElementById(`label-${index}-${kunciJawaban}`);
-                if(elKunci) elKunci.classList.add("benar-pilihan");
             }
-        }
-
-        // Tampilkan Pembahasan
-        let boxPembahasan = document.getElementById(`pembahasan${index}`);
-        if (boxPembahasan) {
-            boxPembahasan.innerHTML = `<div class="pembahasan-box"><b>💡 Pembahasan:</b> ${s.penjelasan || 'Tidak ada penjelasan.'}</div>`;
-            boxPembahasan.classList.remove("hidden");
         }
     });
 
-    // =========================================================================
-    // PERHITUNGAN NILAI GABUNGAN (BOBOT PG : ISIAN = 1 : 2)
-    // =========================================================================
+    // Perhitungan Nilai (PG : Isian = 1 : 2)
     let totalPG = soalPG.length;
     let totalIsian = soalIsian.length;
     let nilai = 0;
-
-    // Menghitung bobot total per kategori
-    // Bobot PG = 1, Bobot Isian = 2
     let bobotTotal = (totalPG * 1) + (totalIsian * 2);
 
     if (bobotTotal > 0) {
@@ -421,8 +478,9 @@ async function koreksi(){
         console.error("Gagal mengirim hasil ujian:", e);
     }
 }
+
 /* =========================================================================
-   FITUR REKAP NAMA, KELAS, DAN MAPEL (URUTAN: KELAS -> MAPEL -> NAMA)
+   FITUR REKAP NAMA, KELAS, DAN MAPEL
    ========================================================================= */
 
 function ambilDataNilai() {
@@ -583,10 +641,15 @@ if (document.readyState === "complete" || document.readyState === "interactive")
     window.addEventListener("load", initApp);
 }
 
+// Global functions
 window.tampilkanNilaiSpesifik = tampilkanNilaiSpesifik;
 window.cetakHasilLatihan = cetakHasilLatihan;
+window.pindahSoal = pindahSoal;
+window.simpanJawabanPG = simpanJawabanPG;
+window.simpanJawabanIsian = simpanJawabanIsian;
+window.toggleRagu = toggleRagu;
+window.koreksi = koreksi;
 
-// Fungsi Khusus Cetak Rekap Nilai Latihan dengan Kop Surat
 function cetakRekapNilai() {
     const kelasPilihan = document.getElementById("filterDaftarKelas").value;
     const mapelPilihan = document.getElementById("filterDaftarMapel").value;
@@ -610,8 +673,6 @@ function cetakRekapNilai() {
             <title>Cetak Rekap Nilai Latihan - MI Miftahul Mubtadiin</title>
             <style>
                 body { font-family: Arial, sans-serif; padding: 20px; color: #000; font-size: 13px; background: #fff; }
-                
-                /* Kop Surat */
                 .kop-table { width: 100%; border-bottom: 4px double #000; padding-bottom: 8px; margin-bottom: 20px; }
                 .kop-logo { width: 65px; height: auto; }
                 .kop-text { text-align: center; }
@@ -624,25 +685,17 @@ function cetakRekapNilai() {
 
                 h3 { text-align: center; margin-bottom: 5px; text-transform: uppercase; }
                 .info-filter { text-align: center; font-size: 12px; margin-bottom: 15px; color: #555; }
-
-                /* Tabel Rekap */
                 table { width: 100%; border-collapse: collapse; margin-top: 10px; }
                 th, td { border: 1px solid #333; padding: 8px 10px; font-size: 12px; text-align: left; }
                 th { background-color: #f2f2f2; text-align: center; }
                 .text-center { text-align: center; }
                 
-                /* Badge Status */
                 .badge { padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; display: inline-block; }
                 .badge-sukses, .badge.badge-sukses { background-color: #d1e7dd; color: #0f5132; }
                 .badge-bahaya, .badge.badge-bahaya { background-color: #f8d7da; color: #842029; }
-
-                @media print {
-                    body { padding: 0; }
-                }
             </style>
         </head>
         <body>
-            <!-- KOP SURAT -->
             <table class="kop-table">
                 <tr>
                     <td style="width: 80px; vertical-align: middle; text-align: center;">
@@ -691,10 +744,8 @@ function cetakRekapNilai() {
     jw.document.close();
 }
 
-// Helper kecil untuk merapikan teks kelas
 function kelasPayloadText(val) {
     return val ? val : "-";
 }
 
-// Daftarkan fungsi ke objek window agar bisa dipanggil dari HTML
 window.cetakRekapNilai = cetakRekapNilai;
