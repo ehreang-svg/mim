@@ -1,5 +1,5 @@
 /* =========================================================================
-   FITUR UTAMA KUIS: AMBIL DATA DARI APP SCRIPT & RENDER KE HTML (SISTEM TKA + TIMER)
+   FITUR UTAMA KUIS & TATAP MUKA SISWA (DURASI & PROTEKSI KEAMANAN)
    ========================================================================= */
 
 // Deklarasi variabel global aman
@@ -8,12 +8,13 @@ if (typeof window.dataSoal === 'undefined') { window.dataSoal = []; }
 if (typeof window.mataPelajaranTerpilih === 'undefined') { window.mataPelajaranTerpilih = ""; }
 if (typeof window.masterDaftarNilai === 'undefined') { window.masterDaftarNilai = []; }
 
-// State untuk Tatap Muka Ujian TKA & Timer
+// State Tatap Muka & Timer Ujian
 if (typeof window.soalAktifIndex === 'undefined') { window.soalAktifIndex = 0; }
 if (typeof window.jawabanSiswa === 'undefined') { window.jawabanSiswa = {}; }
 if (typeof window.statusRagu === 'undefined') { window.statusRagu = {}; }
 if (typeof window.timerInterval === 'undefined') { window.timerInterval = null; }
-if (typeof window.sisaDetik === 'undefined') { window.sisaDetik = 0; }
+if (typeof window.durasiUjianDetik === 'undefined') { window.durasiUjianDetik = 60 * 60; } // Default: 60 Menit
+if (typeof window.pelanggaranCount === 'undefined') { window.pelanggaranCount = 0; }
 
 // 1. Ambil daftar kelas untuk halaman Kuis Utama
 async function loadKelas() {
@@ -47,7 +48,7 @@ async function loadKelas() {
     }
 }
 
-// Trigger gabungan saat kelas di halaman kuis diubah
+// Trigger gabungan saat kelas diubah
 function AksiPilihKelas() {
     loadSiswa();
     loadPelajaran();
@@ -119,7 +120,7 @@ async function loadPelajaran() {
     }
 }
 
-// 4. Proses Login Utama Kuis & Memulai Timer
+// 4. Proses Login & Memulai Ujian
 async function mulai() {
     const selectSiswa = document.getElementById("selectSiswa");
     const selectPelajaran = document.getElementById("selectPelajaran");
@@ -149,14 +150,22 @@ async function mulai() {
         window.dataSiswaQuiz = data.siswa;
         window.dataSoal = data.soal; 
         
-        // Reset state navigasi TKA
+        // Custom Durasi dari Server jika ada, default ke 60 menit
+        if (data.durasiMenit && !isNaN(data.durasiMenit)) {
+            window.durasiUjianDetik = parseInt(data.durasiMenit) * 60;
+        } else {
+            window.durasiUjianDetik = 60 * 60;
+        }
+
+        // Reset state
         window.soalAktifIndex = 0;
         window.jawabanSiswa = {};
         window.statusRagu = {};
+        window.pelanggaranCount = 0;
 
-        // Atur durasi ujian (Contoh: 60 menit / 3600 detik, atau ambil dari data server jika ada: data.durasi * 60)
-        let durasiMenit = data.durasi || 60; 
-        window.sisaDetik = durasiMenit * 60;
+        // Aktifkan Pengaman Ujian & Layar Penuh
+        aktifkanProteksiKeamanan();
+        mintaLayarPenuh();
 
         tampilSiswaQuiz();
         tampilSoalTKA();
@@ -170,54 +179,129 @@ function tampilSiswaQuiz(){
     document.getElementById("areaLogin").classList.add("hidden");
     document.getElementById("areaKuis").classList.remove("hidden");
     document.getElementById("siswa").innerHTML = `
-        <div class="cardQuizSiswa" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <img src="${window.dataSiswaQuiz.foto || 'https://via.placeholder.com/150'}" alt="Foto Siswa" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+        <div class="cardQuizSiswa" style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 12px 18px; border: 1px solid #e2e8f0; border-radius: 8px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <img src="${window.dataSiswaQuiz.foto || 'https://via.placeholder.com/150'}" alt="Foto Siswa" style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover;">
                 <div>
-                    <h3 style="margin: 0; font-size: 16px;">${window.dataSiswaQuiz.nama || '-'}</h3>
-                    <p style="margin: 2px 0 0 0; font-size: 13px; color: #555;">${window.dataSiswaQuiz.kelas} | Mapel: <b>${window.mataPelajaranTerpilih}</b></p>
+                    <h3 style="margin: 0; font-size: 15px;">${window.dataSiswaQuiz.nama || '-'}</h3>
+                    <p style="margin: 2px 0 0 0; font-size: 12px; color: #64748b;">${window.dataSiswaQuiz.kelas} | Mapel: <b>${window.mataPelajaranTerpilih}</b></p>
                 </div>
             </div>
-            <!-- Kotak Tampilan Timer di Header Siswa -->
-            <div id="boxTimerUjian" style="background: #1e293b; color: #fff; padding: 8px 15px; border-radius: 6px; font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 8px;">
-                ⏱️ Sisa Waktu: <span id="textTimer" style="color: #f87171; font-family: monospace; font-size: 16px;">00:00:00</span>
+            <!-- Wadah Timer Hitung Mundur -->
+            <div style="background: #fef2f2; border: 1px solid #fca5a5; color: #dc2626; padding: 6px 14px; border-radius: 6px; text-align: center;">
+                <div style="font-size: 10px; font-weight: bold; text-transform: uppercase;">Sisa Waktu</div>
+                <div id="displayTimer" style="font-size: 18px; font-weight: bold; font-family: monospace;">00:00:00</div>
             </div>
         </div>
     `;
 }
 
-// Fungsi Countdown Timer
-function mulaiTimerUjian() {
-    if (window.timerInterval) clearInterval(window.timerInterval);
+/* =========================================================================
+   PROTEKSI KEAMANAN UJIAN (ANTI-CURANG / SECURE EXAM)
+   ========================================================================= */
 
-    window.timerInterval = setInterval(() => {
-        if (window.sisaDetik <= 0) {
-            clearInterval(window.timerInterval);
-            alert("Waktu ujian telah habis! Sistem akan mengirimkan jawaban Anda secara otomatis.");
-            koreksi(true); // Kirim otomatis tanpa konfirmasi
-            return;
+function aktifkanProteksiKeamanan() {
+    // 1. Blokir Klik Kanan (Context Menu)
+    document.addEventListener("contextmenu", hentikanAksiKeamanan);
+
+    // 2. Blokir Kombinasi Tombol Salin/Tempel/Inspect (Ctrl+C, Ctrl+V, F12, Ctrl+Shift+I)
+    document.addEventListener("keydown", function(e) {
+        if (
+            e.key === "F12" || 
+            (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) ||
+            (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.key === 'c' || e.key === 'C' || e.key === 'v' || e.key === 'V' || e.key === 'a' || e.key === 'A'))
+        ) {
+            hentikanAksiKeamanan(e);
         }
+    });
 
-        window.sisaDetik--;
+    // 3. Matikan Seleksi Teks (Copy text) via CSS
+    document.body.style.userSelect = "none";
+    document.body.style.webkitUserSelect = "none";
 
-        let jam = Math.floor(window.sisaDetik / 3600);
-        let menit = Math.floor((window.sisaDetik % 3600) / 60);
-        let detik = window.sisaDetik % 60;
+    // 4. Deteksi Pindah Tab / Pindah Aplikasi (Visibility Change / Blur)
+    window.addEventListener("blur", catatPelanggaran);
+    document.addEventListener("visibilitychange", function() {
+        if (document.hidden) {
+            catatPelanggaran();
+        }
+    });
+}
 
-        let formatWaktu = 
-            String(jam).padStart(2, '0') + ":" + 
-            String(menit).padStart(2, '0') + ":" + 
-            String(detik).padStart(2, '0');
+function matikanProteksiKeamanan() {
+    document.removeEventListener("contextmenu", hentikanAksiKeamanan);
+    window.removeEventListener("blur", catatPelanggaran);
+    document.body.style.userSelect = "auto";
+    document.body.style.webkitUserSelect = "auto";
+}
 
-        let elTimer = document.getElementById("textTimer");
-        if (elTimer) {
-            elTimer.textContent = formatWaktu;
-            // Ubah warna teks jadi merah berkedip/terang jika waktu tinggal < 5 menit
-            if (window.sisaDetik < 300) {
-                elTimer.style.color = "#fca5a5";
-            }
+function hentikanAksiKeamanan(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    alert("⚠️ Aksi ini dilarang selama ujian berlangsung!");
+    return false;
+}
+
+function catatPelanggaran() {
+    // Jalankan deteksi jika ujian masih aktif
+    if (document.getElementById("areaKuis") && !document.getElementById("areaKuis").classList.contains("hidden")) {
+        window.pelanggaranCount++;
+        if (window.pelanggaranCount >= 3) {
+            alert("🚨 Anda terdeteksi keluar dari layar ujian sebanyak 3 kali! Ujian Anda otomatis dihentikan.");
+            koreksi(true); // Paksa selesai & kirim
+        } else {
+            alert(`⚠️ PERINGATAN (${window.pelanggaranCount}/3): Dilarang meninggalkan halaman ujian! Ujian akan otomatis terkirim jika Anda melanggar ${3 - window.pelanggaranCount} kali lagi.`);
+        }
+    }
+}
+
+function mintaLayarPenuh() {
+    let elem = document.documentElement;
+    if (elem.requestFullscreen) {
+        elem.requestFullscreen().catch(() => {});
+    } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen();
+    } else if (elem.msRequestFullscreen) {
+        elem.msRequestFullscreen();
+    }
+}
+
+/* =========================================================================
+   SISTEM TIMER HITUNG MUNDUR
+   ========================================================================= */
+
+function mulaiTimerUjian() {
+    clearInterval(window.timerInterval);
+    
+    updateDisplayTimer();
+    
+    window.timerInterval = setInterval(() => {
+        window.durasiUjianDetik--;
+        updateDisplayTimer();
+
+        if (window.durasiUjianDetik <= 0) {
+            clearInterval(window.timerInterval);
+            alert("⏰ Waktu ujian telah habis! Jawaban Anda akan otomatis dikirim.");
+            koreksi(true); // Kirim otomatis saat waktu habis
         }
     }, 1000);
+}
+
+function updateDisplayTimer() {
+    const el = document.getElementById("displayTimer");
+    if (!el) return;
+
+    let totalDetik = Math.max(0, window.durasiUjianDetik);
+    let jam = Math.floor(totalDetik / 3600);
+    let menit = Math.floor((totalDetik % 3600) / 60);
+    let detik = totalDetik % 60;
+
+    let formatWaktu = 
+        String(jam).padStart(2, '0') + ":" + 
+        String(menit).padStart(2, '0') + ":" + 
+        String(detik).padStart(2, '0');
+
+    el.textContent = formatWaktu;
 }
 
 /* =========================================================================
@@ -235,6 +319,7 @@ function tampilSoalTKA() {
     let s = window.dataSoal[idx];
     let nomorSoal = idx + 1;
 
+    // Render Gambar Soal
     let gambarHtml = "";
     if (s.gambar && s.gambar.trim() !== "") {
         gambarHtml = `
@@ -244,6 +329,7 @@ function tampilSoalTKA() {
         `;
     }
 
+    // Render Input Jawaban (PG / Isian)
     let inputHtml = "";
     let jawSimpan = window.jawabanSiswa[idx] || "";
 
@@ -251,7 +337,7 @@ function tampilSoalTKA() {
         inputHtml = `
             <div style="margin-top: 15px;">
                 <label style="display:block; margin-bottom: 5px; font-weight:bold;">Jawaban Singkat Anda:</label>
-                <input type="text" id="inputIsianTKA" value="${jawSimpan}" oninput="simpanJawabanIsian(this.value)" placeholder="Ketik jawaban di sini..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; box-sizing: border-box;">
+                <input type="text" id="inputIsianTKA" value="${jawSimpan}" onchange="simpanJawabanIsian(this.value)" placeholder="Ketik jawaban di sini..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; box-sizing: border-box;">
             </div>
         `;
     } else {
@@ -283,26 +369,28 @@ function tampilSoalTKA() {
         `;
     }
 
+    // Grid Nomor Soal
     let gridNomorHtml = window.dataSoal.map((_, i) => {
         let isAktif = i === idx ? 'border: 2px solid #2563eb; font-weight: bold;' : 'border: 1px solid #ccc;';
         let bgStatus = '#f3f4f6'; 
         let colorText = '#333';
 
         if (window.statusRagu[i]) {
-            bgStatus = '#f59e0b'; // Oranye jika ragu-ragu
+            bgStatus = '#f59e0b';
             colorText = '#fff';
         } else if (window.jawabanSiswa[i] !== undefined && window.jawabanSiswa[i] !== "") {
-            bgStatus = '#10b981'; // Hijau jika sudah terjawab
+            bgStatus = '#10b981';
             colorText = '#fff';
         }
 
-        return `<button type="button" onclick="pindahSoal(${i})" style="width: 36px; height: 36px; margin: 3px; background: ${bgStatus}; color: ${colorText}; border-radius: 6px; cursor: pointer; ${isAktif}">${i + 1}</button>`;
+        return `<button onclick="pindahSoal(${i})" style="width: 36px; height: 36px; margin: 3px; background: ${bgStatus}; color: ${colorText}; border-radius: 6px; cursor: pointer; ${isAktif}">${i + 1}</button>`;
     }).join("");
 
     let isRagu = window.statusRagu[idx] ? "checked" : "";
 
     let containerHtml = `
-        <div class="tka-wrapper" style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start;">
+        <div class="tka-wrapper" style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; margin-top: 15px;">
+            <!-- Lembar Soal Utama -->
             <div class="tka-soal-box" style="flex: 2; min-width: 280px; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px;">
                 <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">
                     <span style="font-size: 16px; font-weight: bold; color: #1e293b;">Soal No. ${nomorSoal} / ${totalSoal}</span>
@@ -314,12 +402,13 @@ function tampilSoalTKA() {
                 
                 <div id="pembahasan${idx}" class="hidden" style="margin-top: 15px;"></div>
 
+                <!-- Tombol Navigasi Ujian -->
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 25px; padding-top: 15px; border-top: 1px solid #eee;">
                     <button type="button" onclick="pindahSoal(${idx - 1})" ${idx === 0 ? 'disabled' : ''} style="background: #64748b; color: #fff; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; opacity: ${idx === 0 ? '0.5' : '1'};">
                         ⬅️ Sebelumnya
                     </button>
                     
-                    <label style="display: inline-flex; align-items: center; gap: 6px; background: #fef3c7; padding: 6px 12px; border: 1px solid #fcd34d; border-radius: 6px; cursor: pointer; font-size: 13px;">
+                    <label style="display: inline-flex; align-items: center; gap: 6px; background: #fffbebf; padding: 6px 12px; border: 1px solid #fcd34d; border-radius: 6px; cursor: pointer; font-size: 13px;">
                         <input type="checkbox" onchange="toggleRagu(${idx})" ${isRagu}>
                         🟡 Ragu-Ragu
                     </label>
@@ -331,6 +420,7 @@ function tampilSoalTKA() {
                 </div>
             </div>
 
+            <!-- Panel Navigasi Nomor Soal -->
             <div class="tka-nav-box" style="flex: 1; min-width: 240px; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px;">
                 <h4 style="margin: 0 0 10px 0; font-size: 14px; text-align: center; color: #475569;">Navigasi Soal</h4>
                 <div style="display: flex; flex-wrap: wrap; justify-content: center;">
@@ -406,7 +496,7 @@ function cetakHasilLatihan() {
                 .benar-pilihan { background-color: #d1e7dd !important; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
                 .salah-pilihan { background-color: #f8d7da !important; padding: 2px 6px; border-radius: 4px; text-decoration: line-through; }
                 .pembahasan-box { background: #f8f9fa; padding: 6px; margin-top: 6px; font-size: 11px; border-left: 3px solid #0d6efd; }
-                button, .tka-nav-box, #boxTimerUjian { display: none !important; }
+                button, .tka-nav-box { display: none !important; }
             </style>
         </head>
         <body>
@@ -443,18 +533,15 @@ function cetakHasilLatihan() {
     jw.document.close();
 }
 
-// 6. Fungsi Koreksi Nilai & Hentikan Timer
-async function koreksi(isAutoSubmit = false){
-    if (!isAutoSubmit) {
-        if (!confirm("Apakah Anda yakin ingin menyelesaikan dan mengirim jawaban ujian?")) {
-            return;
-        }
+// 6. Fungsi Koreksi Nilai & Selesai Ujian
+async function koreksi(isOtomatis = false){
+    if (!isOtomatis && !confirm("Apakah Anda yakin ingin menyelesaikan dan mengirim jawaban?")) {
+        return;
     }
 
-    // Matikan timer aktif
-    if (window.timerInterval) {
-        clearInterval(window.timerInterval);
-    }
+    // Hentikan Timer & Matikan Proteksi
+    clearInterval(window.timerInterval);
+    matikanProteksiKeamanan();
 
     let benarPG = 0;
     let benarIsian = 0;
@@ -686,7 +773,7 @@ if (document.readyState === "complete" || document.readyState === "interactive")
     window.addEventListener("load", initApp);
 }
 
-// Global functions
+// Export fungsi global
 window.tampilkanNilaiSpesifik = tampilkanNilaiSpesifik;
 window.cetakHasilLatihan = cetakHasilLatihan;
 window.pindahSoal = pindahSoal;
@@ -773,7 +860,7 @@ function cetakRekapNilai() {
                         <th style="width: 8%;">Status</th>
                     </tr>
                 </thead>
-                <body>
+                <tbody>
                     ${isiTabel}
                 </tbody>
             </table>
