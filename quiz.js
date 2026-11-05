@@ -1,14 +1,14 @@
 /* =========================================================================
-   FITUR UTAMA KUIS: TATAP MUKA (TKA), TIMER, PROTEKSI, & PENGUNCIAN JAWABAN
+   FITUR UTAMA KUIS: TATAP MUKA (TKA MODERN), TIMER, PROTEKSI, & PENGUNCIAN
    ========================================================================= */
 
-// Deklarasi variabel global aman
+// Deklarasi variabel global
 if (typeof window.dataSiswaQuiz === 'undefined') { window.dataSiswaQuiz = null; }
 if (typeof window.dataSoal === 'undefined') { window.dataSoal = []; }
 if (typeof window.mataPelajaranTerpilih === 'undefined') { window.mataPelajaranTerpilih = ""; }
 if (typeof window.masterDaftarNilai === 'undefined') { window.masterDaftarNilai = []; }
 
-// State untuk Tatap Muka Ujian TKA & Durasi/Proteksi
+// State Ujian TKA
 if (typeof window.soalAktifIndex === 'undefined') { window.soalAktifIndex = 0; }
 if (typeof window.jawabanSiswa === 'undefined') { window.jawabanSiswa = {}; }
 if (typeof window.statusRagu === 'undefined') { window.statusRagu = {}; }
@@ -17,7 +17,7 @@ if (typeof window.sisaDetik === 'undefined') { window.sisaDetik = 0; }
 if (typeof window.isUjianSelesai === 'undefined') { window.isUjianSelesai = false; }
 if (typeof window.jumlahPeringatanTab === 'undefined') { window.jumlahPeringatanTab = 0; }
 
-// 1. Ambil daftar kelas untuk halaman Kuis Utama
+// 1. Ambil daftar kelas
 async function loadKelas() {
     try {
         const selectKelas = document.getElementById("selectKelas");
@@ -49,7 +49,6 @@ async function loadKelas() {
     }
 }
 
-// Trigger gabungan saat kelas di halaman kuis diubah
 function AksiPilihKelas() {
     loadSiswa();
     loadPelajaran();
@@ -121,7 +120,7 @@ async function loadPelajaran() {
     }
 }
 
-// 4. Proses Login Utama Kuis
+// 4. Proses Login Utama Ujian TKA
 async function mulai() {
     const selectSiswa = document.getElementById("selectSiswa");
     const selectPelajaran = document.getElementById("selectPelajaran");
@@ -140,7 +139,7 @@ async function mulai() {
         return;
     }
 
-    document.getElementById("siswa").innerHTML = "<p>Memuat lembar soal kuis...</p>";
+    document.getElementById("siswa").innerHTML = "<p>Memuat lembar soal TKA...</p>";
 
     try {
         const res = await fetch(window.Quiz_API + `?aksi=loginQuiz&nisn=${encodeURIComponent(passwordNisn)}&pelajaran=${encodeURIComponent(window.mataPelajaranTerpilih)}`, { method: "GET", redirect: "follow" });
@@ -148,9 +147,8 @@ async function mulai() {
         
         if (data.error) { alert(data.message || data.error); return; }
 
-        // CEK APAKAH SISWA SUDAH PERNAH MENGERJAKAN SEBELUMNYA (KUNCI PERMANEN)
         if (data.sudahMengerjakan) {
-            alert("Anda sudah menyelesaikan ujian mata pelajaran ini! Tidak dapat mengerjakan ulang.");
+            alert("Anda sudah menyelesaikan ujian mata pelajaran ini!");
             location.reload();
             return;
         }
@@ -158,15 +156,13 @@ async function mulai() {
         window.dataSiswaQuiz = data.siswa;
         window.dataSoal = data.soal; 
         
-        // Reset state ujian
         window.soalAktifIndex = 0;
         window.jawabanSiswa = {};
         window.statusRagu = {};
         window.isUjianSelesai = false;
         window.jumlahPeringatanTab = 0;
 
-        // Set Durasi Ujian (Contoh: 45 Menit = 45 * 60 detik. Bisa disesuaikan dari data server jika ada)
-        let durasiMenit = data.durasiMenit || 45; 
+        let durasiMenit = data.durasiMenit || 60; 
         window.sisaDetik = durasiMenit * 60;
 
         tampilSiswaQuiz();
@@ -182,12 +178,12 @@ function tampilSiswaQuiz(){
     document.getElementById("areaLogin").classList.add("hidden");
     document.getElementById("areaKuis").classList.remove("hidden");
     document.getElementById("siswa").innerHTML = `
-        <div class="cardQuizSiswa" style="display:flex; justify-content:space-between; align-items:center;">
+        <div class="cardQuizSiswa" style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:15px; border-radius:8px; border:1px solid #e2e8f0; margin-bottom:15px;">
             <div style="display: flex; align-items: center; gap: 15px;">
                 <img src="${window.dataSiswaQuiz.foto || 'https://via.placeholder.com/150'}" alt="Foto Siswa" style="width:50px; height:50px; border-radius:50%; object-fit:cover;">
                 <div>
-                    <h3>${window.dataSiswaQuiz.nama || '-'}</h3>
-                    <p>${window.dataSiswaQuiz.kelas} | Mapel: <b>${window.mataPelajaranTerpilih}</b></p>
+                    <h3 style="margin:0; font-size:16px;">${window.dataSiswaQuiz.nama || '-'}</h3>
+                    <p style="margin:2px 0 0 0; font-size:13px; color:#64748b;">${window.dataSiswaQuiz.kelas} | Mapel: <b>${window.mataPelajaranTerpilih}</b></p>
                 </div>
             </div>
             <div id="boxTimerUjian" style="background:#fee2e2; color:#991b1b; padding:8px 15px; border-radius:6px; font-weight:bold; font-size:16px; border:1px solid #fecaca;">
@@ -197,9 +193,6 @@ function tampilSiswaQuiz(){
     `;
 }
 
-/* =========================================================================
-   FITUR DURASI UJIAN (TIMER)
-   ========================================================================= */
 function mulaiTimerUjian() {
     if (window.timerInterval) clearInterval(window.timerInterval);
 
@@ -207,7 +200,7 @@ function mulaiTimerUjian() {
         if (window.sisaDetik <= 0) {
             clearInterval(window.timerInterval);
             alert("Waktu ujian telah habis! Sistem akan mengirim jawaban Anda secara otomatis.");
-            koreksi(true); // Kirim otomatis tanpa konfirmasi
+            koreksi(true);
             return;
         }
 
@@ -217,17 +210,11 @@ function mulaiTimerUjian() {
 
         let formatWaktu = `${String(menit).padStart(2, '0')}:${String(detik).padStart(2, '0')}`;
         let elTimer = document.getElementById("textTimer");
-        if (elTimer) {
-            elTimer.textContent = formatWaktu;
-        }
+        if (elTimer) elTimer.textContent = formatWaktu;
     }, 1000);
 }
 
-/* =========================================================================
-   FITUR PROTEKSI KEAMANAN (ANTI CURANG / PINDAH TAB)
-   ========================================================================= */
 function mulaiProteksiKeamanan() {
-    // Deteksi jika siswa meninggalkan tab browser / minimize
     document.addEventListener("visibilitychange", handleVisibilityChange);
 }
 
@@ -235,9 +222,9 @@ function handleVisibilityChange() {
     if (document.hidden && !window.isUjianSelesai) {
         window.jumlahPeringatanTab++;
         if (window.jumlahPeringatanTab <= 3) {
-            alert(`⚠️ PERINGATAN KEAMANAN (${window.jumlahPeringatanTab}/3)!\nAnda terdeteksi keluar dari halaman ujian. Tindakan ini dicatat oleh pengawas!`);
+            alert(`⚠️ PERINGATAN KEAMANAN (${window.jumlahPeringatanTab}/3)!\nAnda terdeteksi keluar dari halaman ujian!`);
         } else {
-            alert("⚠️ Anda telah melanggar aturan keamanan berulang kali. Ujian Anda akan diserahkan otomatis!");
+            alert("⚠️ Anda melanggar aturan keamanan berulang kali. Ujian Anda diserahkan otomatis!");
             koreksi(true);
         }
     }
@@ -249,10 +236,10 @@ function hentikanProteksiKeamanan() {
 }
 
 /* =========================================================================
-   TAMPILAN TATAP MUKA SISWA (MODEL TKA / CAT)
+   RENDER TATAP MUKA SISWA (SOAL & TIPE SOAL TKA)
    ========================================================================= */
 function tampilSoalTKA() {
-    if (window.isUjianSelesai) return; // Cegah render jika sudah selesai
+    if (window.isUjianSelesai) return;
 
     if (!window.dataSoal || window.dataSoal.length === 0) {
         document.getElementById("quiz").innerHTML = `<div class="rbm-empty-state">Belum tersedia soal untuk mata pelajaran ini.</div>`;
@@ -264,6 +251,9 @@ function tampilSoalTKA() {
     let s = window.dataSoal[idx];
     let nomorSoal = idx + 1;
 
+    // Tentukan jenis soal (PG, PGK_L1, PGK_BS, MENJODOHKAN, ISIAN)
+    let jenisSoal = (s.jenis || s.type || "PG").toUpperCase();
+
     let gambarHtml = "";
     if (s.gambar && s.gambar.trim() !== "") {
         gambarHtml = `
@@ -274,58 +264,152 @@ function tampilSoalTKA() {
     }
 
     let inputHtml = "";
-    let jawSimpan = window.jawabanSiswa[idx] || "";
+    let jawSimpan = window.jawabanSiswa[idx];
 
-    if (s.jenis === "ISIAN" || s.type === "isian" || !s.A) {
+    // --- 1. SOAL PILIHAN GANDA (PG) ---
+    if (jenisSoal === "PG" || jenisSoal === "PILGAN") {
+        let opsiList = ['A', 'B', 'C', 'D', 'E'];
+        inputHtml = `<div style="margin-top: 15px;">`;
+        opsiList.forEach(huruf => {
+            if (s[huruf] || s['gambar' + huruf]) {
+                let checked = (jawSimpan === huruf) ? "checked" : "";
+                let imgOpsiHtml = s['gambar' + huruf] ? `<div style="margin-top: 5px;"><img src="${s['gambar' + huruf]}" style="max-width: 120px; border-radius: 4px;"></div>` : "";
+                inputHtml += `
+                <label class="opsi-label" style="display: block; margin-bottom: 10px; padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: ${checked ? '#eff6ff' : '#fff'}; border-color: ${checked ? '#2563eb' : '#e5e7eb'};">
+                    <div style="display: flex; align-items: flex-start; gap: 10px;">
+                        <input type="radio" name="qTKA" value="${huruf}" ${checked} onchange="simpanJawabanPG('${huruf}')" style="margin-top: 3px;">
+                        <div>
+                            <span><b>${huruf}.</b> ${s[huruf] || ''}</span>
+                            ${imgOpsiHtml}
+                        </div>
+                    </div>
+                </label>`;
+            }
+        });
+        inputHtml += `</div>`;
+    }
+    // --- 2. PILIHAN GANDA KOMPLEKS - CENTANG BANYAK (PGK_L1 / CENTANG) ---
+    else if (jenisSoal === "PGK_L1" || jenisSoal === "PGK_CENTANG") {
+        let arrJaw = Array.isArray(jawSimpan) ? jawSimpan : [];
+        let opsiList = ['A', 'B', 'C', 'D', 'E'];
+        inputHtml = `<div style="margin-top: 15px;"><p style="font-size:13px; color:#2563eb; font-weight:bold;">* Pilihlah beberapa jawaban yang menurut Anda benar!</p>`;
+        opsiList.forEach(huruf => {
+            if (s[huruf]) {
+                let checked = arrJaw.includes(huruf) ? "checked" : "";
+                inputHtml += `
+                <label style="display: block; margin-bottom: 10px; padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: ${checked ? '#f0fdf4' : '#fff'};">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" value="${huruf}" ${checked} onchange="simpanJawabanPGKCentang('${huruf}', this.checked)">
+                        <span><b>${huruf}.</b> ${s[huruf]}</span>
+                    </div>
+                </label>`;
+            }
+        });
+        inputHtml += `</div>`;
+    }
+    // --- 3. PILIHAN GANDA KOMPLEKS - BENAR / SALAH (PGK_BS / PGK_L2) ---
+    else if (jenisSoal === "PGK_BS" || jenisSoal === "PGK_TABEL" || jenisSoal === "BENAR_SALAH") {
+        let objJaw = (typeof jawSimpan === 'object' && jawSimpan !== null) ? jawSimpan : {};
+        let pernyataanList = s.pernyataan || []; // Array pernyataan dari data
+        
+        inputHtml = `
+            <div style="margin-top: 15px; overflow-x: auto;">
+                <p style="font-size:13px; color:#2563eb; font-weight:bold;">* Tentukan status Benar atau Salah untuk tiap pernyataan berikut!</p>
+                <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                    <thead>
+                        <tr style="background: #f1f5f9; text-align: left;">
+                            <th style="padding: 10px; border: 1px solid #cbd5e1;">Pernyataan</th>
+                            <th style="padding: 10px; border: 1px solid #cbd5e1; text-align:center; width: 80px;">Benar</th>
+                            <th style="padding: 10px; border: 1px solid #cbd5e1; text-align:center; width: 80px;">Salah</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+        
+        pernyataanList.forEach((p, pIdx) => {
+            let val = objJaw[pIdx] || "";
+            inputHtml += `
+                <tr>
+                    <td style="padding: 10px; border: 1px solid #cbd5e1;">${p}</td>
+                    <td style="padding: 10px; border: 1px solid #cbd5e1; text-align:center;">
+                        <input type="radio" name="bs_${pIdx}" value="B" ${val === 'B' ? 'checked' : ''} onchange="simpanJawabanBS(${pIdx}, 'B')">
+                    </td>
+                    <td style="padding: 10px; border: 1px solid #cbd5e1; text-align:center;">
+                        <input type="radio" name="bs_${pIdx}" value="S" ${val === 'S' ? 'checked' : ''} onchange="simpanJawabanBS(${pIdx}, 'S')">
+                    </td>
+                </tr>`;
+        });
+        
+        inputHtml += `</tbody></table></div>`;
+    }
+    // --- 4. MENJODOHKAN ---
+    else if (jenisSoal === "MENJODOHKAN") {
+        let objJaw = (typeof jawSimpan === 'object' && jawSimpan !== null) ? jawSimpan : {};
+        let kiriList = s.soalKiri || [];
+        let kananList = s.opsiKanan || [];
+
+        inputHtml = `
+            <div style="margin-top: 15px;">
+                <p style="font-size:13px; color:#2563eb; font-weight:bold;">* Jodohkan item di sebelah kiri dengan pilihan pasangannya di sebelah kanan!</p>
+                <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                    <thead>
+                        <tr style="background: #f1f5f9;">
+                            <th style="padding: 10px; border: 1px solid #cbd5e1; width:50%;">Pernyataan / Item</th>
+                            <th style="padding: 10px; border: 1px solid #cbd5e1; width:50%;">Pasangan Jawaban</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+        kiriList.forEach((kItem, kIdx) => {
+            let val = objJaw[kIdx] || "";
+            let selectOptions = `<option value="">-- Pilih Pasangan --</option>`;
+            kananList.forEach((rItem, rIdx) => {
+                selectOptions += `<option value="${rIdx}" ${String(val) === String(rIdx) ? 'selected' : ''}>${rItem}</option>`;
+            });
+
+            inputHtml += `
+                <tr>
+                    <td style="padding: 10px; border: 1px solid #cbd5e1;"><b>${kIdx + 1}.</b> ${kItem}</td>
+                    <td style="padding: 10px; border: 1px solid #cbd5e1;">
+                        <select onchange="simpanJawabanJodoh(${kIdx}, this.value)" style="width:100%; padding:8px; border-radius:4px; border:1px solid #ccc;">
+                            ${selectOptions}
+                        </select>
+                    </td>
+                </tr>`;
+        });
+
+        inputHtml += `</tbody></table></div>`;
+    }
+    // --- 5. ISIAN / ESAI ---
+    else {
         inputHtml = `
             <div style="margin-top: 15px;">
                 <label style="display:block; margin-bottom: 5px; font-weight:bold;">Jawaban Singkat Anda:</label>
-                <input type="text" id="inputIsianTKA" value="${jawSimpan}" oninput="simpanJawabanIsian(this.value)" placeholder="Ketik jawaban di sini..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; box-sizing: border-box;">
-            </div>
-        `;
-    } else {
-        function renderOpsiTKA(huruf, teksOpsi, urlGambarOpsi) {
-            let checked = (jawSimpan === huruf) ? "checked" : "";
-            let imgOpsiHtml = "";
-            if (urlGambarOpsi && urlGambarOpsi.trim() !== "") {
-                imgOpsiHtml = `<div style="margin-top: 5px;"><img src="${urlGambarOpsi}" alt="Opsi ${huruf}" style="max-width: 120px; max-height: 100px; border-radius: 4px; border: 1px solid #ddd;"></div>`;
-            }
-            return `
-            <label class="opsi-label" style="display: block; margin-bottom: 10px; padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: ${checked ? '#eff6ff' : '#fff'};">
-                <div style="display: flex; align-items: flex-start; gap: 10px;">
-                    <input type="radio" name="qTKA" value="${huruf}" ${checked} onchange="simpanJawabanPG('${huruf}')" style="margin-top: 3px;">
-                    <div>
-                        <span><b>${huruf}.</b> ${teksOpsi || ''}</span>
-                        ${imgOpsiHtml}
-                    </div>
-                </div>
-            </label>`;
-        }
-
-        inputHtml = `
-            <div style="margin-top: 15px;">
-                ${renderOpsiTKA('A', s.A, s.gambarA)}
-                ${renderOpsiTKA('B', s.B, s.gambarB)}
-                ${renderOpsiTKA('C', s.C, s.gambarC)}
-                ${renderOpsiTKA('D', s.D, s.gambarD)}
+                <input type="text" id="inputIsianTKA" value="${jawSimpan || ''}" oninput="simpanJawabanIsian(this.value)" placeholder="Ketik jawaban di sini..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; box-sizing: border-box;">
             </div>
         `;
     }
 
+    // Grid Navigasi Nomor Soal TKA
     let gridNomorHtml = window.dataSoal.map((_, i) => {
         let isAktif = i === idx ? 'border: 2px solid #2563eb; font-weight: bold;' : 'border: 1px solid #ccc;';
         let bgStatus = '#f3f4f6'; 
         let colorText = '#333';
 
+        let jVal = window.jawabanSiswa[i];
+        let terisi = false;
+        if (Array.isArray(jVal)) terisi = jVal.length > 0;
+        else if (typeof jVal === 'object' && jVal !== null) terisi = Object.keys(jVal).length > 0;
+        else if (jVal !== undefined && jVal !== "") terisi = true;
+
         if (window.statusRagu[i]) {
             bgStatus = '#f59e0b'; 
             colorText = '#fff';
-        } else if (window.jawabanSiswa[i] !== undefined && window.jawabanSiswa[i] !== "") {
+        } else if (terisi) {
             bgStatus = '#10b981'; 
             colorText = '#fff';
         }
 
-        return `<button onclick="pindahSoal(${i})" style="width: 36px; height: 36px; margin: 3px; background: ${bgStatus}; color: ${colorText}; border-radius: 6px; cursor: pointer; ${isAktif}">${i + 1}</button>`;
+        return `<button onclick="pindahSoal(${i})" style="width: 38px; height: 38px; margin: 3px; background: ${bgStatus}; color: ${colorText}; border-radius: 6px; cursor: pointer; ${isAktif}">${i + 1}</button>`;
     }).join("");
 
     let isRagu = window.statusRagu[idx] ? "checked" : "";
@@ -333,8 +417,9 @@ function tampilSoalTKA() {
     let containerHtml = `
         <div class="tka-wrapper" style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start;">
             <div class="tka-soal-box" style="flex: 2; min-width: 280px; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px;">
-                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items:center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">
                     <span style="font-size: 16px; font-weight: bold; color: #1e293b;">Soal No. ${nomorSoal} / ${totalSoal}</span>
+                    <span style="font-size:12px; background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:4px; font-weight:bold;">${jenisSoal}</span>
                 </div>
                 
                 <div class="soal-teks" style="font-size: 15px; color: #334155; line-height: 1.6;">${s.soal}</div>
@@ -375,10 +460,39 @@ function tampilSoalTKA() {
     document.getElementById("quiz").innerHTML = containerHtml;
 }
 
+// Handler Simpan Jawaban berdasarkan jenis soal
 function simpanJawabanPG(val) {
     if (window.isUjianSelesai) return;
     window.jawabanSiswa[window.soalAktifIndex] = val;
     tampilSoalTKA();
+}
+
+function simpanJawabanPGKCentang(val, checked) {
+    if (window.isUjianSelesai) return;
+    let idx = window.soalAktifIndex;
+    let list = Array.isArray(window.jawabanSiswa[idx]) ? window.jawabanSiswa[idx] : [];
+    if (checked) {
+        if (!list.includes(val)) list.push(val);
+    } else {
+        list = list.filter(v => v !== val);
+    }
+    window.jawabanSiswa[idx] = list;
+}
+
+function simpanJawabanBS(pIdx, val) {
+    if (window.isUjianSelesai) return;
+    let idx = window.soalAktifIndex;
+    let obj = (typeof window.jawabanSiswa[idx] === 'object' && window.jawabanSiswa[idx] !== null && !Array.isArray(window.jawabanSiswa[idx])) ? window.jawabanSiswa[idx] : {};
+    obj[pIdx] = val;
+    window.jawabanSiswa[idx] = obj;
+}
+
+function simpanJawabanJodoh(kIdx, val) {
+    if (window.isUjianSelesai) return;
+    let idx = window.soalAktifIndex;
+    let obj = (typeof window.jawabanSiswa[idx] === 'object' && window.jawabanSiswa[idx] !== null && !Array.isArray(window.jawabanSiswa[idx])) ? window.jawabanSiswa[idx] : {};
+    obj[kIdx] = val;
+    window.jawabanSiswa[idx] = obj;
 }
 
 function simpanJawabanIsian(val) {
@@ -400,7 +514,9 @@ function pindahSoal(targetIndex) {
     }
 }
 
-// 5. Cetak Hasil Latihan
+/* =========================================================================
+   CETAK HASIL & KOREKSI
+   ========================================================================= */
 function cetakHasilLatihan() {
     const areaSiswa = document.getElementById("siswa").innerHTML;
     const areaHasil = document.getElementById("hasil").innerHTML;
@@ -471,67 +587,70 @@ function cetakHasilLatihan() {
     jw.document.close();
 }
 
-// 6. Fungsi Koreksi & Penguncian Permanen (Tidak Bisa Mengubah/Mengerjakan Ulang)
 async function koreksi(isOtomatis = false) {
-    if (window.isUjianSelesai) return; // Mencegah eksekusi ganda
+    if (window.isUjianSelesai) return;
 
     if (!isOtomatis) {
-        if (!confirm("Apakah Anda yakin ingin menyelesaikan dan mengirim jawaban? Setelah dikirim, jawaban tidak dapat diubah dan ujian selesai.")) {
+        if (!confirm("Apakah Anda yakin ingin menyelesaikan dan mengirim jawaban? Ujian akan dikunci secara permanen.")) {
             return;
         }
     }
 
-    // KUNCI PERMANEN: Set status selesai
     window.isUjianSelesai = true;
     hentikanProteksiKeamanan();
 
-    // Sembunyikan timer ujian
     let boxTimer = document.getElementById("boxTimerUjian");
     if(boxTimer) boxTimer.style.display = "none";
 
-    let benarPG = 0;
-    let benarIsian = 0;
-    
-    let soalPG = window.dataSoal.filter(s => s.type !== "isian" && s.A);
-    let soalIsian = window.dataSoal.filter(s => s.type === "isian" || !s.A);
+    let totalSkorDiperoleh = 0;
+    let totalSkorMaksimal = 0;
 
     window.dataSoal.forEach((s, index) => {
-        let isIsian = s.type === "isian" || !s.A;
-        let jawabanUser = String(window.jawabanSiswa[index] || "").trim().toLowerCase();
-        let kunciJawaban = String(s.jawaban).trim().toLowerCase();
+        let jenisSoal = (s.jenis || s.type || "PG").toUpperCase();
+        let jUser = window.jawabanSiswa[index];
+        let bobot = s.bobot || 1;
 
-        if (isIsian) {
-            if (jawabanUser !== "" && jawabanUser === kunciJawaban) {
-                benarIsian++;
+        if (jenisSoal === "PG" || jenisSoal === "PILGAN") {
+            totalSkorMaksimal += bobot;
+            if (String(jUser).toLowerCase() === String(s.jawaban).toLowerCase()) {
+                totalSkorDiperoleh += bobot;
             }
+        } else if (jenisSoal === "PGK_L1" || jenisSoal === "PGK_CENTANG") {
+            totalSkorMaksimal += bobot;
+            let kunciArr = Array.isArray(s.jawaban) ? s.jawaban : String(s.jawaban).split(",");
+            let userArr = Array.isArray(jUser) ? jUser : [];
+            let benarSemua = kunciArr.length === userArr.length && kunciArr.every(v => userArr.includes(v));
+            if (benarSemua) totalSkorDiperoleh += bobot;
+        } else if (jenisSoal === "PGK_BS" || jenisSoal === "BENAR_SALAH") {
+            let kunciObj = s.jawaban || {}; // e.g. {0:'B', 1:'S'}
+            let userObj = (typeof jUser === 'object' && jUser !== null) ? jUser : {};
+            let totalPernyataaan = (s.pernyataan || []).length || 1;
+            totalSkorMaksimal += bobot;
+
+            let hitungBenar = 0;
+            Object.keys(kunciObj).forEach(k => {
+                if (userObj[k] === kunciObj[k]) hitungBenar++;
+            });
+            totalSkorDiperoleh += (hitungBenar / totalPernyataaan) * bobot;
         } else {
-            if (jawabanUser === kunciJawaban) {
-                benarPG++;
+            totalSkorMaksimal += bobot;
+            if (String(jUser).trim().toLowerCase() === String(s.jawaban).trim().toLowerCase()) {
+                totalSkorDiperoleh += bobot;
             }
         }
     });
 
-    let totalPG = soalPG.length;
-    let totalIsian = soalIsian.length;
-    let nilai = 0;
-    let bobotTotal = (totalPG * 1) + (totalIsian * 2);
-
-    if (bobotTotal > 0) {
-        let poinPG = benarPG * 1;
-        let poinIsian = benarIsian * 2;
-        nilai = Math.round(((poinPG + poinIsian) / bobotTotal) * 100);
-    }
-
+    let nilai = totalSkorMaksimal > 0 ? Math.round((totalSkorDiperoleh / totalSkorMaksimal) * 100) : 0;
     let isLulus = nilai >= 75;
     let status = isLulus ? "LULUS" : "BELUM LULUS";
     
-    // Render Tampilan Soal Terkunci Total (Tidak bisa diubah lagi)
     let rekapSoalSelesaiHtml = window.dataSoal.map((s, index) => {
-        let jUser = window.jawabanSiswa[index] || "-";
+        let jUser = window.jawabanSiswa[index];
+        let teksUser = JSON.stringify(jUser) || "-";
         return `
             <div style="margin-bottom: 15px; padding: 12px; border: 1px solid #ddd; border-radius: 6px; background: #fff;">
                 <b>${index + 1}. ${s.soal}</b>
-                <p style="margin: 5px 0 0 0; font-size: 13px; color: #333;">Jawaban Anda: <b>${jUser.toUpperCase()}</b> | Kunci: <span style="color: green; font-weight: bold;">${s.jawaban}</span></p>
+                <p style="margin: 5px 0 0 0; font-size: 13px; color: #333;">Jawaban Anda: <b>${teksUser}</b> | Kunci: <span style="color: green; font-weight: bold;">${JSON.stringify(s.jawaban)}</span></p>
                 <div style="font-size: 12px; color: #555; margin-top: 4px;">💡 <b>Pembahasan:</b> ${s.penjelasan || '-'}</div>
             </div>
         `;
@@ -549,9 +668,6 @@ async function koreksi(isOtomatis = false) {
         <div class="cardHasil ${isLulus ? 'lulus' : 'gagal'}">
             <div class="score-big ${isLulus ? 'lulus' : 'gagal'}">${nilai}</div>
             <div class="badge-status ${isLulus ? 'lulus' : 'gagal'}">${status}</div>
-            <div style="margin-top: 10px; font-size: 13px; color: #555;">
-                Detail Benar: <b>PG (${benarPG}/${totalPG})</b> | <b>Isian (${benarIsian}/${totalIsian})</b>
-            </div>
             <br>
             <button onclick="cetakHasilLatihan()" style="background: #0d9488; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
                 🖨️ Cetak Hasil Latihan (Dengan Kop Surat)
@@ -560,7 +676,6 @@ async function koreksi(isOtomatis = false) {
     
     document.getElementById("hasil").scrollIntoView({ behavior: 'smooth' });
 
-    // Kirim data ke Google Apps Script (Backend mencatat bahwa siswa ini sudah selesai ujian)
     try {
         await fetch(window.Quiz_API, {
             method: "POST",
@@ -579,9 +694,8 @@ async function koreksi(isOtomatis = false) {
 }
 
 /* =========================================================================
-   FITUR REKAP NAMA, KELAS, DAN MAPEL
+   REKAP DATA NILAI & CETAK
    ========================================================================= */
-
 function ambilDataNilai() {
   const selectKelas = document.getElementById("filterDaftarKelas");
   if(selectKelas) selectKelas.innerHTML = '<option value="">-- Pilih Kelas --</option>';
@@ -745,6 +859,9 @@ window.tampilkanNilaiSpesifik = tampilkanNilaiSpesifik;
 window.cetakHasilLatihan = cetakHasilLatihan;
 window.pindahSoal = pindahSoal;
 window.simpanJawabanPG = simpanJawabanPG;
+window.simpanJawabanPGKCentang = simpanJawabanPGKCentang;
+window.simpanJawabanBS = simpanJawabanBS;
+window.simpanJawabanJodoh = simpanJawabanJodoh;
 window.simpanJawabanIsian = simpanJawabanIsian;
 window.toggleRagu = toggleRagu;
 window.koreksi = koreksi;
