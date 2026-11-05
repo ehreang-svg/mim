@@ -289,23 +289,43 @@ function tampilSoalTKA() {
         inputHtml += `</div>`;
     }
     // --- 2. PILIHAN GANDA KOMPLEKS - CENTANG BANYAK (PGK_L1 / CENTANG) ---
+    // --- 2. PILIHAN GANDA KOMPLEKS - CENTANG BANYAK (PGK_L1 / CENTANG) ---
     else if (jenisSoal === "PGK_L1" || jenisSoal === "PGK_CENTANG") {
         let arrJaw = Array.isArray(jawSimpan) ? jawSimpan : [];
         let opsiList = ['A', 'B', 'C', 'D', 'E'];
-        inputHtml = `<div style="margin-top: 15px;"><p style="font-size:13px; color:#2563eb; font-weight:bold;">* Pilihlah beberapa jawaban yang menurut Anda benar!</p>`;
+        
+        inputHtml = `
+            <div style="margin-top: 15px;">
+                <!-- Banner Petunjuk Pengerjaan -->
+                <div style="background: #eff6ff; border-left: 4px solid #2563eb; padding: 10px 14px; border-radius: 4px; margin-bottom: 15px;">
+                    <span style="font-size: 13px; color: #1e40af; font-weight: 600;">📌 Petunjuk: Pilihlah beberapa jawaban yang menurut Anda benar dengan mencentang kotak di bawah ini.</span>
+                </div>
+                
+                <!-- Daftar Opsi Jawaban -->
+                <div style="display: flex; flex-direction: column; gap: 10px;">`;
+        
         opsiList.forEach(huruf => {
-            if (s[huruf]) {
+            if (s[huruf] || s['gambar' + huruf]) {
                 let checked = arrJaw.includes(huruf) ? "checked" : "";
+                let imgOpsiHtml = s['gambar' + huruf] ? `
+                    <div style="margin-top: 8px;">
+                        <img src="${s['gambar' + huruf]}" style="max-width: 140px; max-height: 120px; border-radius: 6px; border: 1px solid #cbd5e1; object-fit: contain;">
+                    </div>` : "";
+                
                 inputHtml += `
-                <label style="display: block; margin-bottom: 10px; padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: ${checked ? '#f0fdf4' : '#fff'};">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <input type="checkbox" value="${huruf}" ${checked} onchange="simpanJawabanPGKCentang('${huruf}', this.checked)">
-                        <span><b>${huruf}.</b> ${s[huruf]}</span>
+                <label style="display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; border: 1.5px solid ${checked ? '#10b981' : '#e2e8f0'}; border-radius: 8px; cursor: pointer; background: ${checked ? '#f0fdf4' : '#ffffff'}; transition: all 0.2s ease;">
+                    <div style="display: flex; align-items: center; justify-content: center; height: 24px;">
+                        <input type="checkbox" value="${huruf}" ${checked} onchange="simpanJawabanPGKCentang('${huruf}', this.checked)" style="width: 18px; height: 18px; cursor: pointer; accent-color: #10b981;">
+                    </div>
+                    <div style="flex: 1; font-size: 14.5px; color: #1e293b; line-height: 1.5;">
+                        <span style="font-weight: 700; margin-right: 4px;">${huruf}.</span> ${s[huruf] || ''}
+                        ${imgOpsiHtml}
                     </div>
                 </label>`;
             }
         });
-        inputHtml += `</div>`;
+        
+        inputHtml += `</div></div>`;
     }
     // --- 3. PILIHAN GANDA KOMPLEKS - BENAR / SALAH (PGK_BS / PGK_L2) ---
     else if (jenisSoal === "PGK_BS" || jenisSoal === "PGK_TABEL" || jenisSoal === "BENAR_SALAH") {
@@ -471,12 +491,15 @@ function simpanJawabanPGKCentang(val, checked) {
     if (window.isUjianSelesai) return;
     let idx = window.soalAktifIndex;
     let list = Array.isArray(window.jawabanSiswa[idx]) ? window.jawabanSiswa[idx] : [];
+    
     if (checked) {
         if (!list.includes(val)) list.push(val);
     } else {
         list = list.filter(v => v !== val);
     }
+    
     window.jawabanSiswa[idx] = list;
+    tampilSoalTKA(); // Re-render agar status warna border dan tombol navigasi langsung ter-update
 }
 
 function simpanJawabanBS(pIdx, val) {
