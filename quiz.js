@@ -178,16 +178,19 @@ function tampilSiswaQuiz(){
     document.getElementById("areaLogin").classList.add("hidden");
     document.getElementById("areaKuis").classList.remove("hidden");
     document.getElementById("siswa").innerHTML = `
-        <div class="cardQuizSiswa" style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:15px; border-radius:8px; border:1px solid #e2e8f0; margin-bottom:15px;">
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <img src="${window.dataSiswaQuiz.foto || 'https://via.placeholder.com/150'}" alt="Foto Siswa" style="width:50px; height:50px; border-radius:50%; object-fit:cover;">
+        <div class="quiz-student-header">
+            <div class="quiz-student-info">
+                <img src="${window.dataSiswaQuiz.foto || 'https://via.placeholder.com/150'}" alt="Foto Siswa" class="quiz-student-avatar">
                 <div>
-                    <h3 style="margin:0; font-size:16px;">${window.dataSiswaQuiz.nama || '-'}</h3>
-                    <p style="margin:2px 0 0 0; font-size:13px; color:#64748b;">${window.dataSiswaQuiz.kelas} | Mapel: <b>${window.mataPelajaranTerpilih}</b></p>
+                    <h3 class="quiz-student-name">${window.dataSiswaQuiz.nama || '-'}</h3>
+                    <p class="quiz-student-meta">
+                        <span>${window.dataSiswaQuiz.kelas}</span> • Mapel: <strong>${window.mataPelajaranTerpilih}</strong>
+                    </p>
                 </div>
             </div>
-            <div id="boxTimerUjian" style="background:#fee2e2; color:#991b1b; padding:8px 15px; border-radius:6px; font-weight:bold; font-size:16px; border:1px solid #fecaca;">
-                ⏱️ Sisa Waktu: <span id="textTimer">--:--</span>
+            <div id="boxTimerUjian" class="quiz-timer-badge">
+                <span class="timer-icon">⏱️</span> 
+                <span class="timer-text">Sisa Waktu: <strong id="textTimer">--:--</strong></span>
             </div>
         </div>
     `;
@@ -251,14 +254,27 @@ function tampilSoalTKA() {
     let s = window.dataSoal[idx];
     let nomorSoal = idx + 1;
 
-    // Tentukan jenis soal (PG, PGK_L1, PGK_BS, MENJODOHKAN, ISIAN)
     let jenisSoal = (s.jenis || s.type || "PG").toUpperCase();
+
+    // Format badge label jenis soal
+    let jenisBadgeMap = {
+        'PG': 'Pilihan Ganda',
+        'PILGAN': 'Pilihan Ganda',
+        'PGK_L1': 'Pilihan Ganda Kompleks (Centang)',
+        'PGK_CENTANG': 'Pilihan Ganda Kompleks (Centang)',
+        'PGK_BS': 'Benar / Salah',
+        'PGK_TABEL': 'Benar / Salah',
+        'BENAR_SALAH': 'Benar / Salah',
+        'MENJODOHKAN': 'Menjodohkan',
+        'ISIAN': 'Isian Singkat'
+    };
+    let labelJenis = jenisBadgeMap[jenisSoal] || jenisSoal;
 
     let gambarHtml = "";
     if (s.gambar && s.gambar.trim() !== "") {
         gambarHtml = `
-            <div class="soal-gambar-container" style="margin: 15px 0; text-align: center;">
-                <img src="${s.gambar}" alt="Gambar Soal ${nomorSoal}" style="max-width: 100%; max-height: 280px; border-radius: 6px; border: 1px solid #ddd;">
+            <div class="quiz-media-container">
+                <img src="${s.gambar}" alt="Gambar Soal ${nomorSoal}" class="quiz-media-img">
             </div>
         `;
     }
@@ -269,56 +285,50 @@ function tampilSoalTKA() {
     // --- 1. SOAL PILIHAN GANDA (PG) ---
     if (jenisSoal === "PG" || jenisSoal === "PILGAN") {
         let opsiList = ['A', 'B', 'C', 'D', 'E'];
-        inputHtml = `<div style="margin-top: 15px;">`;
+        inputHtml = `<div class="quiz-options-wrapper">`;
         opsiList.forEach(huruf => {
             if (s[huruf] || s['gambar' + huruf]) {
                 let checked = (jawSimpan === huruf) ? "checked" : "";
-                let imgOpsiHtml = s['gambar' + huruf] ? `<div style="margin-top: 5px;"><img src="${s['gambar' + huruf]}" style="max-width: 120px; border-radius: 4px;"></div>` : "";
+                let imgOpsiHtml = s['gambar' + huruf] ? `<div class="quiz-option-img-box"><img src="${s['gambar' + huruf]}" class="quiz-option-img"></div>` : "";
                 inputHtml += `
-                <label class="opsi-label" style="display: block; margin-bottom: 10px; padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: ${checked ? '#eff6ff' : '#fff'}; border-color: ${checked ? '#2563eb' : '#e5e7eb'};">
-                    <div style="display: flex; align-items: flex-start; gap: 10px;">
-                        <input type="radio" name="qTKA" value="${huruf}" ${checked} onchange="simpanJawabanPG('${huruf}')" style="margin-top: 3px;">
-                        <div>
-                            <span><b>${huruf}.</b> ${s[huruf] || ''}</span>
-                            ${imgOpsiHtml}
-                        </div>
+                <label class="quiz-option-card ${checked ? 'active' : ''}">
+                    <input type="radio" name="qTKA" value="${huruf}" ${checked} onchange="simpanJawabanPG('${huruf}')">
+                    <span class="quiz-option-bullet">${huruf}</span>
+                    <div class="quiz-option-content">
+                        <span>${s[huruf] || ''}</span>
+                        ${imgOpsiHtml}
                     </div>
                 </label>`;
             }
         });
         inputHtml += `</div>`;
     }
-    // --- 2. PILIHAN GANDA KOMPLEKS - CENTANG BANYAK (PGK_L1 / CENTANG) ---
-    // --- 2. PILIHAN GANDA KOMPLEKS - CENTANG BANYAK (PGK_L1 / CENTANG) ---
+    // --- 2. PILIHAN GANDA KOMPLEKS - CENTANG (PGK_L1 / CENTANG) ---
     else if (jenisSoal === "PGK_L1" || jenisSoal === "PGK_CENTANG") {
         let arrJaw = Array.isArray(jawSimpan) ? jawSimpan : [];
         let opsiList = ['A', 'B', 'C', 'D', 'E'];
         
         inputHtml = `
-            <div style="margin-top: 15px;">
-                <!-- Banner Petunjuk Pengerjaan -->
-                <div style="background: #eff6ff; border-left: 4px solid #2563eb; padding: 10px 14px; border-radius: 4px; margin-bottom: 15px;">
-                    <span style="font-size: 13px; color: #1e40af; font-weight: 600;">📌 Petunjuk: Pilihlah beberapa jawaban yang menurut Anda benar dengan mencentang kotak di bawah ini.</span>
+            <div class="quiz-options-wrapper">
+                <div class="quiz-instruction-banner">
+                    📌 <strong>Petunjuk:</strong> Pilihlah satu atau beberapa jawaban yang Anda anggap benar.
                 </div>
-                
-                <!-- Daftar Opsi Jawaban -->
-                <div style="display: flex; flex-direction: column; gap: 10px;">`;
+                <div class="quiz-options-list">`;
         
         opsiList.forEach(huruf => {
             if (s[huruf] || s['gambar' + huruf]) {
                 let checked = arrJaw.includes(huruf) ? "checked" : "";
                 let imgOpsiHtml = s['gambar' + huruf] ? `
-                    <div style="margin-top: 8px;">
-                        <img src="${s['gambar' + huruf]}" style="max-width: 140px; max-height: 120px; border-radius: 6px; border: 1px solid #cbd5e1; object-fit: contain;">
+                    <div class="quiz-option-img-box">
+                        <img src="${s['gambar' + huruf]}" class="quiz-option-img">
                     </div>` : "";
                 
                 inputHtml += `
-                <label style="display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; border: 1.5px solid ${checked ? '#10b981' : '#e2e8f0'}; border-radius: 8px; cursor: pointer; background: ${checked ? '#f0fdf4' : '#ffffff'}; transition: all 0.2s ease;">
-                    <div style="display: flex; align-items: center; justify-content: center; height: 24px;">
-                        <input type="checkbox" value="${huruf}" ${checked} onchange="simpanJawabanPGKCentang('${huruf}', this.checked)" style="width: 18px; height: 18px; cursor: pointer; accent-color: #10b981;">
-                    </div>
-                    <div style="flex: 1; font-size: 14.5px; color: #1e293b; line-height: 1.5;">
-                        <span style="font-weight: 700; margin-right: 4px;">${huruf}.</span> ${s[huruf] || ''}
+                <label class="quiz-option-card checkbox-card ${checked ? 'active-checkbox' : ''}">
+                    <input type="checkbox" value="${huruf}" ${checked} onchange="simpanJawabanPGKCentang('${huruf}', this.checked)">
+                    <span class="quiz-option-bullet">${huruf}</span>
+                    <div class="quiz-option-content">
+                        <span>${s[huruf] || ''}</span>
                         ${imgOpsiHtml}
                     </div>
                 </label>`;
@@ -327,20 +337,22 @@ function tampilSoalTKA() {
         
         inputHtml += `</div></div>`;
     }
-    // --- 3. PILIHAN GANDA KOMPLEKS - BENAR / SALAH (PGK_BS / PGK_L2) ---
+    // --- 3. PILIHAN GANDA KOMPLEKS - BENAR / SALAH ---
     else if (jenisSoal === "PGK_BS" || jenisSoal === "PGK_TABEL" || jenisSoal === "BENAR_SALAH") {
         let objJaw = (typeof jawSimpan === 'object' && jawSimpan !== null) ? jawSimpan : {};
-        let pernyataanList = s.pernyataan || []; // Array pernyataan dari data
+        let pernyataanList = s.pernyataan || [];
         
         inputHtml = `
-            <div style="margin-top: 15px; overflow-x: auto;">
-                <p style="font-size:13px; color:#2563eb; font-weight:bold;">* Tentukan status Benar atau Salah untuk tiap pernyataan berikut!</p>
-                <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+            <div class="quiz-table-wrapper">
+                <div class="quiz-instruction-banner">
+                    📌 <strong>Petunjuk:</strong> Tentukan status Benar atau Salah untuk setiap pernyataan berikut.
+                </div>
+                <table class="quiz-custom-table">
                     <thead>
-                        <tr style="background: #f1f5f9; text-align: left;">
-                            <th style="padding: 10px; border: 1px solid #cbd5e1;">Pernyataan</th>
-                            <th style="padding: 10px; border: 1px solid #cbd5e1; text-align:center; width: 80px;">Benar</th>
-                            <th style="padding: 10px; border: 1px solid #cbd5e1; text-align:center; width: 80px;">Salah</th>
+                        <tr>
+                            <th>Pernyataan</th>
+                            <th class="text-center" style="width: 90px;">Benar</th>
+                            <th class="text-center" style="width: 90px;">Salah</th>
                         </tr>
                     </thead>
                     <tbody>`;
@@ -349,12 +361,18 @@ function tampilSoalTKA() {
             let val = objJaw[pIdx] || "";
             inputHtml += `
                 <tr>
-                    <td style="padding: 10px; border: 1px solid #cbd5e1;">${p}</td>
-                    <td style="padding: 10px; border: 1px solid #cbd5e1; text-align:center;">
-                        <input type="radio" name="bs_${pIdx}" value="B" ${val === 'B' ? 'checked' : ''} onchange="simpanJawabanBS(${pIdx}, 'B')">
+                    <td class="quiz-table-statement">${p}</td>
+                    <td class="text-center">
+                        <label class="quiz-table-radio">
+                            <input type="radio" name="bs_${pIdx}" value="B" ${val === 'B' ? 'checked' : ''} onchange="simpanJawabanBS(${pIdx}, 'B')">
+                            <span class="radio-custom-b">B</span>
+                        </label>
                     </td>
-                    <td style="padding: 10px; border: 1px solid #cbd5e1; text-align:center;">
-                        <input type="radio" name="bs_${pIdx}" value="S" ${val === 'S' ? 'checked' : ''} onchange="simpanJawabanBS(${pIdx}, 'S')">
+                    <td class="text-center">
+                        <label class="quiz-table-radio">
+                            <input type="radio" name="bs_${pIdx}" value="S" ${val === 'S' ? 'checked' : ''} onchange="simpanJawabanBS(${pIdx}, 'S')">
+                            <span class="radio-custom-s">S</span>
+                        </label>
                     </td>
                 </tr>`;
         });
@@ -368,13 +386,15 @@ function tampilSoalTKA() {
         let kananList = s.opsiKanan || [];
 
         inputHtml = `
-            <div style="margin-top: 15px;">
-                <p style="font-size:13px; color:#2563eb; font-weight:bold;">* Jodohkan item di sebelah kiri dengan pilihan pasangannya di sebelah kanan!</p>
-                <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+            <div class="quiz-table-wrapper">
+                <div class="quiz-instruction-banner">
+                    📌 <strong>Petunjuk:</strong> Pasangkan item di sebelah kiri dengan pilihan yang tepat di sebelah kanan.
+                </div>
+                <table class="quiz-custom-table">
                     <thead>
-                        <tr style="background: #f1f5f9;">
-                            <th style="padding: 10px; border: 1px solid #cbd5e1; width:50%;">Pernyataan / Item</th>
-                            <th style="padding: 10px; border: 1px solid #cbd5e1; width:50%;">Pasangan Jawaban</th>
+                        <tr>
+                            <th style="width:50%;">Pernyataan / Item</th>
+                            <th style="width:50%;">Pasangan Jawaban</th>
                         </tr>
                     </thead>
                     <tbody>`;
@@ -388,9 +408,9 @@ function tampilSoalTKA() {
 
             inputHtml += `
                 <tr>
-                    <td style="padding: 10px; border: 1px solid #cbd5e1;"><b>${kIdx + 1}.</b> ${kItem}</td>
-                    <td style="padding: 10px; border: 1px solid #cbd5e1;">
-                        <select onchange="simpanJawabanJodoh(${kIdx}, this.value)" style="width:100%; padding:8px; border-radius:4px; border:1px solid #ccc;">
+                    <td class="quiz-table-statement"><strong>${kIdx + 1}.</strong> ${kItem}</td>
+                    <td>
+                        <select class="quiz-select-match" onchange="simpanJawabanJodoh(${kIdx}, this.value)">
                             ${selectOptions}
                         </select>
                     </td>
@@ -402,18 +422,17 @@ function tampilSoalTKA() {
     // --- 5. ISIAN / ESAI ---
     else {
         inputHtml = `
-            <div style="margin-top: 15px;">
-                <label style="display:block; margin-bottom: 5px; font-weight:bold;">Jawaban Singkat Anda:</label>
-                <input type="text" id="inputIsianTKA" value="${jawSimpan || ''}" oninput="simpanJawabanIsian(this.value)" placeholder="Ketik jawaban di sini..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; box-sizing: border-box;">
+            <div class="quiz-essay-wrapper">
+                <label class="quiz-essay-label">Jawaban Singkat Anda:</label>
+                <textarea id="inputIsianTKA" class="quiz-essay-input" rows="3" oninput="simpanJawabanIsian(this.value)" placeholder="Ketik jawaban Anda secara singkat dan jelas di sini...">${jawSimpan || ''}</textarea>
             </div>
         `;
     }
 
     // Grid Navigasi Nomor Soal TKA
     let gridNomorHtml = window.dataSoal.map((_, i) => {
-        let isAktif = i === idx ? 'border: 2px solid #2563eb; font-weight: bold;' : 'border: 1px solid #ccc;';
-        let bgStatus = '#f3f4f6'; 
-        let colorText = '#333';
+        let isAktif = i === idx ? 'active-nav' : '';
+        let statusClass = 'nav-unanswered';
 
         let jVal = window.jawabanSiswa[i];
         let terisi = false;
@@ -422,56 +441,61 @@ function tampilSoalTKA() {
         else if (jVal !== undefined && jVal !== "") terisi = true;
 
         if (window.statusRagu[i]) {
-            bgStatus = '#f59e0b'; 
-            colorText = '#fff';
+            statusClass = 'nav-ragu';
         } else if (terisi) {
-            bgStatus = '#10b981'; 
-            colorText = '#fff';
+            statusClass = 'nav-answered';
         }
 
-        return `<button onclick="pindahSoal(${i})" style="width: 38px; height: 38px; margin: 3px; background: ${bgStatus}; color: ${colorText}; border-radius: 6px; cursor: pointer; ${isAktif}">${i + 1}</button>`;
+        return `<button onclick="pindahSoal(${i})" class="quiz-nav-btn ${statusClass} ${isAktif}">${i + 1}</button>`;
     }).join("");
 
     let isRagu = window.statusRagu[idx] ? "checked" : "";
 
     let containerHtml = `
-        <div class="tka-wrapper" style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start;">
-            <div class="tka-soal-box" style="flex: 2; min-width: 280px; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px;">
-                <div style="display: flex; justify-content: space-between; align-items:center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">
-                    <span style="font-size: 16px; font-weight: bold; color: #1e293b;">Soal No. ${nomorSoal} / ${totalSoal}</span>
-                    <span style="font-size:12px; background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:4px; font-weight:bold;">${jenisSoal}</span>
+        <div class="quiz-main-grid">
+            <!-- Box Lembar Soal -->
+            <div class="quiz-question-card">
+                <div class="quiz-question-header">
+                    <div class="quiz-number-tag">
+                        Soal No. <strong>${nomorSoal}</strong> <span class="quiz-total-count">/ ${totalSoal}</span>
+                    </div>
+                    <span class="quiz-type-badge">${labelJenis}</span>
                 </div>
                 
-                <div class="soal-teks" style="font-size: 15px; color: #334155; line-height: 1.6;">${s.soal}</div>
+                <div class="quiz-question-body">
+                    ${s.soal}
+                </div>
+                
                 ${gambarHtml}
                 ${inputHtml}
 
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 25px; padding-top: 15px; border-top: 1px solid #eee;">
-                    <button type="button" onclick="pindahSoal(${idx - 1})" ${idx === 0 ? 'disabled' : ''} style="background: #64748b; color: #fff; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; opacity: ${idx === 0 ? '0.5' : '1'};">
+                <div class="quiz-footer-actions">
+                    <button type="button" class="btn-quiz-prev" onclick="pindahSoal(${idx - 1})" ${idx === 0 ? 'disabled' : ''}>
                         ⬅️ Sebelumnya
                     </button>
                     
-                    <label style="display: inline-flex; align-items: center; gap: 6px; background: #fef3c7; padding: 6px 12px; border: 1px solid #fcd34d; border-radius: 6px; cursor: pointer; font-size: 13px;">
+                    <label class="quiz-ragu-checkbox ${isRagu ? 'active-ragu' : ''}">
                         <input type="checkbox" onchange="toggleRagu(${idx})" ${isRagu}>
-                        🟡 Ragu-Ragu
+                        <span>🟡 Ragu-Ragu</span>
                     </label>
 
                     ${idx < totalSoal - 1 
-                        ? `<button type="button" onclick="pindahSoal(${idx + 1})" style="background: #2563eb; color: #fff; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;">Berikutnya ➡️</button>`
-                        : `<button type="button" id="btnKirimQuiz" onclick="koreksi(false)" style="background: #059669; color: #fff; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">🚀 Selesai & Kirim</button>`
+                        ? `<button type="button" class="btn-quiz-next" onclick="pindahSoal(${idx + 1})">Berikutnya ➡️</button>`
+                        : `<button type="button" id="btnKirimQuiz" class="btn-quiz-finish" onclick="koreksi(false)">🚀 Selesai & Kirim</button>`
                     }
                 </div>
             </div>
 
-            <div class="tka-nav-box" style="flex: 1; min-width: 240px; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px;">
-                <h4 style="margin: 0 0 10px 0; font-size: 14px; text-align: center; color: #475569;">Navigasi Soal</h4>
-                <div style="display: flex; flex-wrap: wrap; justify-content: center;">
+            <!-- Box Navigasi Nomor Soal -->
+            <div class="quiz-sidebar-card">
+                <div class="quiz-sidebar-title">Navigasi Soal</div>
+                <div class="quiz-nav-grid">
                     ${gridNomorHtml}
                 </div>
-                <div style="margin-top: 15px; font-size: 11px; color: #64748b; border-top: 1px solid #eee; padding-top: 10px;">
-                    <span style="display:inline-block; width:10px; height:10px; background:#10b981; border-radius:2px;"></span> Sudah Dijawab<br>
-                    <span style="display:inline-block; width:10px; height:10px; background:#f59e0b; border-radius:2px;"></span> Ragu-Ragu<br>
-                    <span style="display:inline-block; width:10px; height:10px; background:#f3f4f6; border:1px solid #ccc; border-radius:2px;"></span> Belum Dijawab
+                <div class="quiz-legend-box">
+                    <div class="legend-item"><span class="legend-color legend-answered"></span> Sudah Dijawab</div>
+                    <div class="legend-item"><span class="legend-color legend-ragu"></span> Ragu-Ragu</div>
+                    <div class="legend-item"><span class="legend-color legend-unanswered"></span> Belum Dijawab</div>
                 </div>
             </div>
         </div>
@@ -479,7 +503,6 @@ function tampilSoalTKA() {
 
     document.getElementById("quiz").innerHTML = containerHtml;
 }
-
 // Handler Simpan Jawaban berdasarkan jenis soal
 function simpanJawabanPG(val) {
     if (window.isUjianSelesai) return;
