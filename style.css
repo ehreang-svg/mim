@@ -1178,11 +1178,7 @@ body:has(#chatPage:not(.hidden)) .copyright {
     margin-bottom: 18px;
 }
 
-/* ==========================================================================
-   PERBAIKAN GAMBAR SOAL AGAR TIDAK TERPOTONG
-   ========================================================================== */
-
-/* Container Media Soal Utama */
+/* Media Gambar Soal */
 .quiz-media-container {
     margin: 16px 0;
     text-align: center;
@@ -1190,39 +1186,115 @@ body:has(#chatPage:not(.hidden)) .copyright {
     padding: 12px;
     border-radius: 8px;
     border: 1px dashed var(--border-color);
-    width: 100%;
-    overflow: hidden; /* Mencegah elemen meluber */
 }
 
-/* Gambar pada Soal Utama */
 .quiz-media-img {
-    width: 100%;               /* Responsif mengikuti lebar kontainer */
-    max-width: 100%;           /* Batas maksimal tidak melebihi kontainer */
-    height: auto;              /* Tinggi menyesuaikan otomatis proporsi asli */
-    max-height: 400px;         /* Batasi tinggi maksimal agar tidak terlalu panjang */
+    max-width: 100%;
+    max-height: 320px;
     border-radius: 6px;
-    object-fit: contain;       /* Memastikan seluruh isi gambar tampil utuh tanpa terpotong */
-    display: block;
-    margin: 0 auto;
+    object-fit: contain;
 }
 
-/* Container Gambar pada Opsi Pilihan Ganda */
+/* Opsi Jawaban (PG & Centang) */
+.quiz-options-wrapper {
+    margin-top: 16px;
+}
+
+.quiz-instruction-banner {
+    background: #eff6ff;
+    border-left: 4px solid #2563eb;
+    padding: 10px 14px;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #1e40af;
+    margin-bottom: 16px;
+}
+
+.quiz-options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.quiz-option-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    border: 1.5px solid var(--border-color);
+    border-radius: 10px;
+    cursor: pointer;
+    background: #ffffff;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.quiz-option-card:hover {
+    border-color: #3b82f6;
+    background: #f8fafc;
+}
+
+.quiz-option-card input[type="radio"],
+.quiz-option-card input[type="checkbox"] {
+    display: none;
+}
+
+.quiz-option-bullet {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.quiz-option-card.active {
+    border-color: #2563eb;
+    background: #eff6ff;
+}
+
+.quiz-option-card.active .quiz-option-bullet {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.quiz-option-card.active-checkbox {
+    border-color: #10b981;
+    background: #f0fdf4;
+}
+
+.quiz-option-card.active-checkbox .quiz-option-bullet {
+    background: #10b981;
+    color: #ffffff;
+    border-radius: 6px;
+}
+
+.quiz-option-content {
+    flex: 1;
+    font-size: 14.5px;
+    color: var(--text-main);
+    line-height: 1.5;
+    padding-top: 2px;
+}
+
 .quiz-option-img-box {
     margin-top: 8px;
-    width: 100%;
 }
 
-/* Gambar pada Opsi Jawaban */
 .quiz-option-img {
-    width: 100%;
-    max-width: 200px;          /* Batasi lebar maksimal gambar dalam opsi */
-    max-height: 150px;         /* Batasi tinggi maksimal agar rapi */
-    height: auto;
+    max-width: 140px;
+    max-height: 120px;
     border-radius: 6px;
     border: 1px solid var(--border-color);
-    object-fit: contain;       /* Menjaga aspek rasio gambar agar tidak terpotong */
-    display: block;
+    object-fit: contain;
 }
+
 /* Tabel Benar / Salah & Menjodohkan */
 .quiz-table-wrapper {
     margin-top: 16px;
