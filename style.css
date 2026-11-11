@@ -1179,23 +1179,39 @@ body:has(#chatPage:not(.hidden)) .copyright {
 }
 
 /* Media Gambar Soal */
+.quiz-question-card, 
+.quiz-question-body, 
+.quiz-main-grid {
+    overflow: visible !important;
+    height: auto !important;
+}
+
+/* Container Media Gambar Soal */
 .quiz-media-container {
-    margin: 16px 0;
+    margin: 16px auto;
     text-align: center;
     background: #f8fafc;
     padding: 12px;
     border-radius: 8px;
     border: 1px dashed var(--border-color);
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
 }
 
+/* Gambar pada Soal Utama (DIJAMIN UTUH) */
 .quiz-media-img {
     display: block !important;
     max-width: 100% !important;
-    width: auto !important;          /* Biarkan ukuran menyesuaikan lebar aslinya */
-    height: auto !important;         /* Menjaga tinggi proporsional */
-    max-height: 500px !important;    /* Beri batas aman maksimal tinggi gambar */
-    object-fit: contain !important;  /* Menjamin seluruh gambar muat di dalam layar */
-    margin: 10px auto !important;
+    width: 100% !important;          /* Memastikan responsif penuh mengikuti lebar kotak */
+    height: auto !important;         /* Menjaga rasio aspek asli agar tidak gepeng/terpotong */
+    max-height: 450px !important;    /* Batas aman tinggi maksimal gambar */
+    object-fit: contain !important;  /* KUNCI UTAMA: Memastikan seluruh isi gambar terlihat */
+    margin: 0 auto !important;
     box-shadow: var(--shadow-sm);
 }
 /* Opsi Jawaban (PG & Centang) */
@@ -1288,16 +1304,21 @@ body:has(#chatPage:not(.hidden)) .copyright {
 
 .quiz-option-img-box {
     margin-top: 8px;
+    width: 100%;
+    overflow: hidden;
 }
 
+/* Gambar pada Opsi Jawaban (DIJAMIN UTUH) */
 .quiz-option-img {
     display: block !important;
     max-width: 100% !important;
     width: auto !important;
     height: auto !important;
     max-height: 180px !important;
-    object-fit: contain !important;
+    object-fit: contain !important;  /* KUNCI UTAMA: Mencegah pemotongan pada opsi */
     margin-top: 6px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
 }
 
 /* Tabel Benar / Salah & Menjodohkan */
