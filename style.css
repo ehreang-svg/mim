@@ -1046,7 +1046,7 @@ z-index: 10;
 }
 
 /* ==========================================================================
-11. DESAIN BARU KUIS & TKA MODERN (PERBAIKAN MUTLAK GAMBAR UTUH)
+11. DESAIN BARU KUIS & TKA MODERN (SOLUSI MUTLAK GAMBAR UTUH)
 ========================================================================== */
 
 .quiz-student-header {
@@ -1121,7 +1121,7 @@ border: 1px solid var(--border-color);
 border-radius: var(--radius-lg);
 padding: 24px;
 box-shadow: var(--shadow-sm);
-overflow: visible !important; /* Mencegah pemotongan elemen di dalam kartu soal */
+overflow: visible !important;
 }
 
 .quiz-question-header {
@@ -1161,8 +1161,8 @@ overflow: visible !important;
 }
 
 /* ==========================================================================
-PERBAIKAN UTAMA: CONTAINER & MEDIA GAMBAR SOAL AGAR 100% UTUH
-========================================================================== /
+PERBAIKAN MUTLAK: GAMBAR SOAL UTUH DAN TIDAK TERPOTONG SISI MANAPUN
+========================================================================== */
 .quiz-media-container {
 margin: 16px 0;
 text-align: center;
@@ -1173,19 +1173,19 @@ border: 1px dashed var(--border-color);
 width: 100% !important;
 max-width: 100% !important;
 height: auto !important;
-overflow: visible !important; / Mencegah kontainer memotong gambar */
-display: flex;
-justify-content: center;
-align-items: center;
+overflow: visible !important;
+display: block !important;
 }
 
 .quiz-media-img {
-display: block !important;
+display: inline-block !important;
 max-width: 100% !important;
-width: auto !important;          /* Lebar dinamis menyesuaikan gambar asli /
-height: auto !important;         / Tinggi proporsional tidak gepeng /
-max-height: 500px !important;    / Batas aman tinggi agar tidak terlalu panjang ke bawah /
-object-fit: contain !important;  / KUNCI: Memastikan seluruh gambar tampil tanpa terpotong */
+width: auto !important;
+
+height: auto !important;
+
+max-height: none !important;     /* Hapus pembatasan tinggi agar gambar tidak terpotong bagian bawahnya /
+object-fit: scale-down !important; / Memastikan gambar menyesuaikan secara utuh */
 margin: 0 auto !important;
 box-shadow: var(--shadow-sm);
 }
@@ -1288,8 +1288,8 @@ display: block !important;
 max-width: 100% !important;
 width: auto !important;
 height: auto !important;
-max-height: 180px !important;
-object-fit: contain !important;  /* KUNCI: Menjaga gambar opsi agar utuh */
+max-height: none !important;
+object-fit: scale-down !important;
 margin-top: 6px;
 border-radius: 6px;
 border: 1px solid var(--border-color);
