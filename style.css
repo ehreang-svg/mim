@@ -1189,12 +1189,15 @@ body:has(#chatPage:not(.hidden)) .copyright {
 }
 
 .quiz-media-img {
-    max-width: 100%;
-    max-height: 320px;
-    border-radius: 6px;
-    object-fit: contain;
+    display: block !important;
+    max-width: 100% !important;
+    width: auto !important;          /* Biarkan ukuran menyesuaikan lebar aslinya */
+    height: auto !important;         /* Menjaga tinggi proporsional */
+    max-height: 500px !important;    /* Beri batas aman maksimal tinggi gambar */
+    object-fit: contain !important;  /* Menjamin seluruh gambar muat di dalam layar */
+    margin: 10px auto !important;
+    box-shadow: var(--shadow-sm);
 }
-
 /* Opsi Jawaban (PG & Centang) */
 .quiz-options-wrapper {
     margin-top: 16px;
@@ -1288,11 +1291,13 @@ body:has(#chatPage:not(.hidden)) .copyright {
 }
 
 .quiz-option-img {
-    max-width: 140px;
-    max-height: 120px;
-    border-radius: 6px;
-    border: 1px solid var(--border-color);
-    object-fit: contain;
+    display: block !important;
+    max-width: 100% !important;
+    width: auto !important;
+    height: auto !important;
+    max-height: 180px !important;
+    object-fit: contain !important;
+    margin-top: 6px;
 }
 
 /* Tabel Benar / Salah & Menjodohkan */
