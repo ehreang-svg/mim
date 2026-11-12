@@ -1164,30 +1164,28 @@ overflow: visible !important;
 PERBAIKAN MUTLAK: GAMBAR SOAL UTUH DAN TIDAK TERPOTONG SISI MANAPUN
 ========================================================================== */
 .quiz-media-container {
-margin: 16px 0;
-text-align: center;
-background: #f8fafc;
-padding: 12px;
-border-radius: 8px;
-border: 1px dashed var(--border-color);
-width: 100% !important;
-max-width: 100% !important;
-height: auto !important;
-overflow: visible !important;
-display: block !important;
+  margin: 16px 0;
+  text-align: center;
+  background: #f8fafc;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px dashed var(--border-color);
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  overflow: visible !important;
+  display: block !important;
 }
 
 .quiz-media-img {
-display: inline-block !important;
-max-width: 100% !important;
-width: auto !important;
-
-height: auto !important;
-
-max-height: none !important;     /* Hapus pembatasan tinggi agar gambar tidak terpotong bagian bawahnya /
-object-fit: scale-down !important; / Memastikan gambar menyesuaikan secara utuh */
-margin: 0 auto !important;
-box-shadow: var(--shadow-sm);
+  display: block !important;
+  width: auto !important;
+  max-width: 100% !important;
+  height: auto !important;
+  max-height: none !important;     /* Menghapus batasan tinggi agar gambar tidak terpotong bagian bawahnya */
+  object-fit: contain !important;  /* Memastikan keseluruhan aspek rasio gambar tampil utuh */
+  margin: 0 auto !important;
+  box-shadow: var(--shadow-sm);
 }
 
 .quiz-options-wrapper {
@@ -1278,21 +1276,22 @@ padding-top: 2px;
 }
 
 .quiz-option-img-box {
-margin-top: 8px;
-width: 100% !important;
-overflow: visible !important;
+  margin-top: 8px;
+  width: 100% !important;
+  overflow: visible !important;
+  height: auto !important;
 }
 
 .quiz-option-img {
-display: block !important;
-max-width: 100% !important;
-width: auto !important;
-height: auto !important;
-max-height: none !important;
-object-fit: scale-down !important;
-margin-top: 6px;
-border-radius: 6px;
-border: 1px solid var(--border-color);
+  display: block !important;
+  width: auto !important;
+  max-width: 100% !important;
+  height: auto !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  margin-top: 6px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
 }
 
 .quiz-table-wrapper {
