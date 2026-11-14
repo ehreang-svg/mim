@@ -303,6 +303,16 @@ function catatPelanggaranKeamanan(pesan) {
     window.jumlahPeringatanTab++;
     if (window.jumlahPeringatanTab <= 3) {
         alert(`⚠️ PERINGATAN KEAMANAN (${window.jumlahPeringatanTab}/3)!\n${pesan}`);
+        
+        // ========================================================
+        // OTOMATIS MASUK FULLSCREEN LAGI SETELAH ALERT DITUTUP
+        // ========================================================
+        setTimeout(() => {
+            if (!window.isUjianSelesai && typeof masukFullscreen === "function") {
+                masukFullscreen();
+            }
+        }, 100);
+
     } else {
         alert("⚠️ Anda melanggar aturan keamanan berulang kali. Ujian Anda diserahkan otomatis!");
         koreksi(true);
