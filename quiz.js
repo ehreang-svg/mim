@@ -1,5 +1,5 @@
 /* =========================================================================
-   FITUR UTAMA KUIS: TATAP MUKA (TKA MODERN), TIMER, PROTEKSI, & PENGUNCIAN
+   FITUR UTAMA KUIS: TATAP MUKA (TKA MODERN), TIMER, PROTEKSI, & FULLSCREEN
    ========================================================================= */
 
 // Deklarasi variabel global
@@ -16,6 +16,54 @@ if (typeof window.timerInterval === 'undefined') { window.timerInterval = null; 
 if (typeof window.sisaDetik === 'undefined') { window.sisaDetik = 0; }
 if (typeof window.isUjianSelesai === 'undefined') { window.isUjianSelesai = false; }
 if (typeof window.jumlahPeringatanTab === 'undefined') { window.jumlahPeringatanTab = 0; }
+
+/* =========================================================================
+   KONTROL FULLSCREEN (LAYAR PENUH)
+   ========================================================================= */
+function masukFullscreen() {
+    const elem = document.documentElement;
+    if (elem.requestFullscreen) {
+        elem.requestFullscreen().catch(err => console.warn("Fullscreen ditolak:", err));
+    } else if (elem.webkitRequestFullscreen) { /* Safari */
+        elem.webkitRequestFullscreen();
+    } else if (elem.msRequestFullscreen) { /* IE11 */
+        elem.msRequestFullscreen();
+    }
+}
+
+function keluarFullscreen() {
+    if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
+        if (document.exitFullscreen) {
+            document.exitFullscreen().catch(() => {});
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
+    }
+}
+
+function terapkanGayaFullscreen(aktif) {
+    const areaKuis = document.getElementById("areaKuis");
+    if (!areaKuis) return;
+
+    if (aktif) {
+        areaKuis.style.position = "fixed";
+        areaKuis.style.top = "0";
+        areaKuis.style.left = "0";
+        areaKuis.style.width = "100vw";
+        areaKuis.style.height = "100vh";
+        areaKuis.style.backgroundColor = "#f1f5f9";
+        areaKuis.style.zIndex = "99999";
+        areaKuis.style.overflowY = "auto";
+        areaKuis.style.padding = "20px";
+        areaKuis.style.boxSizing = "border-box";
+        document.body.style.overflow = "hidden";
+    } else {
+        areaKuis.removeAttribute("style");
+        document.body.style.overflow = "";
+    }
+}
 
 // 1. Ambil daftar kelas
 async function loadKelas() {
@@ -139,15 +187,23 @@ async function mulai() {
         return;
     }
 
+    // Aktifkan Fullscreen segera saat tombol diklik (user gesture)
+    masukFullscreen();
+
     document.getElementById("siswa").innerHTML = "<p>Memuat lembar soal TKA...</p>";
 
     try {
         const res = await fetch(window.Quiz_API + `?aksi=loginQuiz&nisn=${encodeURIComponent(passwordNisn)}&pelajaran=${encodeURIComponent(window.mataPelajaranTerpilih)}`, { method: "GET", redirect: "follow" });
         const data = await res.json();
         
-        if (data.error) { alert(data.message || data.error); return; }
+        if (data.error) { 
+            keluarFullscreen();
+            alert(data.message || data.error); 
+            return; 
+        }
 
         if (data.sudahMengerjakan) {
+            keluarFullscreen();
             alert("Anda sudah menyelesaikan ujian mata pelajaran ini!");
             location.reload();
             return;
@@ -165,11 +221,13 @@ async function mulai() {
         let durasiMenit = data.durasiMenit || 60; 
         window.sisaDetik = durasiMenit * 60;
 
+        terapkanGayaFullscreen(true);
         tampilSiswaQuiz();
         mulaiTimerUjian();
         mulaiProteksiKeamanan();
         tampilSoalTKA();
     } catch (err) { 
+        keluarFullscreen();
         alert("Gagal menyambung ke server kuis."); 
     }
 }
@@ -188,9 +246,14 @@ function tampilSiswaQuiz(){
                     </p>
                 </div>
             </div>
-            <div id="boxTimerUjian" class="quiz-timer-badge">
-                <span class="timer-icon">⏱️</span> 
-                <span class="timer-text">Sisa Waktu: <strong id="textTimer">--:--</strong></span>
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <button type="button" id="btnToggleFullscreen" onclick="masukFullscreen()" style="background: #334155; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold;">
+                    ⛶ Layar Penuh
+                </button>
+                <div id="boxTimerUjian" class="quiz-timer-badge">
+                    <span class="timer-icon">⏱️</span> 
+                    <span class="timer-text">Sisa Waktu: <strong id="textTimer">--:--</strong></span>
+                </div>
             </div>
         </div>
     `;
@@ -219,22 +282,37 @@ function mulaiTimerUjian() {
 
 function mulaiProteksiKeamanan() {
     document.addEventListener("visibilitychange", handleVisibilityChange);
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
 }
 
 function handleVisibilityChange() {
     if (document.hidden && !window.isUjianSelesai) {
-        window.jumlahPeringatanTab++;
-        if (window.jumlahPeringatanTab <= 3) {
-            alert(`⚠️ PERINGATAN KEAMANAN (${window.jumlahPeringatanTab}/3)!\nAnda terdeteksi keluar dari halaman ujian!`);
-        } else {
-            alert("⚠️ Anda melanggar aturan keamanan berulang kali. Ujian Anda diserahkan otomatis!");
-            koreksi(true);
-        }
+        catatPelanggaranKeamanan("Anda terdeteksi keluar dari tab/halaman ujian!");
+    }
+}
+
+function handleFullscreenChange() {
+    const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
+    if (!isFullscreen && !window.isUjianSelesai) {
+        catatPelanggaranKeamanan("Anda keluar dari mode Layar Penuh (Fullscreen)!\nKlik tombol '⛶ Layar Penuh' di pojok kanan atas.");
+    }
+}
+
+function catatPelanggaranKeamanan(pesan) {
+    window.jumlahPeringatanTab++;
+    if (window.jumlahPeringatanTab <= 3) {
+        alert(`⚠️ PERINGATAN KEAMANAN (${window.jumlahPeringatanTab}/3)!\n${pesan}`);
+    } else {
+        alert("⚠️ Anda melanggar aturan keamanan berulang kali. Ujian Anda diserahkan otomatis!");
+        koreksi(true);
     }
 }
 
 function hentikanProteksiKeamanan() {
     document.removeEventListener("visibilitychange", handleVisibilityChange);
+    document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    document.removeEventListener("webkitfullscreenchange", handleFullscreenChange);
     if (window.timerInterval) clearInterval(window.timerInterval);
 }
 
@@ -245,14 +323,9 @@ function rapikanTeksSoal(teks) {
     if (!teks) return "";
     let bersih = String(teks).trim();
     
-    // Mengubah berbagai jenis ganti baris (baik literal \n, \r\n, maupun tag HTML <br>) menjadi tag <br>
     bersih = bersih.replace(/\\n/g, '<br>');
     bersih = bersih.replace(/\r?\n/g, '<br>');
-    
-    // Memperbaiki spasi ganda (selain tag HTML atau spasi antar baris)
     bersih = bersih.replace(/[ \t]+/g, ' ');
-    
-    // Memberikan spasi yang benar setelah tanda baca titik, koma, tanya, atau seru jika tertempel dengan huruf/kata berikutnya
     bersih = bersih.replace(/([.,?!])([^\s\d<])/g, '$1 $2');
 
     return bersih;
@@ -289,7 +362,6 @@ function tampilSoalTKA() {
     };
     let labelJenis = jenisBadgeMap[jenisSoal] || jenisSoal;
 
-    // Render Gambar Soal Utama dengan Inline Style Mutlak agar Tidak Terpotong
     let gambarHtml = "";
     if (s.gambar && s.gambar.trim() !== "") {
         gambarHtml = `
@@ -619,7 +691,7 @@ function cetakHasilLatihan() {
                 .cardHasil { text-align: center; padding: 15px; border: 1px solid #ccc; border-radius: 8px; margin-top: 20px; background: #f9f9f9; }
                 .score-big { font-size: 28px; font-weight: bold; }
                 .badge-status { font-size: 14px; font-weight: bold; margin-top: 5px; }
-                #boxTimerUjian, button, .tka-nav-box { display: none !important; }
+                #boxTimerUjian, #btnToggleFullscreen, button, .tka-nav-box { display: none !important; }
             </style>
         </head>
         <body>
@@ -667,9 +739,14 @@ async function koreksi(isOtomatis = false) {
 
     window.isUjianSelesai = true;
     hentikanProteksiKeamanan();
+    terapkanGayaFullscreen(false);
+    keluarFullscreen();
 
     let boxTimer = document.getElementById("boxTimerUjian");
     if(boxTimer) boxTimer.style.display = "none";
+
+    let btnFs = document.getElementById("btnToggleFullscreen");
+    if(btnFs) btnFs.style.display = "none";
 
     let totalSkorDiperoleh = 0;
     let totalSkorMaksimal = 0;
@@ -932,6 +1009,7 @@ window.simpanJawabanJodoh = simpanJawabanJodoh;
 window.simpanJawabanIsian = simpanJawabanIsian;
 window.toggleRagu = toggleRagu;
 window.koreksi = koreksi;
+window.masukFullscreen = masukFullscreen;
 
 function cetakRekapNilai() {
     const kelasPilihan = document.getElementById("filterDaftarKelas").value;
