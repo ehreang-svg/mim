@@ -245,14 +245,15 @@ function rapikanTeksSoal(teks) {
     if (!teks) return "";
     let bersih = String(teks).trim();
     
-    // Memperbaiki spasi ganda
-    bersih = bersih.replace(/\s+/g, ' ');
-    
-    // Memberikan spasi yang benar setelah tanda baca titik, koma, tanya, atau seru jika tertempel
-    bersih = bersih.replace(/([.,?!])([^\s\d])/g, '$1 $2');
-    
-    // Merapikan format baris baru (jika ada string \n)
+    // Mengubah berbagai jenis ganti baris (baik literal \n, \r\n, maupun tag HTML <br>) menjadi tag <br>
     bersih = bersih.replace(/\\n/g, '<br>');
+    bersih = bersih.replace(/\r?\n/g, '<br>');
+    
+    // Memperbaiki spasi ganda (selain tag HTML atau spasi antar baris)
+    bersih = bersih.replace(/[ \t]+/g, ' ');
+    
+    // Memberikan spasi yang benar setelah tanda baca titik, koma, tanya, atau seru jika tertempel dengan huruf/kata berikutnya
+    bersih = bersih.replace(/([.,?!])([^\s\d<])/g, '$1 $2');
 
     return bersih;
 }
