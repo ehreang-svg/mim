@@ -239,6 +239,25 @@ function hentikanProteksiKeamanan() {
 }
 
 /* =========================================================================
+   FUNGSI BANTUAN: MERAPIKAN FORMAT TEKS SOAL
+   ========================================================================= */
+function rapikanTeksSoal(teks) {
+    if (!teks) return "";
+    let bersih = String(teks).trim();
+    
+    // Memperbaiki spasi ganda
+    bersih = bersih.replace(/\s+/g, ' ');
+    
+    // Memberikan spasi yang benar setelah tanda baca titik, koma, tanya, atau seru jika tertempel
+    bersih = bersih.replace(/([.,?!])([^\s\d])/g, '$1 $2');
+    
+    // Merapikan format baris baru (jika ada string \n)
+    bersih = bersih.replace(/\\n/g, '<br>');
+
+    return bersih;
+}
+
+/* =========================================================================
    RENDER TATAP MUKA SISWA (SOAL & TIPE SOAL TKA)
    ========================================================================= */
 function tampilSoalTKA() {
@@ -293,12 +312,13 @@ function tampilSoalTKA() {
                     <div class="quiz-option-img-box" style="overflow: visible !important; height: auto !important;">
                         <img src="${s['gambar' + huruf]}" class="quiz-option-img" style="display: block !important; width: 100% !important; max-width: 100% !important; height: auto !important; max-height: none !important; object-fit: contain !important; margin-top: 6px;">
                     </div>` : "";
+                let teksOpsiRapi = rapikanTeksSoal(s[huruf] || '');
                 inputHtml += `
                 <label class="quiz-option-card ${checked ? 'active' : ''}">
                     <input type="radio" name="qTKA" value="${huruf}" ${checked} onchange="simpanJawabanPG('${huruf}')">
                     <span class="quiz-option-bullet">${huruf}</span>
                     <div class="quiz-option-content">
-                        <span>${s[huruf] || ''}</span>
+                        <span>${teksOpsiRapi}</span>
                         ${imgOpsiHtml}
                     </div>
                 </label>`;
@@ -325,13 +345,14 @@ function tampilSoalTKA() {
                     <div class="quiz-option-img-box" style="overflow: visible !important; height: auto !important;">
                         <img src="${s['gambar' + huruf]}" class="quiz-option-img" style="display: block !important; width: 100% !important; max-width: 100% !important; height: auto !important; max-height: none !important; object-fit: contain !important; margin-top: 6px;">
                     </div>` : "";
+                let teksOpsiRapi = rapikanTeksSoal(s[huruf] || '');
                 
                 inputHtml += `
                 <label class="quiz-option-card checkbox-card ${checked ? 'active-checkbox' : ''}">
                     <input type="checkbox" value="${huruf}" ${checked} onchange="simpanJawabanPGKCentang('${huruf}', this.checked)">
                     <span class="quiz-option-bullet">${huruf}</span>
                     <div class="quiz-option-content">
-                        <span>${s[huruf] || ''}</span>
+                        <span>${teksOpsiRapi}</span>
                         ${imgOpsiHtml}
                     </div>
                 </label>`;
@@ -362,9 +383,10 @@ function tampilSoalTKA() {
         
         pernyataanList.forEach((p, pIdx) => {
             let val = objJaw[pIdx] || "";
+            let pernyataanRapi = rapikanTeksSoal(p);
             inputHtml += `
                 <tr>
-                    <td class="quiz-table-statement">${p}</td>
+                    <td class="quiz-table-statement">${pernyataanRapi}</td>
                     <td class="text-center">
                         <label class="quiz-table-radio">
                             <input type="radio" name="bs_${pIdx}" value="B" ${val === 'B' ? 'checked' : ''} onchange="simpanJawabanBS(${pIdx}, 'B')">
@@ -406,12 +428,14 @@ function tampilSoalTKA() {
             let val = objJaw[kIdx] || "";
             let selectOptions = `<option value="">-- Pilih Pasangan --</option>`;
             kananList.forEach((rItem, rIdx) => {
-                selectOptions += `<option value="${rIdx}" ${String(val) === String(rIdx) ? 'selected' : ''}>${rItem}</option>`;
+                let rItemRapi = rapikanTeksSoal(rItem);
+                selectOptions += `<option value="${rIdx}" ${String(val) === String(rIdx) ? 'selected' : ''}>${rItemRapi}</option>`;
             });
 
+            let kItemRapi = rapikanTeksSoal(kItem);
             inputHtml += `
                 <tr>
-                    <td class="quiz-table-statement"><strong>${kIdx + 1}.</strong> ${kItem}</td>
+                    <td class="quiz-table-statement"><strong>${kIdx + 1}.</strong> ${kItemRapi}</td>
                     <td>
                         <select class="quiz-select-match" onchange="simpanJawabanJodoh(${kIdx}, this.value)">
                             ${selectOptions}
@@ -452,6 +476,7 @@ function tampilSoalTKA() {
     }).join("");
 
     let isRagu = window.statusRagu[idx] ? "checked" : "";
+    let teksSoalRapi = rapikanTeksSoal(s.soal);
 
     let containerHtml = `
         <div class="quiz-main-grid">
@@ -464,7 +489,7 @@ function tampilSoalTKA() {
                 </div>
                 
                 <div class="quiz-question-body" style="overflow: visible !important;">
-                    ${s.soal}
+                    ${teksSoalRapi}
                 </div>
                 
                 ${gambarHtml}
@@ -690,11 +715,13 @@ async function koreksi(isOtomatis = false) {
     let rekapSoalSelesaiHtml = window.dataSoal.map((s, index) => {
         let jUser = window.jawabanSiswa[index];
         let teksUser = JSON.stringify(jUser) || "-";
+        let soalRapiRekap = rapikanTeksSoal(s.soal);
+        let penjelasanRapi = rapikanTeksSoal(s.penjelasan || '-');
         return `
             <div style="margin-bottom: 15px; padding: 12px; border: 1px solid #ddd; border-radius: 6px; background: #fff;">
-                <b>${index + 1}. ${s.soal}</b>
+                <b>${index + 1}. ${soalRapiRekap}</b>
                 <p style="margin: 5px 0 0 0; font-size: 13px; color: #333;">Jawaban Anda: <b>${teksUser}</b> | Kunci: <span style="color: green; font-weight: bold;">${JSON.stringify(s.jawaban)}</span></p>
-                <div style="font-size: 12px; color: #555; margin-top: 4px;">💡 <b>Pembahasan:</b> ${s.penjelasan || '-'}</div>
+                <div style="font-size: 12px; color: #555; margin-top: 4px;">💡 <b>Pembahasan:</b> ${penjelasanRapi}</div>
             </div>
         `;
     }).join("");
