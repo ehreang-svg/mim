@@ -301,18 +301,18 @@ function handleFullscreenChange() {
 
 function catatPelanggaranKeamanan(pesan) {
     window.jumlahPeringatanTab++;
+    
     if (window.jumlahPeringatanTab <= 3) {
-        alert(`⚠️ PERINGATAN KEAMANAN (${window.jumlahPeringatanTab}/3)!\n${pesan}`);
+        // Hentikan sementara timer atau tampilkan pemberitahuan interaktif
+        let konfirmasi = confirm(`⚠️ PERINGATAN KEAMANAN (${window.jumlahPeringatanTab}/3)!\n${pesan}\n\nKlik OK untuk kembali ke Layar Penuh.`);
         
-        // ========================================================
-        // OTOMATIS MASUK FULLSCREEN LAGI SETELAH ALERT DITUTUP
-        // ========================================================
-        setTimeout(() => {
-            if (!window.isUjianSelesai && typeof masukFullscreen === "function") {
+        if (konfirmasi) {
+            // Karena dipicu langsung oleh klik/sentuhan user pada tombol OK confirm, 
+            // browser akan mengizinkan masuk fullscreen secara mulus!
+            if (typeof masukFullscreen === "function") {
                 masukFullscreen();
             }
-        }, 100);
-
+        }
     } else {
         alert("⚠️ Anda melanggar aturan keamanan berulang kali. Ujian Anda diserahkan otomatis!");
         koreksi(true);
